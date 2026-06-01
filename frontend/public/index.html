@@ -1995,6 +1995,35 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
     }
   }
 
+  /* VIDEO STATE DETECTION — En tiempo real monitorea play, pause, ended */
+  window.__vtcVideoState={currentVideo:null,isPlaying:false,isPaused:false,isEnded:false,progress:0};
+  function vtcSetupVideoDetection(){
+    document.querySelectorAll('video').forEach(function(vid,idx){
+      vid.addEventListener('play',function(){
+        window.__vtcVideoState.currentVideo=idx;
+        window.__vtcVideoState.isPlaying=true;
+        window.__vtcVideoState.isPaused=false;
+        window.__vtcVideoState.isEnded=false;
+        try{if(conv&&conv.sendUserActivity) conv.sendUserActivity();}catch(e){}
+      });
+      vid.addEventListener('pause',function(){
+        window.__vtcVideoState.isPlaying=false;
+        window.__vtcVideoState.isPaused=true;
+        window.__vtcVideoState.isEnded=false;
+      });
+      vid.addEventListener('ended',function(){
+        window.__vtcVideoState.isPlaying=false;
+        window.__vtcVideoState.isPaused=false;
+        window.__vtcVideoState.isEnded=true;
+      });
+      vid.addEventListener('timeupdate',function(){
+        var dur=vid.duration||1;
+        window.__vtcVideoState.progress=Math.round((vid.currentTime/dur)*100);
+      });
+    });
+  }
+  try{vtcSetupVideoDetection();}catch(e){}
+
   const clientTools={
     ir_a_modulo: async(p)=>{ try{ var id=vtcId(p); if(id==='__top'){ try{window.__vtcDrive=Date.now();}catch(e){} window.scrollTo({top:0,behavior:'instant'}); return 'En el inicio del curso'; } var r=vtcResolve(p); if(r.scroll){ r.scroll.scrollIntoView({behavior:'instant',block:'start'}); vtcHL(r.scroll); return 'Navegado y resaltado'; } return 'modulo no encontrado'; }catch(e){return 'error';} },
     reproducir_video: async(p)=>{ try{
@@ -2117,6 +2146,8 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       }catch(e){ return 'error: '+String(e); } },
 
     minimizar_chat: async()=>{ try{ var pn=document.getElementById('vw-panel'); var lc=document.getElementById('vw-launch'); if(pn) pn.classList.remove('vw-open'); if(lc) lc.style.display='flex'; try{window.__vtcDrive=Date.now();}catch(e){} return 'Chat minimizado (la sesion sigue activa). El usuario ya ve toda la pantalla. Sigue hablando con normalidad; cuando quiera escribir o ver el chat tocara el boton flotante.'; }catch(e){ return 'error'; } },
+
+    verificar_video: async()=>{ try{ var st=window.__vtcVideoState||{isPlaying:false,isPaused:false,isEnded:false,progress:0}; var state=''; if(st.isPlaying) state='VIDEO REPRODUCIENDO (play) - '+st.progress+'% completado'; else if(st.isPaused) state='VIDEO PAUSADO (pause)'; else if(st.isEnded) state='VIDEO TERMINADO (ended)'; else state='VIDEO DETENIDO o sin reproducir (ready)'; return state; }catch(e){ return 'error'; } },
 
     iniciarCursoCompleto: async()=>{ try{
       window.scrollTo({top:0,behavior:'instant'});
