@@ -29,7 +29,10 @@ class VTCScrollVoiceSync {
 
     this.initializeObservers();
     this.initializeScrollBehavior();
+    this.initializeIntentDetection();
     this.listenForVictorCommands();
+
+    console.log('✅ VTC Scroll + Voice Sync System initialized');
   }
 
   /**
@@ -85,59 +88,193 @@ class VTCScrollVoiceSync {
   }
 
   /**
-   * SECTION 3: COURSE INITIALIZATION
-   * Full course flow: Hero → Syllabus → Welcome Video → Modules
+   * SECTION 3: INTENT MAPPING & COURSE INITIALIZATION
+   * Detects natural language triggers and executes structured course initialization
    */
-  async startFullCourse() {
-    console.log('🎬 Starting Full Course Flow...');
+  initializeIntentDetection() {
+    // Intent triggers (case-insensitive, flexible whitespace)
+    const courseInitTriggers = [
+      /iniciar\s+el\s+curso\s+de\s+capacitación/i,
+      /empezar\s+con\s+el\s+curso/i,
+      /ver\s+el\s+curso\s+completo/i,
+      /empezar\s+training/i,
+      /comienza\s+el\s+curso/i,
+      /quiero\s+el\s+curso\s+completo/i,
+      /start.*course/i,
+      /begin.*training/i,
+      /full.*course/i,
+      /comenzar\s+ahora/i
+    ];
+
+    // Listen for Victor command events with intent parsing
+    window.addEventListener('victor-intent', (e) => {
+      const userInput = e.detail.input.toLowerCase().trim();
+
+      for (const trigger of courseInitTriggers) {
+        if (trigger.test(userInput)) {
+          console.log(`✅ Intent detected: ${userInput}`);
+          this.startFullCourse();
+          return;
+        }
+      }
+    });
+
+    console.log('✅ Intent detection initialized');
+  }
+
+  /**
+   * SECTION 3A: PHASE A — HERO SECTION FOCUS & READING
+   * Reads H1 and all secondary content in Hero block
+   */
+  async executeHeroPhase() {
+    console.log('\n📍 PHASE A: Hero Section Focus & Reading');
 
     try {
-      // Step 1: Position at Hero
+      // Position at Hero
       await this.scrollToSection('#hero');
       await this.delay(500);
-      console.log('✅ Step 1: Hero section positioned');
+      console.log('✅ Hero section positioned');
 
-      // Trigger Victor to read hero
+      // Extract Hero content (H1 + subtitles)
+      const heroH1 = document.querySelector('#hero h1');
+      const heroSubtitle = document.querySelector('#hero .subtitle, #hero h2, #hero .hero-subtitle');
+      const heroDescription = document.querySelector('#hero .hero-description, #hero p');
+
+      let heroContent = '';
+      if (heroH1) {
+        heroContent += heroH1.innerText + '\n\n';
+        console.log(`📝 H1 found: ${heroH1.innerText}`);
+      }
+      if (heroSubtitle) {
+        heroContent += heroSubtitle.innerText + '\n\n';
+        console.log(`📝 Subtitle found: ${heroSubtitle.innerText}`);
+      }
+      if (heroDescription) {
+        heroContent += heroDescription.innerText;
+        console.log(`📝 Description found: ${heroDescription.innerText}`);
+      }
+
+      // Trigger Victor to read all Hero content
       this.triggerVictorAction('read', {
         section: 'hero',
-        text: this.getHeroText()
+        text: heroContent.trim(),
+        type: 'hero-introduction'
       });
 
-      // Wait for Victor to finish hero
+      // Wait for Victor to complete Hero reading
       await this.waitForVictorCompletion();
+      console.log('✅ PHASE A Complete: Hero content read');
 
-      // Step 2: Skip Syllabus (no reading)
+    } catch (error) {
+      console.error('❌ Hero phase error:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * SECTION 3B: PHASE B — VIDEO REDIRECTION & ENGAGEMENT
+   * Smoothly transitions to welcome video and prepares for playback
+   */
+  async executeVideoRedirectPhase() {
+    console.log('\n📍 PHASE B: Video Redirection & Engagement');
+
+    try {
+      // Step 1: Skip Syllabus (no reading)
       await this.scrollToSection('#index-section');
       await this.delay(300);
-      console.log('✅ Step 2: Syllabus section skipped (no reading)');
+      console.log('✅ Syllabus skipped (no reading)');
 
-      // Step 3: Target Welcome Video
+      // Step 2: Scroll to Welcome Video container
       await this.scrollToSection('#welcome-video');
       await this.delay(500);
-      console.log('✅ Step 3: Welcome video container positioned');
+      console.log('✅ Welcome video container positioned');
 
-      // Video Protocol
+      // Step 3: Victor prompts user to play video
       this.triggerVictorAction('prompt', {
-        message: 'We are about to watch a video. Please press Play.'
+        message: 'Here comes a welcome video. Press Play when ready.',
+        type: 'video-prompt'
       });
 
-      // Pause Victor while video plays
+      // Step 4: Pause Victor system during video
       this.pauseVictorSystem();
-      console.log('⏸️  Victor system paused for video');
+      console.log('⏸️  Victor system paused for video playback');
 
-      // Wait for video to end
+      // Step 5: Wait for video to end (CRITICAL: use onEnded hook)
       await this.waitForVideoEnd('#welcome-video video');
-      console.log('✅ Video ended');
+      console.log('✅ Welcome video completed');
 
-      // Reactivate voice system and proceed to modules
+      console.log('✅ PHASE B Complete: Video transition handled');
+
+    } catch (error) {
+      console.error('❌ Video phase error:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * SECTION 3C: PHASE C — POST-VIDEO CALLBACK & CONTENT READING
+   * After video ends, automatically read text blocks below the video
+   */
+  async executePostVideoPhase() {
+    console.log('\n📍 PHASE C: Post-Video Callback & Content Reading');
+
+    try {
+      // Step 1: Reactivate Victor system
       this.resumeVictorSystem();
       console.log('▶️  Victor system resumed');
 
-      // Begin Module 0
-      await this.startModule('module-0');
+      // Step 2: Auto-detect content blocks BELOW the welcome video
+      const welcomeVideoSection = document.querySelector('#welcome-video');
+      const contentBlocksAfterVideo = welcomeVideoSection
+        ? welcomeVideoSection.querySelectorAll('.content-block')
+        : [];
+
+      if (contentBlocksAfterVideo.length > 0) {
+        console.log(`📖 Found ${contentBlocksAfterVideo.length} content blocks after video`);
+
+        // Read each content block sequentially
+        for (let i = 0; i < contentBlocksAfterVideo.length; i++) {
+          await this.readAndHighlightParagraph(contentBlocksAfterVideo[i]);
+        }
+
+        console.log('✅ All post-video content read');
+      }
+
+      console.log('✅ PHASE C Complete: Post-video content processed');
 
     } catch (error) {
-      console.error('❌ Course flow error:', error);
+      console.error('❌ Post-video phase error:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * SECTION 3D: FULL COURSE ORCHESTRATION
+   * Sequential execution: Phase A → Phase B → Phase C → Modules
+   */
+  async startFullCourse() {
+    console.log('\n🎬 ===== STARTING FULL COURSE FLOW =====\n');
+
+    try {
+      // PHASE A: Hero Section
+      await this.executeHeroPhase();
+
+      // PHASE B: Video Redirection
+      await this.executeVideoRedirectPhase();
+
+      // PHASE C: Post-Video Content
+      await this.executePostVideoPhase();
+
+      // FINAL: Begin Module F (Fundamentos)
+      console.log('\n📚 Proceeding to Module F (Fundamentos)...');
+      await this.startModule('module-f');
+
+    } catch (error) {
+      console.error('❌ Full course flow failed:', error);
+      this.triggerVictorAction('error', {
+        message: 'There was an issue with the course flow. Please try again.',
+        error: error.message
+      });
     }
   }
 
@@ -428,14 +565,50 @@ class VTCScrollVoiceSync {
     return '';
   }
 
-  waitForVideoEnd(videoSelector) {
-    return new Promise((resolve) => {
+  /**
+   * ROBUST VIDEO END DETECTION
+   * Handles race conditions and edge cases (already-ended videos, missing videos, etc.)
+   */
+  waitForVideoEnd(videoSelector, timeoutMs = 300000) {
+    return new Promise((resolve, reject) => {
       const video = document.querySelector(videoSelector);
-      if (video) {
-        video.addEventListener('ended', resolve, { once: true });
-      } else {
-        resolve(); // No video found, continue anyway
+
+      if (!video) {
+        console.warn(`⚠️  No video found at ${videoSelector}, skipping wait`);
+        resolve(); // Graceful fallback: continue if no video
+        return;
       }
+
+      // Check if video is already ended (race condition prevention)
+      if (video.ended) {
+        console.log('✅ Video already ended, continuing immediately');
+        resolve();
+        return;
+      }
+
+      // Set up timeout to prevent infinite waiting
+      const timeoutHandle = setTimeout(() => {
+        console.warn(`⚠️  Video wait timeout after ${timeoutMs}ms, continuing anyway`);
+        resolve();
+      }, timeoutMs);
+
+      // Attach 'ended' event listener (only fires once)
+      const handleVideoEnd = () => {
+        clearTimeout(timeoutHandle);
+        console.log('✅ Video ended event detected');
+        video.removeEventListener('ended', handleVideoEnd);
+        resolve();
+      };
+
+      video.addEventListener('ended', handleVideoEnd, { once: true });
+
+      // Also listen for 'play' to confirm video started
+      const handleVideoPlay = () => {
+        console.log('▶️  Video playback started');
+        video.removeEventListener('play', handleVideoPlay);
+      };
+
+      video.addEventListener('play', handleVideoPlay, { once: true });
     });
   }
 
