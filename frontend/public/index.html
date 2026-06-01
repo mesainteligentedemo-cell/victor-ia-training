@@ -2125,22 +2125,18 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
     }catch(e){ return 'error: '+String(e); } },
 
     scrollAlSiguienteBloque: async()=>{ try{
-      await new Promise(function(r){setTimeout(r,300);});
-      var scrollPos=window.scrollY||window.pageYOffset;
-      var all=Array.from(document.querySelectorAll('section, .module-section, .content-block, [id^="modulo-"], h2, .block-title'));
-      var visible=all.filter(function(el){
-        var t=el.getBoundingClientRect().top;
-        return t>100 && t<window.innerHeight;
+      await new Promise(function(r){setTimeout(r,200);});
+      var all=Array.from(document.querySelectorAll('section, .module-section, .content-block, [id^="modulo-"], [id^="bienvenida"], video, .quiz'));
+      var currentScroll=window.scrollY||window.pageYOffset;
+      var next=all.find(function(el){
+        var rect=el.getBoundingClientRect();
+        return rect.top>window.innerHeight*0.5;
       });
-      var nextIdx=visible.length>0?all.indexOf(visible[visible.length-1])+1:0;
-      var next=nextIdx<all.length?all[nextIdx]:null;
       if(next){
-        window.scrollBy({top:window.innerHeight*0.6, behavior:'smooth'});
-        await new Promise(function(r){setTimeout(r,900);});
-        next.scrollIntoView({behavior:'smooth',block:'start'});
-        await new Promise(function(r){setTimeout(r,800);});
+        next.scrollIntoView({behavior:'smooth', block:'center'});
+        await new Promise(function(r){setTimeout(r,1200);});
       }
-      return 'Scroll DOWN completado. Contenido visible y listo para leer.';
+      return 'Scroll DOWN suave completado';
     }catch(e){ return 'error: '+String(e); } }
   };
 
