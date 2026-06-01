@@ -172,38 +172,78 @@ class VTCScrollVoiceSync {
   }
 
   /**
-   * SECTION 3B: PHASE B — VIDEO REDIRECTION & ENGAGEMENT
-   * Smoothly transitions to welcome video and prepares for playback
+   * SECTION 3B: PHASE B — MODULE F READING
+   * Read Module F (Fundamentos) content WITHOUT scrolling away from Hero
+   * PANTALLA FIJA: Stay on same screen
    */
   async executeVideoRedirectPhase() {
-    console.log('\n📍 PHASE B: Video Redirection & Engagement');
+    console.log('\n📍 PHASE B: Module F (Fundamentos) Reading');
 
     try {
-      // Step 1: Skip Syllabus (no reading)
-      await this.scrollToSection('#index-section');
-      await this.delay(300);
-      console.log('✅ Syllabus skipped (no reading)');
+      // NOTE: DO NOT SCROLL ANYWHERE
+      // Extract Module F content from DOM while staying on current screen
+      const moduleFSection = document.querySelector('[data-module-id="module-f"]');
 
-      // Step 2: Scroll to Welcome Video container
-      await this.scrollToSection('#welcome-video');
-      await this.delay(500);
-      console.log('✅ Welcome video container positioned');
+      if (moduleFSection) {
+        const contentBlocks = moduleFSection.querySelectorAll('.content-block');
+        console.log(`📖 Found ${contentBlocks.length} content blocks in Module F`);
 
-      // Step 3: Victor prompts user to play video
+        // Read each content block WITHOUT NAVIGATING
+        for (let i = 0; i < contentBlocks.length; i++) {
+          const blockText = contentBlocks[i].innerText;
+          if (blockText.trim()) {
+            // Trigger Victor to read WITHOUT scrolling
+            this.triggerVictorAction('read', {
+              section: `module-f-block-${i}`,
+              text: blockText.trim(),
+              type: 'module-content',
+              noScroll: true // Important: do not scroll
+            });
+
+            await this.waitForVictorCompletion();
+          }
+        }
+
+        console.log('✅ Module F content read (stayed on same screen)');
+      }
+
+      console.log('✅ PHASE B Complete: Module F read without navigation');
+
+    } catch (error) {
+      console.error('❌ Module F phase error:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * SECTION 3C: PHASE C — WELCOME VIDEO NOTIFICATION
+   * Inform about welcome video WITHOUT leaving current screen
+   * PANTALLA FIJA: Stay on same screen
+   */
+  async executePostVideoPhase() {
+    console.log('\n📍 PHASE C: Welcome Video Notification');
+
+    try {
+      // Victor announces video is available WITHOUT navigating to it
       this.triggerVictorAction('prompt', {
-        message: 'Here comes a welcome video. Press Play when ready.',
-        type: 'video-prompt'
+        message: 'The welcome video is ready. You can press Play when you want.',
+        type: 'video-available',
+        noScroll: true // Do not scroll to video
       });
 
-      // Step 4: Pause Victor system during video
+      // Pause Victor for video (but don't navigate to it)
       this.pauseVictorSystem();
-      console.log('⏸️  Victor system paused for video playback');
+      console.log('⏸️  Victor paused (video available for playback)');
 
-      // Step 5: Wait for video to end (CRITICAL: use onEnded hook)
+      // Wait for video to end in background (without scrolling)
       await this.waitForVideoEnd('#welcome-video video');
       console.log('✅ Welcome video completed');
 
-      console.log('✅ PHASE B Complete: Video transition handled');
+      // Resume Victor
+      this.resumeVictorSystem();
+      console.log('▶️  Victor resumed');
+
+      console.log('✅ PHASE C Complete: Video handled (stayed on same screen)');
 
     } catch (error) {
       console.error('❌ Video phase error:', error);
@@ -212,62 +252,33 @@ class VTCScrollVoiceSync {
   }
 
   /**
-   * SECTION 3C: PHASE C — POST-VIDEO CALLBACK & CONTENT READING
-   * After video ends, automatically read text blocks below the video
-   */
-  async executePostVideoPhase() {
-    console.log('\n📍 PHASE C: Post-Video Callback & Content Reading');
-
-    try {
-      // Step 1: Reactivate Victor system
-      this.resumeVictorSystem();
-      console.log('▶️  Victor system resumed');
-
-      // Step 2: Auto-detect content blocks BELOW the welcome video
-      const welcomeVideoSection = document.querySelector('#welcome-video');
-      const contentBlocksAfterVideo = welcomeVideoSection
-        ? welcomeVideoSection.querySelectorAll('.content-block')
-        : [];
-
-      if (contentBlocksAfterVideo.length > 0) {
-        console.log(`📖 Found ${contentBlocksAfterVideo.length} content blocks after video`);
-
-        // Read each content block sequentially
-        for (let i = 0; i < contentBlocksAfterVideo.length; i++) {
-          await this.readAndHighlightParagraph(contentBlocksAfterVideo[i]);
-        }
-
-        console.log('✅ All post-video content read');
-      }
-
-      console.log('✅ PHASE C Complete: Post-video content processed');
-
-    } catch (error) {
-      console.error('❌ Post-video phase error:', error);
-      throw error;
-    }
-  }
-
-  /**
    * SECTION 3D: FULL COURSE ORCHESTRATION
-   * Sequential execution: Phase A → Phase B → Phase C → Modules
+   * PANTALLA FIJA (Screen Lock): Never navigate away from Hero/Bienvenida
+   * Sequential execution: Phase A → Phase B → Phase C (all on same screen)
    */
   async startFullCourse() {
     console.log('\n🎬 ===== STARTING FULL COURSE FLOW =====\n');
+    console.log('🔒 PANTALLA FIJA: Will NOT navigate away from initial screen\n');
 
     try {
-      // PHASE A: Hero Section
+      // PHASE A: Hero Section (scroll here once, then lock)
       await this.executeHeroPhase();
+      console.log('🔒 Screen locked on Hero/Bienvenida - NO MORE NAVIGATION');
 
-      // PHASE B: Video Redirection
+      // PHASE B: Module F content (read WITHOUT scrolling away)
       await this.executeVideoRedirectPhase();
 
-      // PHASE C: Post-Video Content
+      // PHASE C: Welcome video (available but NO navigation)
       await this.executePostVideoPhase();
 
-      // FINAL: Begin Module F (Fundamentos)
-      console.log('\n📚 Proceeding to Module F (Fundamentos)...');
-      await this.startModule('module-f');
+      // FINAL: Course reading complete (stay on same screen)
+      console.log('\n✅ FULL COURSE COMPLETE');
+      console.log('🔒 Remained on same screen throughout entire course');
+
+      this.triggerVictorAction('completion', {
+        message: 'You have completed the full VTC training course.',
+        type: 'course-complete'
+      });
 
     } catch (error) {
       console.error('❌ Full course flow failed:', error);
