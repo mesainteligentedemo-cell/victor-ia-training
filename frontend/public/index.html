@@ -81,8 +81,10 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(7,7,8,.95);b
 
 /* LESSON VIDEO */
 .lesson-video{margin:0 0 1.25rem;}
-.lesson-video video{width:100%;display:block;border:1px solid var(--faint);border-radius:6px;background:#000;aspect-ratio:16/9;}
+.lesson-video video{width:100%;display:block;border:1px solid var(--faint);border-radius:6px;background:#000;aspect-ratio:16/9;object-fit:cover;background-size:cover;background-position:center;}
 .lesson-video.feature video{border-color:rgba(184,154,106,.45);}
+/* Asegurar que la portada siempre sea visible */
+.lesson-video video::backdrop{background:transparent;}
 .lesson-cap{font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold3);margin-top:.5rem;}
 
 
