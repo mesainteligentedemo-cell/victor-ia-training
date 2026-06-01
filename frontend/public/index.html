@@ -1994,12 +1994,12 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
   }
 
   const clientTools={
-    ir_a_modulo: async(p)=>{ try{ var id=vtcId(p); if(id==='__top'){ try{window.__vtcDrive=Date.now();}catch(e){} window.scrollTo({top:0,behavior:'smooth'}); return 'En el inicio del curso'; } var r=vtcResolve(p); if(r.scroll){ r.scroll.scrollIntoView({behavior:'instant',block:'start'}); vtcHL(r.scroll); return 'Navegado y resaltado'; } return 'modulo no encontrado'; }catch(e){return 'error';} },
+    ir_a_modulo: async(p)=>{ try{ var id=vtcId(p); if(id==='__top'){ try{window.__vtcDrive=Date.now();}catch(e){} window.scrollTo({top:0,behavior:'instant'}); return 'En el inicio del curso'; } var r=vtcResolve(p); if(r.scroll){ r.scroll.scrollIntoView({behavior:'instant',block:'start'}); vtcHL(r.scroll); return 'Navegado y resaltado'; } return 'modulo no encontrado'; }catch(e){return 'error';} },
     reproducir_video: async(p)=>{ try{
-        await new Promise(function(r){setTimeout(r,150);});
-        await new Promise(function(r){var n=0,iv=setInterval(function(){n++; if(!window.__vtcSpeaking||n>45){clearInterval(iv);r();}},300);});
+        await new Promise(function(r){setTimeout(r,100);});
+        await new Promise(function(r){var n=0,iv=setInterval(function(){n++; if(!window.__vtcSpeaking||n>45){clearInterval(iv);r();}},250);});
         var r=vtcResolve(p); if(!r.scroll) return 'modulo no encontrado';
-        r.scroll.scrollIntoView({behavior:'smooth',block:'start'}); vtcHL(r.scroll);
+        r.scroll.scrollIntoView({behavior:'instant',block:'start'}); vtcHL(r.scroll);
         var v=r.video; if(!v) return 'ese modulo no tiene video; continua con la explicacion';
 
         /* Arrancar keepalive para que el silencio del usuario viendo el video no dispare turno */
@@ -2022,7 +2022,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
         highlightCurrentBlock(id, idx);
         var sec=document.getElementById(id);
         var blocks=sec?sec.querySelectorAll('.content-block'):[];
-        if(idx>=0&&idx<blocks.length) blocks[idx].scrollIntoView({behavior:'smooth',block:'center'});
+        if(idx>=0&&idx<blocks.length) blocks[idx].scrollIntoView({behavior:'instant',block:'center'});
         return 'Párrafo marcado y visible';
       }catch(e){ return 'error al marcar'; } },
     ir_al_quiz: async(p)=>{ try{
@@ -2106,7 +2106,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
 
         /* 2) Marco dorado (solo animacion visual, no de scroll) */
         el.classList.add('vtc-mark');
-        el.scrollIntoView({block:'nearest'}); /* asegura que no quede tapado por nada */
+        el.scrollIntoView({behavior:'instant',block:'nearest'}); /* asegura que no quede tapado por nada */
 
         vtcMobMin();
 
@@ -2117,24 +2117,34 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
     minimizar_chat: async()=>{ try{ var pn=document.getElementById('vw-panel'); var lc=document.getElementById('vw-launch'); if(pn) pn.classList.remove('vw-open'); if(lc) lc.style.display='flex'; try{window.__vtcDrive=Date.now();}catch(e){} return 'Chat minimizado (la sesion sigue activa). El usuario ya ve toda la pantalla. Sigue hablando con normalidad; cuando quiera escribir o ver el chat tocara el boton flotante.'; }catch(e){ return 'error'; } },
 
     iniciarCursoCompleto: async()=>{ try{
-      window.scrollTo({top:0,behavior:'smooth'});
-      await new Promise(function(r){setTimeout(r,800);});
+      window.scrollTo({top:0,behavior:'instant'});
+      await new Promise(function(r){setTimeout(r,150);});
       var hero=document.querySelector('.hero');
       var heroText=hero?(hero.innerText||hero.textContent).trim():'';
       return 'HERO SECTION CONTENT:\n'+heroText+'\n\n[INSTRUCCION CRITICA] Lee AHORA el contenido del hero palabra por palabra. LEE EXACTAMENTE LO QUE VES. Después de terminar la lectura del hero, llama a reproducir_video para el video de bienvenida. NUNCA menciones temario, syllabus, navegación, o índice. Solo sigue: Hero → Video → Scroll → Lectura → Explicación.';
     }catch(e){ return 'error: '+String(e); } },
 
     scrollAlSiguienteBloque: async()=>{ try{
-      await new Promise(function(r){setTimeout(r,200);});
-      var all=Array.from(document.querySelectorAll('section, .module-section, .content-block, [id^="modulo-"], [id^="bienvenida"], video, .quiz'));
-      var currentScroll=window.scrollY||window.pageYOffset;
+      await new Promise(function(r){setTimeout(r,80);});
+      var all=Array.from(document.querySelectorAll('section, .module-section, .content-block, [id^="modulo-"], [id^="bienvenida"], video, .quiz, h2, h3'));
+      var currentScrollTop=window.scrollY||window.pageYOffset;
+      var viewportH=window.innerHeight;
+      var bottomViewport=currentScrollTop+viewportH;
       var next=all.find(function(el){
         var rect=el.getBoundingClientRect();
-        return rect.top>window.innerHeight*0.5;
+        var elTop=rect.top+currentScrollTop;
+        return elTop>=bottomViewport-120;
       });
       if(next){
-        next.scrollIntoView({behavior:'smooth', block:'center'});
-        await new Promise(function(r){setTimeout(r,1200);});
+        var rect=next.getBoundingClientRect();
+        var navH=88;
+        var elH=Math.min(rect.height,400);
+        var targetTop=Math.max(navH+16,(viewportH-elH)/2);
+        var delta=rect.top-targetTop;
+        if(Math.abs(delta)>8){
+          window.scrollBy({top:Math.round(delta),behavior:'instant'});
+        }
+        await new Promise(function(r){setTimeout(r,150);});
       }
       return 'Scroll DOWN suave completado';
     }catch(e){ return 'error: '+String(e); } }
