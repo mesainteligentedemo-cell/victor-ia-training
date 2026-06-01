@@ -2114,7 +2114,24 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
         return rawText;
       }catch(e){ return 'error: '+String(e); } },
 
-    minimizar_chat: async()=>{ try{ var pn=document.getElementById('vw-panel'); var lc=document.getElementById('vw-launch'); if(pn) pn.classList.remove('vw-open'); if(lc) lc.style.display='flex'; try{window.__vtcDrive=Date.now();}catch(e){} return 'Chat minimizado (la sesion sigue activa). El usuario ya ve toda la pantalla. Sigue hablando con normalidad; cuando quiera escribir o ver el chat tocara el boton flotante.'; }catch(e){ return 'error'; } }
+    minimizar_chat: async()=>{ try{ var pn=document.getElementById('vw-panel'); var lc=document.getElementById('vw-launch'); if(pn) pn.classList.remove('vw-open'); if(lc) lc.style.display='flex'; try{window.__vtcDrive=Date.now();}catch(e){} return 'Chat minimizado (la sesion sigue activa). El usuario ya ve toda la pantalla. Sigue hablando con normalidad; cuando quiera escribir o ver el chat tocara el boton flotante.'; }catch(e){ return 'error'; } },
+
+    iniciarCursoCompleto: async()=>{ try{
+      window.scrollTo({top:0,behavior:'smooth'});
+      await new Promise(function(r){setTimeout(r,800);});
+      var hero=document.querySelector('.hero');
+      var heroText=hero?(hero.innerText||hero.textContent).trim():'';
+      return 'HERO SECTION CONTENT:\n'+heroText+'\n\n[INSTRUCCION CRITICA] Lee AHORA el contenido del hero palabra por palabra. LEE EXACTAMENTE LO QUE VES. Después de terminar la lectura del hero, llama a reproducir_video para el video de bienvenida. NUNCA menciones temario, syllabus, navegación, o índice. Solo sigue: Hero → Video → Scroll → Lectura → Explicación.';
+    }catch(e){ return 'error: '+String(e); } },
+
+    scrollAlSiguienteBloque: async()=>{ try{
+      await new Promise(function(r){setTimeout(r,300);});
+      var all=Array.from(document.querySelectorAll('section, .module-section, [id^="modulo-"]'));
+      var rect=document.documentElement.getBoundingClientRect();
+      var next=all.find(function(el){return el.getBoundingClientRect().top>window.innerHeight/2;});
+      if(next){ next.scrollIntoView({behavior:'smooth',block:'start'}); await new Promise(function(r){setTimeout(r,700);});}
+      return 'Scroll completado al siguiente bloque';
+    }catch(e){ return 'error: '+String(e); } }
   };
 
   async function connect(ctx){
