@@ -1,8 +1,12 @@
 {
-  "functions": {
-    "api/pdf.js": {
-      "maxDuration": 60,
-      "memory": 1536
+  "version": 2,
+  "public": true,
+  "buildCommand": "echo 'Static build'",
+  "outputDirectory": "frontend/public",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
-  }
+  ]
 }
