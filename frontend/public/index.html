@@ -1860,8 +1860,10 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
   #vw-gate h3{color:#f4f1ea;font-family:Georgia,serif;font-size:21px;margin:0;font-weight:400}
   #vw-gate p{color:#9a9aa2;font-size:13px;line-height:1.5;margin:0 0 6px}
   .vw-f label{display:block;color:#7c7c84;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;margin:0 0 5px}
-  .vw-f input,.vw-f select{width:100%;box-sizing:border-box;background:#121113;border:1px solid #2a2620;border-radius:10px;padding:12px 14px;color:#eae6df;font-size:14px;outline:none;font-family:inherit}
-  .vw-f input:focus,.vw-f select:focus{border-color:#b89a6a}
+  .vw-f input,.vw-f select{width:100%;box-sizing:border-box;background:#121113;border:1px solid #2a2620;border-radius:10px;padding:12px 14px;color:#eae6df;font-size:14px;outline:none;font-family:inherit;appearance:none;cursor:pointer}
+  .vw-f select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23b89a6a' d='M1 3l5 6 5-6z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:30px}
+  .vw-f select option{background:#121113;color:#eae6df;padding:10px}
+  .vw-f input:focus,.vw-f select:focus{border-color:#b89a6a;box-shadow:0 0 0 3px rgba(184,154,106,.1)}
   .vw-f{margin-bottom:12px}
   #vw-cta{width:100%;background:#b89a6a;color:#0a0a0c;border:none;border-radius:12px;padding:14px;font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;font-family:inherit;transition:.2s}
   #vw-cta:hover{background:#cdb28c} #vw-cta:disabled{opacity:.6;cursor:default}
@@ -1908,10 +1910,17 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
     <div class="vw-f"><label>Nombre completo</label><input id="vw-name" type="text" placeholder="Tu nombre" autocomplete="name"></div>
     <div class="vw-f"><label>Número de empleado</label><input id="vw-emp" type="text" placeholder="Ej. 12345" inputmode="numeric" autocomplete="off"></div>
     <div class="vw-f"><label>Departamento</label>
-      <select id="vw-dep">
-        <option value="">Selecciona…</option>
-        <option>OPC</option><option>Línea</option><option>Front to Middle</option><option>Front to Back</option>
-        <option>Selfgen</option><option>Cierre</option><option>Gerencia</option><option>Dirección</option><option>Otro</option>
+      <select id="vw-dep" required>
+        <option value="">-- Selecciona tu departamento --</option>
+        <option value="OPC">OPC</option>
+        <option value="Línea">Línea</option>
+        <option value="Front to Middle">Front to Middle</option>
+        <option value="Front to Back">Front to Back</option>
+        <option value="Selfgen">Selfgen</option>
+        <option value="Cierre">Cierre</option>
+        <option value="Gerencia">Gerencia</option>
+        <option value="Dirección">Dirección</option>
+        <option value="Otro">Otro</option>
       </select>
     </div>
     <div class="vw-err" id="vw-err"></div>
@@ -2077,8 +2086,9 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
     if(window.viTrack) window.viTrack.setUser({name,emp,dep,site:'vtc-capacitacion'});
     else window.VI_TRACK_USER = {name,emp,dep,site:'vtc-capacitacion'};
     const err=$('vw-err');
-    if(!name){err.textContent='Escribe tu nombre.';return;}
-    if(!emp){err.textContent='Escribe tu número de empleado.';return;}
+    if(!name){err.textContent='Por favor escribe tu nombre.';return;}
+    if(!emp){err.textContent='Por favor escribe tu número de empleado.';return;}
+    if(!dep){err.textContent='Por favor selecciona tu departamento.';return;}
     err.textContent=''; try{localStorage.setItem('vtc_user',JSON.stringify({name:name,emp:emp,dep:dep}));}catch(e){} try{ var _bv=document.querySelector('#bienvenida video'); if(_bv){ _bv.muted=true; var _pp=_bv.play(); if(_pp&&_pp.then) _pp.then(function(){ _bv.pause(); try{_bv.currentTime=0;}catch(e){} _bv.muted=false; }).catch(function(){ _bv.muted=false; }); } }catch(e){} const cta=$('vw-cta'); cta.disabled=true; cta.textContent='Revisando acceso…';
     let hist='';
     try{ const h=await (await fetch(SITE+'/api/history?emp='+encodeURIComponent(emp))).json(); if(h&&h.found) hist=h.texto||''; }catch(e){}
