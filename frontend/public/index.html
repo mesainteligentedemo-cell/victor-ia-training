@@ -75,6 +75,10 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(7,7,8,.95);b
 .script-text{color:var(--cream);font-size:.9rem;line-height:1.9;font-style:italic;}
 .script-note{font-size:.78rem;color:var(--muted);margin-top:.75rem;font-style:normal;}
 
+/* READING HIGHLIGHT — PÁRRAFO SIENDO LEÍDO POR VICTOR */
+.vtc-reading{background:rgba(184,154,106,.15)!important;border-left:3px solid var(--gold)!important;padding-left:1.5rem!important;}
+.vtc-reading .block-title{color:var(--gold)!important;}
+
 /* LESSON VIDEO */
 .lesson-video{margin:0 0 1.25rem;}
 .lesson-video video{width:100%;display:block;border:1px solid var(--faint);border-radius:6px;background:#000;aspect-ratio:16/9;}
@@ -1957,6 +1961,38 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
     var pm=raw.match(/(?:pitch|paso|step)\s*-?\s*([0-9]{1,2})/);
     if(pm){ var nn=('0'+pm[1]).slice(-2); var src=document.querySelector('#vtc19 source[src*="modulo-'+nn+'.mp4"]'); if(src){ var box=src.closest('.lesson-video'); var lab=(box&&box.previousElementSibling&&box.previousElementSibling.classList&&box.previousElementSibling.classList.contains('script-label'))?box.previousElementSibling:box; return {scroll:lab||box, video:box?box.querySelector('video'):null}; } }
     var id=vtcId(p); var el=document.getElementById(id); return {scroll:el, video:el?el.querySelector('video'):null, id:id}; }
+  /* FUNCIÓN CRÍTICA: Extrae contenido real de los párrafos */
+  function getModuleContent(moduleId){
+    var sec=document.getElementById(moduleId);
+    if(!sec) return null;
+    var blocks=[]; var blockEls=sec.querySelectorAll('.content-block');
+    blockEls.forEach(function(b){
+      var title=b.querySelector('.block-title');
+      var text=b.querySelector('.block-text, p.block-text');
+      if(title && text){
+        blocks.push({
+          title:(title.innerText||title.textContent||'').trim(),
+          text:(text.innerText||text.textContent||'').trim(),
+          element:b,
+          titleEl:title
+        });
+      }
+    });
+    return blocks.length>0?blocks:null;
+  }
+
+  /* FUNCIÓN: Marca el párrafo actual que se está leyendo */
+  function highlightCurrentBlock(moduleId, blockIndex){
+    document.querySelectorAll('.vtc-reading').forEach(el=>el.classList.remove('vtc-reading'));
+    var sec=document.getElementById(moduleId);
+    if(!sec) return;
+    var blocks=sec.querySelectorAll('.content-block');
+    if(blockIndex>=0&&blockIndex<blocks.length){
+      blocks[blockIndex].classList.add('vtc-reading');
+      blocks[blockIndex].scrollIntoView({behavior:'smooth',block:'center'});
+    }
+  }
+
   const clientTools={
     ir_a_modulo: async(p)=>{ try{ var id=vtcId(p); if(id==='__top'){ try{window.__vtcDrive=Date.now();}catch(e){} window.scrollTo({top:0,behavior:'smooth'}); return 'En el inicio del curso'; } var r=vtcResolve(p); if(r.scroll){ r.scroll.scrollIntoView({behavior:'instant',block:'start'}); vtcHL(r.scroll); return 'Navegado y resaltado'; } return 'modulo no encontrado'; }catch(e){return 'error';} },
     reproducir_video: async(p)=>{ try{
@@ -1970,6 +2006,25 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
         try{ if(!window._vKeep) window._vKeep=setInterval(function(){ try{ if(conv&&conv.sendUserActivity) conv.sendUserActivity(); }catch(e){} },8000); }catch(e){}
         return 'ESPERA EN SILENCIO ABSOLUTO. El sistema detecta automaticamente cuando termina el video y te avisa. NO preguntes si termino. NO digas nada mas. Solo espera el aviso del sistema.';
       }catch(e){ return 'error'; } },
+    obtener_contenido: async(p)=>{ try{
+        var id=vtcId(p);
+        var content=getModuleContent(id);
+        if(!content) return 'modulo no encontrado o sin contenido';
+        var result='CONTENIDO DEL MÓDULO - LEE CADA PÁRRAFO EXACTAMENTE COMO ESTÁ ESCRITO AQUÍ:\n\n';
+        content.forEach(function(block,idx){
+          result+='[PÁRRAFO '+(idx+1)+'] '+block.title+'\n'+block.text+'\n\n';
+        });
+        return result;
+      }catch(e){ return 'error al obtener contenido'; } },
+    marcar_parrafo: async(p)=>{ try{
+        var id=p&&p.modulo?vtcId(p.modulo):vtcId(p);
+        var idx=p&&p.indice!==undefined?parseInt(p.indice):0;
+        highlightCurrentBlock(id, idx);
+        var sec=document.getElementById(id);
+        var blocks=sec?sec.querySelectorAll('.content-block'):[];
+        if(idx>=0&&idx<blocks.length) blocks[idx].scrollIntoView({behavior:'smooth',block:'center'});
+        return 'Párrafo marcado y visible';
+      }catch(e){ return 'error al marcar'; } },
     ir_al_quiz: async(p)=>{ try{
         var sec=document.getElementById(vtcId(p));
         var q=sec?sec.querySelector('.quiz'):null;
