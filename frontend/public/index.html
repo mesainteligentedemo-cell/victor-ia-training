@@ -1995,6 +1995,31 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
     }
   }
 
+  /* AUDIO CAPTURE — Captura audio del usuario para voice recognition */
+  window.__vtcAudioChunks=[];
+  window.__vtcMediaRecorder=null;
+  function vtcSetupAudioCapture(){
+    try{
+      navigator.mediaDevices.getUserMedia({audio:true}).then(function(stream){
+        var audioContext=new (window.AudioContext||window.webkitAudioContext)();
+        var source=audioContext.createMediaStreamSource(stream);
+        var processor=audioContext.createScriptProcessor(4096,1,1);
+        source.connect(processor);
+        processor.connect(audioContext.destination);
+        processor.onaudioprocess=function(e){
+          var inputData=e.inputBuffer.getChannelData(0);
+          var outputData=e.outputBuffer.getChannelData(0);
+          for(var i=0;i<inputData.length;i++){ outputData[i]=inputData[i]; }
+        };
+        window.__vtcAudioStream=stream;
+        window.__vtcAudioContext=audioContext;
+      }).catch(function(e){
+        console.warn('Audio capture not available: '+String(e));
+      });
+    }catch(e){}
+  }
+  try{vtcSetupAudioCapture();}catch(e){}
+
   /* VIDEO STATE DETECTION — En tiempo real monitorea play, pause, ended */
   window.__vtcVideoState={currentVideo:null,isPlaying:false,isPaused:false,isEnded:false,progress:0};
   function vtcSetupVideoDetection(){
@@ -2180,6 +2205,39 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
         await new Promise(function(r){setTimeout(r,150);});
       }
       return 'Scroll DOWN suave completado';
+    }catch(e){ return 'error: '+String(e); } },
+
+    verificar_voz: async(p)=>{ try{
+      /* Captura audio actual y lo envía a Voice Recognition API para identificación */
+      if(!window.__vtcAudioChunks||window.__vtcAudioChunks.length===0){
+        return 'ERROR: Sin grabación de audio. El usuario debe hablar primero.';
+      }
+      var blob=new Blob(window.__vtcAudioChunks,{type:'audio/wav'});
+      var reader=new FileReader();
+      return new Promise(function(resolve){
+        reader.onload=async function(){
+          try{
+            var audioData=reader.result.split(',')[1];
+            var response=await fetch('http://localhost:5555/identify',{
+              method:'POST',
+              headers:{'Content-Type':'application/json'},
+              body:JSON.stringify({audio_data:audioData,threshold:0.85})
+            });
+            var result=await response.json();
+            var msg='';
+            if(result.identified){
+              window.__vtcCurrentUser={id:result.user_id,name:result.name,identified:true,similarity:result.similarity};
+              msg='USUARIO IDENTIFICADO: '+result.name+' (confianza: '+Math.round(result.confidence)+'%). '+result.message;
+            }else{
+              window.__vtcCurrentUser={identified:false,similarity:result.similarity};
+              msg='USUARIO DESCONOCIDO (similitud: '+Math.round(result.confidence)+'%). '+result.message;
+            }
+            window.__vtcAudioChunks=[];
+            resolve(msg);
+          }catch(e){resolve('ERROR en API voice: '+String(e));}
+        };
+        reader.readAsDataURL(blob);
+      });
     }catch(e){ return 'error: '+String(e); } }
   };
 
