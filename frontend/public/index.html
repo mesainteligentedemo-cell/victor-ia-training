@@ -1945,7 +1945,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
 
 <script type="module">
   import { Conversation } from 'https://cdn.jsdelivr.net/npm/@elevenlabs/client/+esm';
-  const AGENT='agent_9501k3vkt6svekjs6y0qe5xzcek1', SITE='https://vtc-capacitacion-deploy.vercel.app';
+  const AGENT='agent_9501k3vkt6svekjs6y0qe5xzcek1', SITE=window.location.origin;
   const $=id=>document.getElementById(id);
   const launch=$('vw-launch'),panel=$('vw-panel'),gate=$('vw-gate'),chat=$('vw-chat'),msgs=$('vw-msgs'),statusEl=$('vw-status'),mic=$('vw-mic'),input=$('vw-in');
   let conv=null,connecting=false,muted=false,started=false; try{history.scrollRestoration='manual';}catch(e){} try{window.scrollTo(0,0);}catch(e){} window.addEventListener('load',function(){try{window.scrollTo(0,0);}catch(e){}});
