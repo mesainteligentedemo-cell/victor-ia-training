@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reporte Diario VÍCTOR — {{usuario}}</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+            background: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.1);
+        }
+
+        /* HEADER */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+            border-bottom: 5px solid #ffc107;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 5px;
+        }
+
+        .header .subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .header .date {
+            font-size: 13px;
+            opacity: 0.8;
+            margin-top: 10px;
+        }
+
+        /* CONTENT */
+        .content {
+            padding: 40px 30px;
+        }
+
+        /* RESUMEN EJECUTIVO */
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            font-size: 24px;
+            color: #667eea;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+            display: flex;
+            align-items: center;
+        }
+
+        .section-icon {
+            font-size: 28px;
+            margin-right: 12px;
+        }
+
+        .user-card {
+            background: linear-gradient(135deg, #667eea15, #764ba215);
+            border-left: 5px solid #667eea;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+
+        .user-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+        }
+
+        .info-label {
+            font-weight: bold;
+            color: #667eea;
+            margin-right: 10px;
+        }
+
+        .info-value {
+            color: #333;
+        }
+
+        /* KPI GRID */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .kpi-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .kpi-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);
+        }
+
+        .kpi-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #667eea;
+            margin: 10px 0;
+        }
+
+        .kpi-label {
+            font-size: 13px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .kpi-trend {
+            font-size: 20px;
+            margin-top: 8px;
+        }
+
+        .trend-up {
+            color: #28a745;
+        }
+
+        .trend-down {
+            color: #dc3545;
+        }
+
+        /* CHARTS */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .chart-container {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            position: relative;
+            height: 350px;
+        }
+
+        .chart-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        canvas {
+            max-height: 280px;
+        }
+
+        /* SESIONES */
+        .sessions-container {
+            margin-bottom: 40px;
+        }
+
+        .session-card {
+            background: #f9f9f9;
+            border-left: 5px solid #667eea;
+            border-radius: 6px;
+            padding: 20px;
+            margin-bottom: 15px;
+            page-break-inside: avoid;
+        }
+
+        .session-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .session-title {
+            font-weight: bold;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .session-time {
+            color: #666;
+            font-size: 13px;
+        }
+
+        .session-status {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .status-closed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-callback {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .session-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .session-metric {
+            background: white;
+            padding: 12px;
+            border-radius: 4px;
+            border-left: 3px solid #667eea;
+        }
+
+        .metric-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+        }
+
+        .metric-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-top: 5px;
+        }
+
+        /* TRANSCRIPCIÓN */
+        .transcript-section {
+            background: #f9f9f9;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .transcript-line {
+            margin-bottom: 8px;
+            padding: 8px;
+            border-left: 3px solid #e0e0e0;
+            padding-left: 12px;
+        }
+
+        .transcript-speaker {
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .transcript-time {
+            color: #999;
+            font-size: 11px;
+            margin-right: 8px;
+        }
+
+        /* ANALYSIS */
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .analysis-box {
+            border-radius: 6px;
+            padding: 20px;
+        }
+
+        .analysis-strengths {
+            background: #d4edda;
+            border-left: 5px solid #28a745;
+        }
+
+        .analysis-improvements {
+            background: #fff3cd;
+            border-left: 5px solid #ffc107;
+        }
+
+        .analysis-title {
+            font-weight: bold;
+            margin-bottom: 12px;
+            font-size: 15px;
+        }
+
+        .analysis-list {
+            list-style: none;
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        .analysis-list li {
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .analysis-strengths .analysis-list li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .analysis-improvements .analysis-list li::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #ffc107;
+            font-weight: bold;
+        }
+
+        /* RECOMENDACIONES */
+        .recommendations-container {
+            background: linear-gradient(135deg, #e3f2fd, #f3e5f5);
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .recommendation-item {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .recommendation-item:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .recommendation-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .recommendation-text {
+            color: #555;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* FOOTER */
+        .footer {
+            background: #f5f7fa;
+            padding: 20px 30px;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .footer-links {
+            margin-top: 10px;
+        }
+
+        .footer-links a {
+            color: #667eea;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+
+        /* PRINT */
+        @media print {
+            body {
+                background: white;
+            }
+
+            .container {
+                box-shadow: none;
+                max-width: 100%;
+            }
+
+            .section {
+                page-break-inside: avoid;
+            }
+
+            .chart-container {
+                page-break-inside: avoid;
+            }
+
+            .session-card {
+                page-break-inside: avoid;
+            }
+        }
+
+        /* RANKING TABLE */
+        .ranking-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .ranking-table th,
+        .ranking-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .ranking-table th {
+            background: #f5f7fa;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .ranking-table tr:hover {
+            background: #fafbfc;
+        }
+
+        .ranking-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .badge-top {
+            background: #ffd700;
+            color: #333;
+        }
+
+        .badge-good {
+            background: #90EE90;
+            color: #333;
+        }
+
+        .badge-warning {
+            background: #FFB6C6;
+            color: #333;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .header {
+                padding: 30px 20px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .charts-grid,
+            .analysis-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .kpi-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .session-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- HEADER -->
+        <div class="header">
+            <h1>📊 REPORTE DIARIO VÍCTOR IA</h1>
+            <p class="subtitle">Sistema de Capacitación VTC · Seguimiento Personalizado</p>
+            <p class="date">{{fecha}}</p>
+        </div>
+
+        <div class="content">
+            <!-- INFORMACIÓN DEL USUARIO -->
+            <div class="section">
+                <div class="user-card">
+                    <div class="user-info">
+                        <div class="info-item">
+                            <span class="info-label">👤 Usuario:</span>
+                            <span class="info-value">{{usuario_nombre}}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">🎯 Rol:</span>
+                            <span class="info-value">{{usuario_rol}}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">📧 Email:</span>
+                            <span class="info-value">{{usuario_email}}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">📍 Experiencia:</span>
+                            <span class="info-value">{{usuario_experiencia}}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- KPI SUMMARY -->
+            <div class="section">
+                <div class="section-title">
+                    <span class="section-icon">📈</span>
+                    Resumen Ejecutivo (Últimas 24h)
+                </div>
+
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-label">Total Sesiones</div>
+                        <div class="kpi-value">{{total_sesiones}}</div>
+                        <div class="kpi-trend {{trend_sesiones_class}}">{{trend_sesiones}}</div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-label">Duración Total</div>
+                        <div class="kpi-value">{{duracion_total_horas}}h</div>
+                        <div class="kpi-label" style="color: #666; margin-top: 5px;">{{duracion_promedio_min}} min promedio</div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-label">Tasa de Cierre</div>
+                        <div class="kpi-value">{{cierre_rate}}%</div>
+                        <div class="kpi-trend {{trend_cierre_class}}">{{trend_cierre}}</div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-label">Monto Vendido</div>
+                        <div class="kpi-value">${{monto_total_k}}K</div>
+                        <div class="kpi-trend {{trend_monto_class}}">{{trend_monto}}</div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-label">Calidad Promedio</div>
+                        <div class="kpi-value">{{calidad_promedio}}/10</div>
+                        <div class="kpi-label" style="color: #666; margin-top: 5px;">{{calidad_categoria}}</div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-label">Ranking en Piso</div>
+                        <div class="kpi-value">{{ranking_posicion}}</div>
+                        <div class="kpi-label" style="color: #666; margin-top: 5px;">de {{ranking_total}} vendedores</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GRÁFICOS -->
+            <div class="section">
+                <div class="section-title">
+                    <span class="section-icon">📊</span>
+                    Análisis Visual
+                </div>
+
+                <div class="charts-grid">
+                    <!-- GRÁFICO 1: DISC Distribution -->
+                    <div class="chart-container">
+                        <div class="chart-title">Distribución DISC Detectada</div>
+                        <canvas id="discChart"></canvas>
+                    </div>
+
+                    <!-- GRÁFICO 2: Cierre Rate Trend -->
+                    <div class="chart-container">
+                        <div class="chart-title">Evolución Tasa de Cierre (7 días)</div>
+                        <canvas id="trendChart"></canvas>
+                    </div>
+
+                    <!-- GRÁFICO 3: Session Duration -->
+                    <div class="chart-container">
+                        <div class="chart-title">Duración por Sesión (24h)</div>
+                        <canvas id="durationChart"></canvas>
+                    </div>
+
+                    <!-- GRÁFICO 4: Techniques Used -->
+                    <div class="chart-container">
+                        <div class="chart-title">Técnicas Utilizadas</div>
+                        <canvas id="techniquesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RANKING VS PISO -->
+            <div class="section">
+                <div class="section-title">
+                    <span class="section-icon">🏆</span>
+                    Benchmarking vs Piso
+                </div>
+
+                <table class="ranking-table">
+                    <thead>
+                        <tr>
+                            <th>Posición</th>
+                            <th>Vendedor</th>
+                            <th>Tasa Cierre</th>
+                            <th>Monto</th>
+                            <th>Calidad</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{ranking_rows}}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- DETALLE DE SESIONES -->
+            <div class="section">
+                <div class="section-title">
+                    <span class="section-icon">📋</span>
+                    Detalle de Sesiones ({{total_sesiones}} sesiones)
+                </div>
+
+                <div class="sessions-container">
+                    {{sesiones_html}}
+                </div>
+            </div>
+
+            <!-- ANÁLISIS DE DESEMPEÑO -->
+            <div class="section">
+                <div class="section-title">
+                    <span class="section-icon">🔍</span>
+                    Análisis de Desempeño
+                </div>
+
+                <div class="analysis-grid">
+                    <div class="analysis-box analysis-strengths">
+                        <div class="analysis-title">🏆 Fortalezas</div>
+                        <ul class="analysis-list">
+                            {{fortalezas_list}}
+                        </ul>
+                    </div>
+
+                    <div class="analysis-box analysis-improvements">
+                        <div class="analysis-title">📈 Áreas de Mejora</div>
+                        <ul class="analysis-list">
+                            {{mejoras_list}}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RECOMENDACIONES PERSONALIZADAS -->
+            <div class="section">
+                <div class="section-title">
+                    <span class="section-icon">🎯</span>
+                    Recomendaciones Personalizadas
+                </div>
+
+                <div class="recommendations-container">
+                    {{recomendaciones_html}}
+                </div>
+            </div>
+
+            <!-- FOOTER -->
+            <div class="footer">
+                <strong>Reporte Generado:</strong> {{fecha_hora_generacion}}<br>
+                <strong>Sistema:</strong> VÍCTOR IA Training v7 · Capacitación VTC<br>
+                <strong>Período:</strong> Últimas 24 horas<br>
+
+                <div class="footer-links">
+                    <a href="https://tracker.victor-ia.xyz">📊 Dashboard Live</a>
+                    |
+                    <a href="https://elevenlabs.io/app/agents">🤖 Agent VÍCTOR-IA</a>
+                    |
+                    <a href="mailto:soporte@victor-ia.com">📧 Soporte</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // GRÁFICO 1: DISC Distribution (Pie Chart)
+        const discCtx = document.getElementById('discChart').getContext('2d');
+        new Chart(discCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Driver', 'Amiable', 'Analytic', 'Expressive'],
+                datasets: [{
+                    data: {{disc_data}},
+                    backgroundColor: [
+                        '#667eea',
+                        '#28a745',
+                        '#ffc107',
+                        '#dc3545'
+                    ],
+                    borderColor: '#fff',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            boxWidth: 12,
+                            font: { size: 12 }
+                        }
+                    }
+                }
+            }
+        });
+
+        // GRÁFICO 2: Trend Line (7 días)
+        const trendCtx = document.getElementById('trendChart').getContext('2d');
+        new Chart(trendCtx, {
+            type: 'line',
+            data: {
+                labels: {{trend_labels}},
+                datasets: [{
+                    label: 'Tasa de Cierre (%)',
+                    data: {{trend_data}},
+                    borderColor: '#667eea',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    borderWidth: 2,
+                    tension: 0.4,
+                    fill: true,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#667eea',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // GRÁFICO 3: Duration Bars
+        const durationCtx = document.getElementById('durationChart').getContext('2d');
+        new Chart(durationCtx, {
+            type: 'bar',
+            data: {
+                labels: {{duration_labels}},
+                datasets: [{
+                    label: 'Duración (minutos)',
+                    data: {{duration_data}},
+                    backgroundColor: '#667eea',
+                    borderColor: '#667eea',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value + ' min';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // GRÁFICO 4: Techniques (Horizontal Bar)
+        const techniquesCtx = document.getElementById('techniquesChart').getContext('2d');
+        new Chart(techniquesCtx, {
+            type: 'bar',
+            data: {
+                labels: {{techniques_labels}},
+                datasets: [{
+                    label: 'Uso (%)',
+                    data: {{techniques_data}},
+                    backgroundColor: '#764ba2',
+                    borderColor: '#764ba2',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

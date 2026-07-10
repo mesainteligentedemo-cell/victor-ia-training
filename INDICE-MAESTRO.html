@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VÍCTOR V7 — ÍNDICE MAESTRO</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .wrapper {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .header h1 {
+            font-size: 36px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .section h2 {
+            color: #667eea;
+            font-size: 24px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .file-list {
+            list-style: none;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            margin: 8px 0;
+            background: #f7f9fc;
+            border-radius: 6px;
+            border-left: 4px solid #667eea;
+            transition: all 0.2s ease;
+        }
+
+        .file-item:hover {
+            background: #e3e8ff;
+            transform: translateX(5px);
+        }
+
+        .file-icon {
+            font-size: 20px;
+            margin-right: 15px;
+            width: 30px;
+            text-align: center;
+        }
+
+        .file-info {
+            flex: 1;
+        }
+
+        .file-name {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .file-desc {
+            font-size: 12px;
+            color: #666;
+            margin-top: 3px;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            margin-left: 10px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .action-btn:hover {
+            opacity: 0.9;
+        }
+
+        .step-box {
+            background: linear-gradient(135deg, #667eea15, #764ba215);
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 6px;
+        }
+
+        .step-number {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 28px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .status-bar {
+            display: flex;
+            gap: 20px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+        }
+
+        .status-icon {
+            font-size: 20px;
+            margin-right: 8px;
+        }
+
+        .path-block {
+            background: #1e3c72;
+            color: #4fc3f7;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 13px;
+            margin: 15px 0;
+            overflow-x: auto;
+        }
+
+        .copy-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            margin-top: 10px;
+        }
+
+        .copy-btn:hover {
+            opacity: 0.9;
+        }
+
+        .quick-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .quick-link {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            text-align: center;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100px;
+            font-weight: bold;
+        }
+
+        .quick-link:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .quick-link-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            padding: 20px;
+            margin-top: 40px;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <!-- HEADER -->
+        <div class="header">
+            <h1>VÍCTOR V7 — ÍNDICE MAESTRO</h1>
+            <p>Sistema de Capacitación VTC · Todos los archivos, enlaces y guías en un solo lugar</p>
+        </div>
+
+        <!-- STATUS -->
+        <div class="section">
+            <div class="status-bar">
+                <div class="status-item">
+                    <span class="status-icon">✅</span>
+                    <strong>System Prompt:</strong> LISTO
+                </div>
+                <div class="status-item">
+                    <span class="status-icon">✅</span>
+                    <strong>KB Bloques 1-7:</strong> LISTO
+                </div>
+                <div class="status-item">
+                    <span class="status-icon">✅</span>
+                    <strong>Templates:</strong> LISTO
+                </div>
+                <div class="status-item">
+                    <span class="status-icon">✅</span>
+                    <strong>Guías:</strong> LISTO
+                </div>
+            </div>
+            <p style="color: #666; text-align: center; margin-top: 15px;">
+                🟢 Sistema 100% preparado para activar (15 minutos)
+            </p>
+        </div>
+
+        <!-- UBICACIÓN -->
+        <div class="section">
+            <h2>📂 Ubicación de Archivos</h2>
+            <div class="path-block">
+C:\Users\inbou\victor-ia-training\
+            </div>
+            <button class="copy-btn" onclick="copyPath()">📋 Copiar ruta</button>
+        </div>
+
+        <!-- QUICK START -->
+        <div class="section">
+            <h2>🚀 Quick Start (elige uno)</h2>
+            <div class="quick-links">
+                <a href="file:///C:/Users/inbou/victor-ia-training/00-START-HERE.html" class="quick-link">
+                    <div class="quick-link-icon">🎯</div>
+                    <div>Interface Visual</div>
+                </a>
+                <a href="file:///C:/Users/inbou/victor-ia-training/GUIA_ACTIVACION_RAG_VISUAL.html" class="quick-link">
+                    <div class="quick-link-icon">📖</div>
+                    <div>Guía Paso-a-Paso</div>
+                </a>
+                <a href="file:///C:/Users/inbou/victor-ia-training/ROADMAP-VISUAL.txt" class="quick-link">
+                    <div class="quick-link-icon">🗺️</div>
+                    <div>Roadmap Visual</div>
+                </a>
+                <a href="file:///C:/Users/inbou/victor-ia-training/README-ACTIVACION.txt" class="quick-link">
+                    <div class="quick-link-icon">📋</div>
+                    <div>Resumen Rápido</div>
+                </a>
+            </div>
+        </div>
+
+        <!-- SISTEMA PROMPT -->
+        <div class="section">
+            <h2>⚙️ System Prompt</h2>
+            <ul class="file-list">
+                <li class="file-item">
+                    <div class="file-icon">📄</div>
+                    <div class="file-info">
+                        <div class="file-name">VICTOR_SYSTEM_PROMPT_V7_COMPLETO.md</div>
+                        <div class="file-desc">Prompt final completo · 45KB · Copia a ElevenLabs</div>
+                    </div>
+                    <a href="file:///C:/Users/inbou/victor-ia-training/VICTOR_SYSTEM_PROMPT_V7_COMPLETO.md" class="action-btn">Ver</a>
+                </li>
+            </ul>
+            <div class="step-box">
+                <span class="step-number">1</span>
+                <strong>Abre el archivo · Ctrl+A → Ctrl+C (copia TODO)</strong><br>
+                <small style="margin-left: 38px;">Ve a ElevenLabs → Agent VÍCTOR-IA → Settings → System Prompt → Pega (Ctrl+V) → Save Changes</small>
+            </div>
+        </div>
+
+        <!-- KNOWLEDGE BASE -->
+        <div class="section">
+            <h2>📚 Knowledge Base (Bloques 1-7)</h2>
+            <ul class="file-list">
+                <li class="file-item">
+                    <div class="file-icon">📄</div>
+                    <div class="file-info">
+                        <div class="file-name">KB_PREMIUM_BLOQUE_1.md</div>
+                        <div class="file-desc">Introducción + Neurociencia · 120KB</div>
+                    </div>
+                    <a href="file:///C:/Users/inbou/victor-ia-training/KB_PREMIUM_BLOQUE_1.md" class="action-btn">Ver</a>
+                </li>
+                <li class="file-item">
+                    <div class="file-icon">📄</div>
+                    <div class="file-info">
+                        <div class="file-name">KB_PREMIUM_BLOQUE_2.md</div>
+                        <div class="file-desc">Continuación + Pasos 8-14 · 110KB</div>
+                    </div>
+                    <a href="file:///C:/Users/inbou/victor-ia-training/KB_PREMIUM_BLOQUE_2.md" class="action-btn">Ver</a>
+                </li>
+                <li class="file-item">
+                    <div class="file-icon">📄</div>
+                    <div class="file-info">
+                        <div class="file-name">KB_PREMIUM_BLOQUE_3.md</div>
+                        <div class="file-desc">Cierre + TOC + Análisis · 85KB</div>
+                    </div>
+                    <a href="file:///C:/Users/inbou/victor-ia-training/KB_PREMIUM_BLOQUE_3.md" class="action-btn">Ver</a>
+                </li>
+                <li class="file-item">
+                    <div class="file-icon">📄</div>
+                    <div class="file-info">
+                        <div class="file-name">KB_PREMIUM_BLOQUE_4.md</div>
+                        <div class="file-desc">Roleplay INGLÉS (Burt + Hope) · 95KB</div>
+                    </div>
+                    <a href="file:///C:/Users/inbou/victor-ia-training/KB_PREMIUM_BLOQUE_4.md" class="action-btn">Ver</a>
+                </li>
+                <li class="file-item">
+                    <div class="file-icon">📄</div>
+                    <div class="file-info">
+                        <div class="file-name">KB_PREMIUM_BLOQUE_5.md</div>
+                        <div class="file-desc">Objeciones complejas + Be-back · 130KB</div>
+                    </div>
+                    <a href="file:///C:/Users/inbou/victor-ia-training/KB_PREMIUM_BLOQUE_5.md" class="action-btn">Ver</a>
+                </li>
+                <li class="file-item">
+                    <div class="file-icon">📄</div>
+                    <div class="file-info">
+                        <div class="file-name">KB_PREMIUM_BLOQUE_6.md</div>
+                        <div class="file-desc">PERSONALIDAD DISC · 75KB</div>
+                    </div>
+                    <a href="file:///C:/Users/inbou/victor-ia-training/KB_PREMIUM_BLOQUE_6.md" class="action-btn">Ver</a>
+                </li>
+                <li class="file-item">
+                    <div class="file-icon">📄</div>
+                    <div class="file-info">
+                        <div class="file-name">KB_PREMIUM_BLOQUE_7.md</div>
+                        <div class="file-desc">Combinaciones parejas · 65KB</div>
+                    </div>
+                    <a href="file:///C:/Users/inbou/victor-ia-training/KB_PREMIUM_BLOQUE_7.md" class="action-btn">Ver</a>
+                </li>
+            </ul>
+            <div class="step-box">
+                <span class="step-number">2</span>
+                <strong>Para CADA bloque: Abre → Ctrl+A → Ctrl+C (copia TODO)</strong><br>
+                <small style="margin-left: 38px;">Ve a ElevenLabs → Knowledge Base → "+ Add Document" → Pega (Ctrl+V) → Dale nombre exacto → Upload → ESPERA "RAG indexing complete"</small>
+            </div>
+        </div>
+
+        <!-- TEMPLATES REPORTES -->
+        <div class="section">
+            <h2>🎨 Templates Reportes (Ejemplo)</h2>
+            <ul class="file-list">
+                <li class="file-item">
+                    <div class="file-icon">🌐</div>
+                    <div class="file-info">
+                        <div class="file-name">REPORTE_TEMPLATE_SPANISH.html</div>
+                        <div class="file-desc">Reporte profesional en ESPAÑOL · 30KB</div>
+                    </div>
+                    <a href="file:///C:/Users/inbou/victor-ia-training/REPORTE_TEMPLATE_SPANISH.html" class="action-btn">Ver</a>
+                </li>
+                <li class="file-item">
+                    <div class="file-icon">🌐</div>
+                    <div class="file-info">
+                        <div class="file-name">REPORTE_TEMPLATE_ENGLISH.html</div>
+                        <div class="file-desc">Reporte profesional en INGLÉS · 30KB</div>
+                    </div>
+                    <a href="file:///C:/Users/inbou/victor-ia-training/REPORTE_TEMPLATE_ENGLISH.html" class="action-btn">Ver</a>
+                </li>
+            </ul>
+            <p style="color: #666; margin-top: 10px; font-size: 13px;">
+                💡 Estos son ejemplos. Se usan en Zapier/n8n para envío automático de reportes por email.
+            </p>
+        </div>
+
+        <!-- DOCUMENTACIÓN -->
+        <div class="section">
+            <h2>📖 Documentación y Guías</h2>
+            <ul class="file-list">
+                <li class="file-item">
+                    <div class="file-icon">🎯</div>
+                    <div class="file-info">
+                        <div class="file-name">00-START-HERE.html</div>
+                        <div class="file-desc">Interfaz visual · Empieza aquí</div>
+                    </div>
+                    <a href="file:///C:/Users/inbou/victor-ia-training/00-START-HERE.html" class="action-btn">Abrir</a>
+                </li>
+                <li class="file-item">
+                    <div class="file-icon">📖</div>
+                    <div class="file-info">
+                        <div class="file-name">GUIA_ACTIVACION_RAG_VISUAL.html</div>
+                        <div class="file-desc">Guía paso-a-paso con colores · Muy detallada</div>
+                    </div>
+                    <a href="file:///C:/Users/inbou/victor-ia-training/GUIA_ACTIVACION_RAG_VISUAL.html" class="action-btn">Abrir</a>
+                </li>
+                <li class="file-item">
+                    <div class="file-icon">🗺️</div>
+                    <div class="file-info">
+                        <div class="file-name">ROADMAP-VISUAL.txt</div>
+                        <div class="file-desc">Diagrama ASCII de todos los pasos</div>
+                    </div>
+                    <a href="file:///C:/Users/inbou/victor-ia-training/ROADMAP-VISUAL.txt" class="action-btn">Abrir</a>
+                </li>
+                <li class="file-item">
+                    <div class="file-icon">📋</div>
+                    <div class="file-info">
+                        <div class="file-name">README-ACTIVACION.txt</div>
+                        <div class="file-desc">Resumen ultra-rápido sin detalles</div>
+                    </div>
+                    <a href="file:///C:/Users/inbou/victor-ia-training/README-ACTIVACION.txt" class="action-btn">Abrir</a>
+                </li>
+                <li class="file-item">
+                    <div class="file-icon">📂</div>
+                    <div class="file-info">
+                        <div class="file-name">INDICE_ARCHIVOS_Y_RUTAS.md</div>
+                        <div class="file-desc">Índice completo con explicaciones</div>
+                    </div>
+                    <a href="file:///C:/Users/inbou/victor-ia-training/INDICE_ARCHIVOS_Y_RUTAS.md" class="action-btn">Abrir</a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- LINKS EXTERNOS -->
+        <div class="section">
+            <h2>🔗 Links Importantes</h2>
+            <ul class="file-list">
+                <li class="file-item">
+                    <div class="file-icon">🚀</div>
+                    <div class="file-info">
+                        <div class="file-name">ElevenLabs</div>
+                        <div class="file-desc">https://elevenlabs.io/</div>
+                    </div>
+                    <a href="https://elevenlabs.io/" target="_blank" class="action-btn">Ir</a>
+                </li>
+                <li class="file-item">
+                    <div class="file-icon">👤</div>
+                    <div class="file-info">
+                        <div class="file-name">Agente VÍCTOR-IA</div>
+                        <div class="file-desc">https://elevenlabs.io/app/agents</div>
+                    </div>
+                    <a href="https://elevenlabs.io/app/agents" target="_blank" class="action-btn">Ir</a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- CHECKLIST FINAL -->
+        <div class="section">
+            <h2>✓ Checklist de Activación</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+                <div style="padding: 15px; background: #f0f4ff; border-radius: 6px;">
+                    <input type="checkbox" id="check1"> <label for="check1">Actualicé System Prompt V7</label>
+                </div>
+                <div style="padding: 15px; background: #f0f4ff; border-radius: 6px;">
+                    <input type="checkbox" id="check2"> <label for="check2">Subí KB Bloques 1-7</label>
+                </div>
+                <div style="padding: 15px; background: #f0f4ff; border-radius: 6px;">
+                    <input type="checkbox" id="check3"> <label for="check3">Activé RAG: ON</label>
+                </div>
+                <div style="padding: 15px; background: #f0f4ff; border-radius: 6px;">
+                    <input type="checkbox" id="check4"> <label for="check4">Test 1 (DISC) pasó</label>
+                </div>
+                <div style="padding: 15px; background: #f0f4ff; border-radius: 6px;">
+                    <input type="checkbox" id="check5"> <label for="check5">Test 2 (Pareja) pasó</label>
+                </div>
+                <div style="padding: 15px; background: #f0f4ff; border-radius: 6px;">
+                    <input type="checkbox" id="check6"> <label for="check6">Test 3 (KB) pasó</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <strong>Sistema VÍCTOR V7 · 2026-07-10</strong><br>
+            ✅ Completamente preparado · 15 minutos de setup · Listo para producción
+        </div>
+    </div>
+
+    <script>
+        function copyPath() {
+            navigator.clipboard.writeText("C:\\Users\\inbou\\victor-ia-training\\");
+            alert("Ruta copiada al portapapeles");
+        }
+    </script>
+</body>
+</html>

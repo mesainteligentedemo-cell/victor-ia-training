@@ -1,0 +1,262 @@
+╔════════════════════════════════════════════════════════════════════════════════╗
+║           VÍCTOR V7 — ROADMAP VISUAL DE ACTIVACIÓN (15 MINUTOS)                  ║
+╚════════════════════════════════════════════════════════════════════════════════╝
+
+
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│ 🟢 INICIO — ABRE ESTE ARCHIVO PRIMERO                                           │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+    ┌─────────────────────────────────────────┐
+    │  Haz DOBLE CLICK en:                    │
+    │  📄 00-START-HERE.html                  │
+    │                                         │
+    │  (Se abre en navegador con interfaz)   │
+    └─────────────────────────────────────────┘
+                        ↓
+    ┌──────────────────────────────────┐
+    │ Verás 5 tarjetas de acciones:   │
+    │ 1. Lee la Guía                  │
+    │ 2. Actualiza Prompt             │
+    │ 3. Sube KB                      │
+    │ 4. Activa RAG                   │
+    │ 5. Testea                       │
+    └──────────────────────────────────┘
+
+
+═════════════════════════════════════════════════════════════════════════════════
+🟠 PASO 1: SYSTEM PROMPT (2 min)
+═════════════════════════════════════════════════════════════════════════════════
+
+    PASO 1A: Abre archivo
+    ┌─────────────────────────────────────────────────────┐
+    │ C:\Users\inbou\victor-ia-training\                  │
+    │ VICTOR_SYSTEM_PROMPT_V7_COMPLETO.md                 │
+    │                                                     │
+    │ (Clic derecho → Abrir con → Notepad)               │
+    └─────────────────────────────────────────────────────┘
+                        ↓
+    PASO 1B: Copia COMPLETO
+    ┌─────────────────────────────────────────────────────┐
+    │ Ctrl+A (selecciona todo)                            │
+    │ Ctrl+C (copia)                                      │
+    └─────────────────────────────────────────────────────┘
+                        ↓
+    PASO 1C: Ve a ElevenLabs
+    ┌─────────────────────────────────────────────────────┐
+    │ https://elevenlabs.io/                              │
+    │ Login → Agents → VÍCTOR-IA                          │
+    │ ⚙️ Settings (arriba-derecha)                         │
+    │ System Prompt                                       │
+    └─────────────────────────────────────────────────────┘
+                        ↓
+    PASO 1D: Pega TODO
+    ┌─────────────────────────────────────────────────────┐
+    │ Borra contenido anterior                            │
+    │ Ctrl+V (pega)                                       │
+    │ 💾 Save Changes                                      │
+    └─────────────────────────────────────────────────────┘
+                        ↓
+    ✅ LISTO — Prompt actualizado
+
+
+═════════════════════════════════════════════════════════════════════════════════
+🔵 PASO 2: KNOWLEDGE BASE — BLOQUES 1-7 (8 min total)
+═════════════════════════════════════════════════════════════════════════════════
+
+    REPITE ESTE PROCESO 7 VECES (una por cada bloque):
+
+    ┌──────────────────────────────────────────────────────┐
+    │ Bloque 1: KB_PREMIUM_BLOQUE_1.md (Introducción)     │
+    │ Bloque 2: KB_PREMIUM_BLOQUE_2.md (Continuación)     │
+    │ Bloque 3: KB_PREMIUM_BLOQUE_3.md (Cierre)           │
+    │ Bloque 4: KB_PREMIUM_BLOQUE_4.md (Roleplay EN)      │
+    │ Bloque 5: KB_PREMIUM_BLOQUE_5.md (Objeciones)       │
+    │ Bloque 6: KB_PREMIUM_BLOQUE_6.md (DISC)             │
+    │ Bloque 7: KB_PREMIUM_BLOQUE_7.md (Parejas)          │
+    └──────────────────────────────────────────────────────┘
+
+
+    PARA CADA BLOQUE (ej: Bloque 1):
+
+    2A: Abre archivo
+    ┌────────────────────────────────────────────┐
+    │ C:\Users\inbou\victor-ia-training\         │
+    │ KB_PREMIUM_BLOQUE_1.md                     │
+    │                                            │
+    │ (Clic derecho → Abrir con → Notepad)      │
+    └────────────────────────────────────────────┘
+                        ↓
+    2B: Copia COMPLETO
+    ┌────────────────────────────────────────────┐
+    │ Ctrl+A (selecciona todo)                   │
+    │ Ctrl+C (copia)                             │
+    └────────────────────────────────────────────┘
+                        ↓
+    2C: Ve a Knowledge Base en ElevenLabs
+    ┌────────────────────────────────────────────┐
+    │ ElevenLabs → VÍCTOR-IA → Settings          │
+    │ "Knowledge Base"                           │
+    │ "+ Add Document"                           │
+    └────────────────────────────────────────────┘
+                        ↓
+    2D: Pega y nombra
+    ┌────────────────────────────────────────────┐
+    │ Ctrl+V (pega el contenido)                │
+    │                                            │
+    │ Nombre: "Bloque 1 - Introducción"         │
+    │ (ajusta número y nombre para cada bloque)  │
+    │                                            │
+    │ 📤 Upload                                  │
+    └────────────────────────────────────────────┘
+                        ↓
+    2E: ESPERA a "RAG indexing complete"
+    ┌────────────────────────────────────────────┐
+    │ ⏳ Tarda 2-3 minutos por bloque              │
+    │ Verás el mensaje cuando termine            │
+    │ Repite con el siguiente bloque             │
+    └────────────────────────────────────────────┘
+                        ↓
+    ✅ LISTO — 7 Bloques subidos
+
+
+═════════════════════════════════════════════════════════════════════════════════
+🟡 PASO 3: ACTIVAR RAG (2 min)
+═════════════════════════════════════════════════════════════════════════════════
+
+    3A: Ve a Configure RAG
+    ┌─────────────────────────────────────────────────────┐
+    │ ElevenLabs → VÍCTOR-IA → Settings                   │
+    │ "Knowledge Base" → "Configure RAG"                  │
+    └─────────────────────────────────────────────────────┘
+                        ↓
+    3B: Verifica valores exactos
+    ┌─────────────────────────────────────────────────────┐
+    │ ☑ RAG Enable:               ON (toggle azul)        │
+    │ ☑ Embedding Model:          e5_mistral_7b_instruct  │
+    │ ☑ Max Documents Length:     300000                  │
+    │ ☑ Max Chunks:               20                      │
+    │                                                     │
+    │ Si algo está diferente, corrígelo                  │
+    └─────────────────────────────────────────────────────┘
+                        ↓
+    3C: Guarda
+    ┌─────────────────────────────────────────────────────┐
+    │ 💾 Save Changes                                      │
+    └─────────────────────────────────────────────────────┘
+                        ↓
+    ✅ LISTO — RAG Activado
+
+
+═════════════════════════════════════════════════════════════════════════════════
+🟣 PASO 4: TESTEA (1 min)
+═════════════════════════════════════════════════════════════════════════════════
+
+    4A: Abre Test Chat
+    ┌─────────────────────────────────────────────────────┐
+    │ ElevenLabs → VÍCTOR-IA → "Test" o "Chat"           │
+    └─────────────────────────────────────────────────────┘
+                        ↓
+    4B: TEST 1 — Detección DISC
+    ┌──────────────────────────────────────────────────┐
+    │ Escribe exactamente:                             │
+    │                                                  │
+    │ "Hola Víctor, soy Marco de Guadalajara.         │
+    │  Soy CEO de una empresa.                        │
+    │  Quiero viajar más pero eficientemente.         │
+    │  Muéstrame los números."                        │
+    │                                                  │
+    │ ✅ Si responde: RÁPIDO, DIRECTO, números primero │
+    │    (Detectó DRIVER → Funciona)                   │
+    └──────────────────────────────────────────────────┘
+                        ↓
+    4C: TEST 2 — Pareja
+    ┌──────────────────────────────────────────────────┐
+    │ Escribe:                                         │
+    │                                                  │
+    │ "Yo soy Carlos y ella es Sandra.               │
+    │  Carlos: ¿Cuál es el ROI exacto?               │
+    │  Sandra: Yo quiero viajar con la familia."      │
+    │                                                  │
+    │ ✅ Si responde AMBAS necesidades                 │
+    │    (Detectó Driver + Amiable → Funciona)        │
+    └──────────────────────────────────────────────────┘
+                        ↓
+    4D: TEST 3 — Knowledge Base
+    ┌──────────────────────────────────────────────────┐
+    │ Escribe:                                         │
+    │                                                  │
+    │ "¿Cuáles son los 11 principios de              │
+    │  neurociencia?"                                 │
+    │                                                  │
+    │ ✅ Si Víctor lista los 11 principios             │
+    │    (RAG funciona → Completado)                  │
+    └──────────────────────────────────────────────────┘
+                        ↓
+    ✅✅✅ SISTEMA 100% OPERACIONAL
+
+
+═════════════════════════════════════════════════════════════════════════════════
+CHECKLIST FINAL
+═════════════════════════════════════════════════════════════════════════════════
+
+    ☐ Abrí 00-START-HERE.html
+    ☐ Copié System Prompt V7 a ElevenLabs
+    ☐ Subí todos los Bloques KB 1-7 (todos con "RAG indexing complete")
+    ☐ Activé RAG: ON en Settings
+    ☐ TEST 1 pasó (DISC detection)
+    ☐ TEST 2 pasó (Pareja detection)
+    ☐ TEST 3 pasó (KB recall)
+
+
+═════════════════════════════════════════════════════════════════════════════════
+⏱️  TIEMPO TOTAL: 15-20 MINUTOS
+═════════════════════════════════════════════════════════════════════════════════
+
+✅ Paso 1 (Prompt):       2 minutos
+✅ Paso 2 (KB):           8 minutos
+✅ Paso 3 (RAG):          2 minutos
+✅ Paso 4 (Test):         1 minuto
+═════════════════════════════════════════════════════════════════════════════════
+   TOTAL:                13 minutos (+ 5-7 min de espera de RAG indexing)
+
+
+═════════════════════════════════════════════════════════════════════════════════
+🎉 RESULTADO FINAL
+═════════════════════════════════════════════════════════════════════════════════
+
+    ✅ Sistema VÍCTOR V7 100% operacional
+    ✅ Detección DISC automática funciona
+    ✅ Reporte automático habilitado
+    ✅ Knowledge Base accesible (RAG)
+    ✅ Listo para entrenar vendedores
+
+
+═════════════════════════════════════════════════════════════════════════════════
+📂 UBICACIÓN DE TODOS LOS ARCHIVOS
+═════════════════════════════════════════════════════════════════════════════════
+
+    C:\Users\inbou\victor-ia-training\
+
+    00-START-HERE.html                    ← EMPIEZA AQUÍ
+    VICTOR_SYSTEM_PROMPT_V7_COMPLETO.md   ← Prompt
+    KB_PREMIUM_BLOQUE_*.md                ← 7 archivos KB
+    REPORTE_TEMPLATE_*.html               ← 2 templates
+    GUIA_ACTIVACION_RAG_VISUAL.html       ← Guía detallada
+    README-ACTIVACION.txt                 ← Resumen rápido
+    ROADMAP-VISUAL.txt                    ← ESTE ARCHIVO
+
+
+═════════════════════════════════════════════════════════════════════════════════
+🚀 ¿POR DÓNDE EMPIEZO?
+═════════════════════════════════════════════════════════════════════════════════
+
+    1️⃣  Haz doble click en: 00-START-HERE.html
+    2️⃣  Sigue los pasos visuales
+    3️⃣  Completa checklist
+    4️⃣  ¡LISTO!
+
+
+═════════════════════════════════════════════════════════════════════════════════
+FIN DEL ROADMAP
+═════════════════════════════════════════════════════════════════════════════════

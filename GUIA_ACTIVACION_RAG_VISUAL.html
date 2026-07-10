@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía Visual — Activación RAG en ElevenLabs</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #333;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px 30px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            border-left: 4px solid #667eea;
+            padding-left: 20px;
+        }
+
+        .section h2 {
+            color: #667eea;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .step {
+            background: #f7f9fc;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .step-number {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 40px;
+            font-weight: bold;
+            margin-right: 15px;
+            font-size: 18px;
+        }
+
+        .step-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            display: inline-block;
+        }
+
+        .step-content {
+            margin-top: 15px;
+            margin-left: 55px;
+            color: #555;
+        }
+
+        .code-block {
+            background: #1e3c72;
+            color: #4fc3f7;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            margin: 10px 0;
+            font-size: 13px;
+        }
+
+        .highlight {
+            background: #ffeaa7;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: bold;
+            color: #d63031;
+        }
+
+        .warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 15px 0;
+            color: #856404;
+        }
+
+        .success {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 15px 0;
+            color: #155724;
+        }
+
+        .checklist {
+            background: #f7f9fc;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+        }
+
+        .checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #667eea;
+            border-radius: 4px;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            background: white;
+        }
+
+        .checkbox:hover {
+            background: #f0f4ff;
+        }
+
+        .checkbox input {
+            display: none;
+        }
+
+        .checkbox input:checked + label::before {
+            content: "✓";
+            color: #28a745;
+            font-weight: bold;
+            display: block;
+            position: absolute;
+            left: 3px;
+            top: -2px;
+        }
+
+        .test-section {
+            background: #e7f3ff;
+            border-left: 4px solid #0066cc;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .test-section h4 {
+            color: #0066cc;
+            margin-bottom: 10px;
+        }
+
+        .test-content {
+            background: white;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            background: white;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background: #f7f9fc;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        tr:hover {
+            background: #f7f9fc;
+        }
+
+        .footer {
+            background: #f7f9fc;
+            padding: 30px;
+            text-align: center;
+            color: #666;
+            border-top: 1px solid #ddd;
+        }
+
+        .footer h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .icon {
+            font-size: 20px;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Activación RAG en ElevenLabs</h1>
+            <p>Guía paso a paso para activar Knowledge Base en Agente Víctor</p>
+        </div>
+
+        <div class="content">
+            <!-- RESUMEN EJECUTIVO -->
+            <div class="section">
+                <h2><span class="icon">📋</span>Resumen Ejecutivo</h2>
+                <p>
+                    Tu sistema VÍCTOR ya tiene TODO lo necesario. Solo falta activarlo en ElevenLabs:
+                </p>
+                <ul style="margin-top: 15px; margin-left: 30px;">
+                    <li><span class="highlight">✅ SYSTEM PROMPT V7</span> — COMPLETO con DISC + Reporte</li>
+                    <li><span class="highlight">✅ KB BLOQUES 1-7</span> — 500K+ caracteres listo para subir</li>
+                    <li><span class="highlight">✅ TEMPLATES REPORTES</span> — HTML bilingual (ES/EN)</li>
+                </ul>
+                <div class="success">
+                    <strong>➜ Tiempo total: 15-20 minutos</strong><br>
+                    5 minutos subir archivos · 10 minutos configurar RAG · 5 minutos testear
+                </div>
+            </div>
+
+            <!-- PASO 1: SYSTEM PROMPT -->
+            <div class="section">
+                <h2><span class="icon">⚙️</span>Paso 1: Actualizar System Prompt</h2>
+
+                <div class="step">
+                    <div>
+                        <span class="step-number">1.1</span>
+                        <span class="step-title">Abre ElevenLabs en navegador</span>
+                    </div>
+                    <div class="step-content">
+                        <a href="https://elevenlabs.io/" target="_blank">https://elevenlabs.io/</a>
+                        <div style="margin-top: 10px; color: #666;">
+                            Login con tu email · Ve a <span class="highlight">Agents</span> en la barra lateral
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div>
+                        <span class="step-number">1.2</span>
+                        <span class="step-title">Selecciona Agente VÍCTOR-IA</span>
+                    </div>
+                    <div class="step-content">
+                        Haz click en <span class="highlight">VÍCTOR-IA</span> (el agent de capacitación VTC)
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div>
+                        <span class="step-number">1.3</span>
+                        <span class="step-title">Abre Settings del Agent</span>
+                    </div>
+                    <div class="step-content">
+                        En la parte superior derecha: <span class="highlight">⚙️ Settings</span> → buscas la sección <span class="highlight">System Prompt</span>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div>
+                        <span class="step-number">1.4</span>
+                        <span class="step-title">Copia el nuevo System Prompt</span>
+                    </div>
+                    <div class="step-content">
+                        <p style="margin-bottom: 10px;">Abre el archivo local:</p>
+                        <div class="code-block">
+                            C:\Users\inbou\victor-ia-training\VICTOR_SYSTEM_PROMPT_V7_COMPLETO.md
+                        </div>
+                        <p style="margin-top: 10px;">Copia TODO el contenido (Ctrl+A → Ctrl+C)</p>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div>
+                        <span class="step-number">1.5</span>
+                        <span class="step-title">Pega en ElevenLabs</span>
+                    </div>
+                    <div class="step-content">
+                        <p>En ElevenLabs, borra el contenido actual del System Prompt (selecciona todo y borra)</p>
+                        <p style="margin-top: 10px;">Pega todo el contenido nuevo (Ctrl+V)</p>
+                        <div class="warning">
+                            <strong>⚠️ IMPORTANTE:</strong> Asegúrate de que pega EL ARCHIVO COMPLETO. No importa si es muy largo.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div>
+                        <span class="step-number">1.6</span>
+                        <span class="step-title">Guarda cambios</span>
+                    </div>
+                    <div class="step-content">
+                        En la parte inferior derecha de ElevenLabs, haz click en <span class="highlight">Save Changes</span>
+                        <div class="success" style="margin-top: 10px;">
+                            ✅ Cuando veas "Changes saved", continúa al Paso 2
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PASO 2: SUBIR KB -->
+            <div class="section">
+                <h2><span class="icon">📚</span>Paso 2: Subir Knowledge Base (KB)</h2>
+
+                <div class="warning">
+                    <strong>⚠️ NOTA:</strong> Los Bloques 1-7 de KB ya están creados. Solo necesitas subirlos a ElevenLabs.
+                </div>
+
+                <div class="step">
+                    <div>
+                        <span class="step-number">2.1</span>
+                        <span class="step-title">Ve a Knowledge Base del Agent</span>
+                    </div>
+                    <div class="step-content">
+                        En ElevenLabs → Agent VÍCTOR-IA → Settings → <span class="highlight">Knowledge Base</span>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div>
+                        <span class="step-number">2.2</span>
+                        <span class="step-title">Haz click en "+ Add Document"</span>
+                    </div>
+                    <div class="step-content">
+                        Búsca el botón azul <span class="highlight">+ Add Document</span> (usualmente abajo a la derecha)
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div>
+                        <span class="step-number">2.3</span>
+                        <span class="step-title">Sube Bloque 1</span>
+                    </div>
+                    <div class="step-content">
+                        <p style="margin-bottom: 15px;">Abre el archivo local:</p>
+                        <div class="code-block">
+                            C:\Users\inbou\victor-ia-training\KB_PREMIUM_BLOQUE_1.md
+                        </div>
+                        <p style="margin-top: 10px;">Copia TODO el contenido (Ctrl+A → Ctrl+C)</p>
+                        <p style="margin-top: 10px;">En ElevenLabs, pega en la caja de texto de "+ Add Document"</p>
+                        <p style="margin-top: 10px;">Dale nombre: <span class="highlight">Bloque 1 - Introducción</span></p>
+                        <p style="margin-top: 10px;">Haz click en <span class="highlight">Upload</span> o <span class="highlight">Save</span></p>
+                        <div class="success" style="margin-top: 10px;">
+                            ✅ Espera a que diga <span class="highlight">"RAG indexing complete"</span> (tarda 2-3 min)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div>
+                        <span class="step-number">2.4</span>
+                        <span class="step-title">Repite para Bloques 2-7</span>
+                    </div>
+                    <div class="step-content">
+                        <p style="margin-bottom: 15px;">La MISMA operación para cada bloque:</p>
+                        <table>
+                            <tr>
+                                <th>Bloque</th>
+                                <th>Nombre en ElevenLabs</th>
+                                <th>Archivo Local</th>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>Bloque 2 - Continuación</td>
+                                <td>KB_PREMIUM_BLOQUE_2.md</td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>Bloque 3 - Cierre</td>
+                                <td>KB_PREMIUM_BLOQUE_3.md</td>
+                            </tr>
+                            <tr>
+                                <td>4</td>
+                                <td>Bloque 4 - Roleplay Inglés</td>
+                                <td>KB_PREMIUM_BLOQUE_4.md</td>
+                            </tr>
+                            <tr>
+                                <td>5</td>
+                                <td>Bloque 5 - Objeciones</td>
+                                <td>KB_PREMIUM_BLOQUE_5.md</td>
+                            </tr>
+                            <tr>
+                                <td>6</td>
+                                <td>Bloque 6 - DISC</td>
+                                <td>KB_PREMIUM_BLOQUE_6.md</td>
+                            </tr>
+                            <tr>
+                                <td>7</td>
+                                <td>Bloque 7 - Parejas</td>
+                                <td>KB_PREMIUM_BLOQUE_7.md</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="warning" style="margin-top: 20px;">
+                    <strong>⚠️ IMPORTANTE:</strong>
+                    <ul style="margin-top: 10px; margin-left: 20px;">
+                        <li>Espera a que cada uno diga "RAG indexing complete" antes de subir el siguiente</li>
+                        <li>Si dice "Error" → intenta de nuevo · si persiste, contacta soporte ElevenLabs</li>
+                        <li>El proceso tarda ~2-3 minutos por bloque (total: 15-20 minutos para los 7)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- PASO 3: CONFIGURAR RAG -->
+            <div class="section">
+                <h2><span class="icon">⚙️</span>Paso 3: Configurar RAG</h2>
+
+                <div class="step">
+                    <div>
+                        <span class="step-number">3.1</span>
+                        <span class="step-title">Abre Settings → Knowledge Base (otra vez)</span>
+                    </div>
+                    <div class="step-content">
+                        Busca la sección <span class="highlight">"Configure RAG"</span> (usualmente al principio de la página)
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div>
+                        <span class="step-number">3.2</span>
+                        <span class="step-title">Verifica los valores correctos</span>
+                    </div>
+                    <div class="step-content">
+                        <p style="margin-bottom: 15px;">Asegúrate de que están configurados EXACTAMENTE así:</p>
+                        <table>
+                            <tr>
+                                <th>Campo</th>
+                                <th>Valor</th>
+                            </tr>
+                            <tr>
+                                <td><span class="highlight">RAG Enable</span></td>
+                                <td>✅ ON (toggle azul)</td>
+                            </tr>
+                            <tr>
+                                <td><span class="highlight">Embedding Model</span></td>
+                                <td>e5_mistral_7b_instruct</td>
+                            </tr>
+                            <tr>
+                                <td><span class="highlight">Max Documents Length</span></td>
+                                <td>300000</td>
+                            </tr>
+                            <tr>
+                                <td><span class="highlight">Max Chunks</span></td>
+                                <td>20</td>
+                            </tr>
+                        </table>
+                        <div class="warning" style="margin-top: 15px;">
+                            Si alguno NO está como arriba, corrígelo manualmente
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div>
+                        <span class="step-number">3.3</span>
+                        <span class="step-title">Guarda la configuración RAG</span>
+                    </div>
+                    <div class="step-content">
+                        Haz click en <span class="highlight">Save Changes</span>
+                        <div class="success" style="margin-top: 10px;">
+                            ✅ Cuando veas confirmación, RAG está ACTIVADO
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PASO 4: TESTEAR -->
+            <div class="section">
+                <h2><span class="icon">✅</span>Paso 4: Probar que Funciona</h2>
+
+                <div class="step">
+                    <div>
+                        <span class="step-number">4.1</span>
+                        <span class="step-title">Abre el chat de prueba</span>
+                    </div>
+                    <div class="step-content">
+                        En ElevenLabs → Agent VÍCTOR-IA → Tab <span class="highlight">Test</span> o <span class="highlight">Chat</span>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div>
+                        <span class="step-number">4.2</span>
+                        <span class="step-title">Test 1: Detección DISC</span>
+                    </div>
+                    <div class="step-content">
+                        <p style="margin-bottom: 10px;">Escribe exactamente esto:</p>
+                        <div class="test-content">
+"Hola Víctor, soy Marco de Guadalajara. Soy CEO de una empresa.
+Quiero viajar más pero eficientemente. Muéstrame los números."
+                        </div>
+                        <p style="margin-top: 10px;"><strong>¿Qué debe pasar?</strong></p>
+                        <ul style="margin-top: 10px; margin-left: 20px;">
+                            <li>✅ Víctor responde <span class="highlight">RÁPIDO y DIRECTO</span></li>
+                            <li>✅ Números y ROI <span class="highlight">primero</span> en la respuesta</li>
+                            <li>✅ Sin rodeos ni emociones (detectó DRIVER)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div>
+                        <span class="step-number">4.3</span>
+                        <span class="step-title">Test 2: Pareja con dinámicas diferentes</span>
+                    </div>
+                    <div class="step-content">
+                        <p style="margin-bottom: 10px;">Escribe:</p>
+                        <div class="test-content">
+"Hola Víctor. Yo soy Carlos y ella es Sandra.
+Carlos: Quiero saber el ROI exacto.
+Sandra: Yo quiero que viajemos en familia, sin estrés. ¿Qué tal?"
+                        </div>
+                        <p style="margin-top: 10px;"><strong>¿Qué debe pasar?</strong></p>
+                        <ul style="margin-top: 10px; margin-left: 20px;">
+                            <li>✅ Víctor responde a <span class="highlight">AMBAS</span> necesidades</li>
+                            <li>✅ A Carlos: números y ROI</li>
+                            <li>✅ A Sandra: familia y tranquilidad (detectó Driver + Amiable)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div>
+                        <span class="step-number">4.4</span>
+                        <span class="step-title">Test 3: KB funciona</span>
+                    </div>
+                    <div class="step-content">
+                        <p style="margin-bottom: 10px;">Escribe:</p>
+                        <div class="test-content">
+"¿Cuáles son los 11 principios de neurociencia?"
+                        </div>
+                        <p style="margin-top: 10px;"><strong>¿Qué debe pasar?</strong></p>
+                        <ul style="margin-top: 10px; margin-left: 20px;">
+                            <li>✅ Víctor recuerda los 11 principios de la KB (oxitocina, dopamina, etc)</li>
+                            <li>✅ Responde desde la KB, no inventa</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="success" style="margin-top: 20px;">
+                    <strong>🎉 Si todo pasa: ¡Sistema 100% OPERACIONAL!</strong>
+                </div>
+            </div>
+
+            <!-- CHECKLIST FINAL -->
+            <div class="section">
+                <h2><span class="icon">✓</span>Checklist Final</h2>
+
+                <div class="checklist">
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check1">
+                        <div style="flex: 1;">
+                            <span class="highlight">✓ System Prompt V7</span> actualizado en ElevenLabs
+                        </div>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check2">
+                        <div style="flex: 1;">
+                            <span class="highlight">✓ Bloques KB 1-7</span> subidos y "RAG indexing complete"
+                        </div>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check3">
+                        <div style="flex: 1;">
+                            <span class="highlight">✓ RAG Enable: ON</span> en Settings
+                        </div>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check4">
+                        <div style="flex: 1;">
+                            <span class="highlight">✓ Test 1 (DISC)</span> pasó
+                        </div>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check5">
+                        <div style="flex: 1;">
+                            <span class="highlight">✓ Test 2 (Pareja)</span> pasó
+                        </div>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check6">
+                        <div style="flex: 1;">
+                            <span class="highlight">✓ Test 3 (KB)</span> pasó
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TROUBLESHOOTING -->
+            <div class="section">
+                <h2><span class="icon">🆘</span>Troubleshooting</h2>
+
+                <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                    <strong>P: "RAG indexing complete" no aparece después de 5 minutos</strong><br>
+                    <span style="color: #666;">R: ElevenLabs podría estar lento. Espera 10 minutos. Si persiste, recarga la página.</span>
+                </div>
+
+                <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                    <strong>P: Víctor no responde con números (no detectó DRIVER)</strong><br>
+                    <span style="color: #666;">R: El System Prompt no se actualizó correctamente. Verifica que pegaste TODO el contenido de V7_COMPLETO.md</span>
+                </div>
+
+                <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                    <strong>P: Error "Max Documents Length" en RAG settings</strong><br>
+                    <span style="color: #666;">R: Algunos planes de ElevenLabs limitan este valor. Establécelo al máximo permitido (mínimo 100000)</span>
+                </div>
+
+                <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                    <strong>P: "¿Cuáles son los 11 principios?" y Víctor no sabe</strong><br>
+                    <span style="color: #666;">R: KB no está en RAG. Verifica que todos los Bloques digan "RAG indexing complete" y que RAG Enable esté ON</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <h3>✅ Listo</h3>
+            <p>Tu sistema VÍCTOR está 100% operacional.</p>
+            <p style="margin-top: 15px; font-size: 13px;">
+                Preguntas: contacta soporte ElevenLabs o revisa la documentación oficial en elevenlabs.io/docs
+            </p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,271 @@
+╔════════════════════════════════════════════════════════════════════════════════╗
+║              CHECKLIST VISUAL — ACTIVAR VÍCTOR V7 EN ELEVENLABS                  ║
+║                          ⏱️  15 MINUTOS TOTALES                                   ║
+╚════════════════════════════════════════════════════════════════════════════════╝
+
+
+┌─ PASO 1: ACTUALIZAR SYSTEM PROMPT (2 MIN) ─────────────────────────────────────┐
+│                                                                                  │
+│  ☐ 1.1  Abre archivo:                                                           │
+│         C:\Users\inbou\victor-ia-training\VICTOR_SYSTEM_PROMPT_V7_COMPLETO.md   │
+│                                                                                  │
+│  ☐ 1.2  Selecciona TODO:  Ctrl+A                                               │
+│                                                                                  │
+│  ☐ 1.3  Copia:  Ctrl+C                                                         │
+│                                                                                  │
+│  ☐ 1.4  Abre navegador:  https://elevenlabs.io/                                │
+│                                                                                  │
+│  ☐ 1.5  Login:  mesainteligentedemo@gmail.com                                 │
+│                                                                                  │
+│  ☐ 1.6  Sidebar izquierda → Click en:  Agents                                  │
+│                                                                                  │
+│  ☐ 1.7  Click en:  VÍCTOR-IA                                                   │
+│                                                                                  │
+│  ☐ 1.8  Arriba-derecha → Click en:  ⚙️  Settings                               │
+│                                                                                  │
+│  ☐ 1.9  Busca:  System Prompt                                                  │
+│                                                                                  │
+│  ☐ 1.10 Selecciona TODO en la caja:  Ctrl+A                                    │
+│                                                                                  │
+│  ☐ 1.11 Borra:  Delete o Backspace                                             │
+│                                                                                  │
+│  ☐ 1.12 Pega:  Ctrl+V                                                          │
+│                                                                                  │
+│  ☐ 1.13 Busca botón:  💾 Save Changes                                          │
+│                                                                                  │
+│  ☐ 1.14 Click y ESPERA:  "Changes saved" ✅                                    │
+│                                                                                  │
+│         ✅ PASO 1 COMPLETADO                                                    │
+│                                                                                  │
+└──────────────────────────────────────────────────────────────────────────────────┘
+
+
+┌─ PASO 2: SUBIR KNOWLEDGE BASE — BLOQUE 1 (2 MIN) ─────────────────────────────┐
+│                                                                                  │
+│  AHORA REPETIRÉ ESTE PROCESO 7 VECES (para los 7 bloques)                      │
+│  SOLO CAMBIA EL ARCHIVO Y EL NOMBRE                                            │
+│                                                                                  │
+│  ────────────────────────────────────────────────────────────────────────────  │
+│  BLOQUE 1                                                                       │
+│  ────────────────────────────────────────────────────────────────────────────  │
+│                                                                                  │
+│  Archivo:  KB_PREMIUM_BLOQUE_1.md                                              │
+│  Nombre:   Bloque 1 - Introducción                                             │
+│                                                                                  │
+│  ☐ 2.1  Abre archivo local:  Clic derecho → Abrir con → Notepad               │
+│                                                                                  │
+│  ☐ 2.2  Selecciona TODO:  Ctrl+A                                              │
+│                                                                                  │
+│  ☐ 2.3  Copia:  Ctrl+C                                                         │
+│                                                                                  │
+│  ☐ 2.4  ElevenLabs → Settings → Knowledge Base                                │
+│                                                                                  │
+│  ☐ 2.5  Click en:  "+ Add Document"                                           │
+│                                                                                  │
+│  ☐ 2.6  Pega en caja:  Ctrl+V                                                 │
+│                                                                                  │
+│  ☐ 2.7  Campo "Name":  Escribe:  "Bloque 1 - Introducción"                   │
+│                                                                                  │
+│  ☐ 2.8  Click:  📤 Upload                                                      │
+│                                                                                  │
+│  ☐ 2.9  ESPERA hasta ver:  ✅ "RAG indexing complete" (2-3 min)               │
+│                                                                                  │
+│         ✅ BLOQUE 1 COMPLETADO                                                  │
+│                                                                                  │
+└──────────────────────────────────────────────────────────────────────────────────┘
+
+
+┌─ PASO 3: SUBIR BLOQUES 2-7 (10 MIN) ──────────────────────────────────────────┐
+│                                                                                  │
+│  REPITE EL MISMO PROCESO DEL PASO 2, 6 VECES MÁS:                             │
+│                                                                                  │
+│  ────────────────────────────────────────────────────────────────────────────  │
+│  BLOQUE 2                                                                       │
+│  ────────────────────────────────────────────────────────────────────────────  │
+│  ☐ Archivo: KB_PREMIUM_BLOQUE_2.md                                            │
+│  ☐ Nombre:  Bloque 2 - Continuación                                           │
+│  ☐ Ctrl+A → Ctrl+C → Pega en KB → Upload → ESPERA "RAG indexing complete"   │
+│  ✅ BLOQUE 2 COMPLETADO                                                        │
+│                                                                                  │
+│  ────────────────────────────────────────────────────────────────────────────  │
+│  BLOQUE 3                                                                       │
+│  ────────────────────────────────────────────────────────────────────────────  │
+│  ☐ Archivo: KB_PREMIUM_BLOQUE_3.md                                            │
+│  ☐ Nombre:  Bloque 3 - Cierre                                                 │
+│  ☐ Ctrl+A → Ctrl+C → Pega en KB → Upload → ESPERA "RAG indexing complete"   │
+│  ✅ BLOQUE 3 COMPLETADO                                                        │
+│                                                                                  │
+│  ────────────────────────────────────────────────────────────────────────────  │
+│  BLOQUE 4                                                                       │
+│  ────────────────────────────────────────────────────────────────────────────  │
+│  ☐ Archivo: KB_PREMIUM_BLOQUE_4.md                                            │
+│  ☐ Nombre:  Bloque 4 - Roleplay Inglés                                        │
+│  ☐ Ctrl+A → Ctrl+C → Pega en KB → Upload → ESPERA "RAG indexing complete"   │
+│  ✅ BLOQUE 4 COMPLETADO                                                        │
+│                                                                                  │
+│  ────────────────────────────────────────────────────────────────────────────  │
+│  BLOQUE 5                                                                       │
+│  ────────────────────────────────────────────────────────────────────────────  │
+│  ☐ Archivo: KB_PREMIUM_BLOQUE_5.md                                            │
+│  ☐ Nombre:  Bloque 5 - Objeciones                                             │
+│  ☐ Ctrl+A → Ctrl+C → Pega en KB → Upload → ESPERA "RAG indexing complete"   │
+│  ✅ BLOQUE 5 COMPLETADO                                                        │
+│                                                                                  │
+│  ────────────────────────────────────────────────────────────────────────────  │
+│  BLOQUE 6                                                                       │
+│  ────────────────────────────────────────────────────────────────────────────  │
+│  ☐ Archivo: KB_PREMIUM_BLOQUE_6.md                                            │
+│  ☐ Nombre:  Bloque 6 - DISC                                                   │
+│  ☐ Ctrl+A → Ctrl+C → Pega en KB → Upload → ESPERA "RAG indexing complete"   │
+│  ✅ BLOQUE 6 COMPLETADO                                                        │
+│                                                                                  │
+│  ────────────────────────────────────────────────────────────────────────────  │
+│  BLOQUE 7 (ÚLTIMO)                                                             │
+│  ────────────────────────────────────────────────────────────────────────────  │
+│  ☐ Archivo: KB_PREMIUM_BLOQUE_7.md                                            │
+│  ☐ Nombre:  Bloque 7 - Parejas                                                │
+│  ☐ Ctrl+A → Ctrl+C → Pega en KB → Upload → ESPERA "RAG indexing complete"   │
+│  ✅ BLOQUE 7 COMPLETADO                                                        │
+│                                                                                  │
+│  ✅ LOS 7 BLOQUES COMPLETADOS                                                   │
+│                                                                                  │
+└──────────────────────────────────────────────────────────────────────────────────┘
+
+
+┌─ PASO 4: ACTIVAR RAG (1 MIN) ──────────────────────────────────────────────────┐
+│                                                                                  │
+│  ☐ 4.1  ElevenLabs → Settings → Knowledge Base                                 │
+│                                                                                  │
+│  ☐ 4.2  Busca sección:  "Configure RAG"                                        │
+│                                                                                  │
+│  ☐ 4.3  Verifica estos valores EXACTAMENTE:                                    │
+│                                                                                  │
+│         ☑ RAG Enable:  ⭕ ON  (toggle AZUL, no gris)                           │
+│         ☑ Embedding Model:  e5_mistral_7b_instruct                            │
+│         ☑ Max Documents Length:  300000                                        │
+│         ☑ Max Chunks:  20                                                      │
+│                                                                                  │
+│         ⚠️  Si algo está diferente, cámbialo manualmente                       │
+│                                                                                  │
+│  ☐ 4.4  Click:  💾 Save Changes                                               │
+│                                                                                  │
+│  ☐ 4.5  ESPERA:  "Changes saved" ✅                                            │
+│                                                                                  │
+│         ✅ RAG ACTIVADO                                                         │
+│                                                                                  │
+└──────────────────────────────────────────────────────────────────────────────────┘
+
+
+┌─ PASO 5: TESTEAR (30 SEG) ────────────────────────────────────────────────────┐
+│                                                                                  │
+│  ☐ 5.1  ElevenLabs → Agent VÍCTOR-IA → Tab "Test" o "Chat"                   │
+│                                                                                  │
+│  ☐ 5.2  TEST 1: DISC Detection                                                │
+│                                                                                  │
+│         Escribe exactamente:                                                    │
+│         ────────────────────────────────────────────────────────────────────   │
+│         "Hola Víctor, soy Marco de Guadalajara. Soy CEO.                       │
+│          Quiero viajar más pero eficientemente.                                │
+│          Muéstrame los números."                                               │
+│         ────────────────────────────────────────────────────────────────────   │
+│                                                                                  │
+│         ✅ DEBE PASAR SI:                                                       │
+│         • Responde RÁPIDO                                                      │
+│         • Números y ROI PRIMERO                                                │
+│         • Directo, sin rodeos                                                  │
+│         (Detectó DRIVER correctamente)                                         │
+│                                                                                  │
+│  ☐ 5.3  TEST 2: Knowledge Base Funciona                                       │
+│                                                                                  │
+│         Escribe:                                                                │
+│         ────────────────────────────────────────────────────────────────────   │
+│         "¿Cuáles son los 11 principios de neurociencia?"                       │
+│         ────────────────────────────────────────────────────────────────────   │
+│                                                                                  │
+│         ✅ DEBE PASAR SI:                                                       │
+│         • Víctor lista los 11 principios exactos                               │
+│         • Los números (1-11) están claros                                      │
+│         • Viene de la Knowledge Base (RAG funciona)                            │
+│                                                                                  │
+│         ✅ AMBOS TESTS PASARON = SISTEMA OPERACIONAL                            │
+│                                                                                  │
+└──────────────────────────────────────────────────────────────────────────────────┘
+
+
+╔════════════════════════════════════════════════════════════════════════════════╗
+║                         ✅ CHECKLIST FINAL                                     ║
+╚════════════════════════════════════════════════════════════════════════════════╝
+
+┌─ TODOS ESTOS CHECKBOXES DEBEN ESTAR ☑ ───────────────────────────────────────┐
+│                                                                                  │
+│  ☐ System Prompt V7 actualizado en ElevenLabs                                  │
+│  ☐ Bloque 1 subido → "RAG indexing complete" ✅                               │
+│  ☐ Bloque 2 subido → "RAG indexing complete" ✅                               │
+│  ☐ Bloque 3 subido → "RAG indexing complete" ✅                               │
+│  ☐ Bloque 4 subido → "RAG indexing complete" ✅                               │
+│  ☐ Bloque 5 subido → "RAG indexing complete" ✅                               │
+│  ☐ Bloque 6 subido → "RAG indexing complete" ✅                               │
+│  ☐ Bloque 7 subido → "RAG indexing complete" ✅                               │
+│  ☐ RAG Enable: ON (toggle AZUL)                                               │
+│  ☐ Embedding Model: e5_mistral_7b_instruct                                    │
+│  ☐ Max Documents Length: 300000                                               │
+│  ☐ Max Chunks: 20                                                             │
+│  ☐ Test 1 (DISC Detection) PASÓ ✅                                            │
+│  ☐ Test 2 (KB - 11 principios) PASÓ ✅                                        │
+│                                                                                  │
+│  SI TODOS ESTÁN CHEQUEADOS:                                                    │
+│                                                                                  │
+│                  🎉 VÍCTOR V7 100% OPERACIONAL 🎉                             │
+│                                                                                  │
+└──────────────────────────────────────────────────────────────────────────────────┘
+
+
+╔════════════════════════════════════════════════════════════════════════════════╗
+║                      ⏱️  TIEMPO ESTIMADO POR PASO                              ║
+╚════════════════════════════════════════════════════════════════════════════════╝
+
+Paso 1: System Prompt          2 minutos
+Paso 2: Bloques 1-7 KB        12 minutos (2 min × 7 bloques)
+Paso 3: Activar RAG            1 minuto
+Paso 4: Testear               30 segundos
+                             ──────────
+TOTAL:                    15-16 minutos
+
+
+╔════════════════════════════════════════════════════════════════════════════════╗
+║                      🆘 SOLUCIONES RÁPIDAS                                     ║
+╚════════════════════════════════════════════════════════════════════════════════╝
+
+❌ "RAG indexing complete" no aparece después de 5 min
+   → Espera 10 minutos total
+   → Si sigue sin aparecer, recarga página (F5)
+   → Intenta subir el bloque de nuevo
+
+❌ Víctor no responde con números/DRIVER
+   → Verifica que pegaste TODO el prompt
+   → Haz click "Save Changes" de nuevo
+   → Espera 1 minuto
+   → Intenta test de nuevo
+
+❌ "¿11 principios?" y Víctor dice "no sé"
+   → Verifica los 7 bloques digan "RAG indexing complete"
+   → Verifica RAG Enable esté ON (toggle azul)
+   → Espera más, podrían estar indexando aún
+
+❌ Error en ElevenLabs
+   → Recarga página completa (Ctrl+F5)
+   → Intenta de nuevo
+   → Si persiste, contacta soporte ElevenLabs
+
+
+╔════════════════════════════════════════════════════════════════════════════════╗
+║                      🚀 ¡ADELANTE!                                            ║
+╚════════════════════════════════════════════════════════════════════════════════╝
+
+Abre ahora:  https://elevenlabs.io/
+
+Sigue el checklist arriba.
+
+Cuando termines, reporta:  "✅ VÍCTOR V7 operacional en ElevenLabs"
+
+¡Éxito! 🎉
