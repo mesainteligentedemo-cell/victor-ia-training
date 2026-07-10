@@ -1,0 +1,6 @@
+{
+  "env": {
+    "SUPABASE_URL": "https://TU-PROYECTO.supabase.co",
+    "SUPABASE_KEY": "TU-ANON-KEY-AQUI"
+  }
+}

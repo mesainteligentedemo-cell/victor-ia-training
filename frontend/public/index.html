@@ -1967,7 +1967,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
   function typing(on){let e=$('vw-typing');if(on){if(!e){e=document.createElement('div');e.id='vw-typing';e.className='vw-b vw-ai';e.innerHTML='<span class="vw-dots"><span></span><span></span><span></span></span>';msgs.appendChild(e);msgs.scrollTop=msgs.scrollHeight;}}else if(e)e.remove();}
 
   const MAP={'inicio':'__top','cero':'__top','desde cero':'__top','principio':'__top','header':'__top','curso':'__top','top':'__top','h1':'__top','arriba':'__top','indice':'indice','modulos':'indice','todos':'indice','f':'modulo-f','fundamentos':'modulo-f','proceso':'lvc','lvc':'lvc','club':'lvc','vtc19':'vtc19','vtc 19':'vtc19','19':'vtc19','bienvenida':'bienvenida','fin':'modulo-FIN','cierre-curso':'modulo-FIN'};
-  function vtcId(p){ var m=String((p&&(p.modulo||p.module||p.id))||'').toLowerCase().trim().replace('módulo','').replace('modulo-','').replace('modulo','').trim(); return MAP[m]||('modulo-'+m); }
+  function vtcId(p){ var m=String((p&&(p.modulo||p.module||p.module_id||p.id))||'').toLowerCase().trim().replace('módulo','').replace('modulo-','').replace('modulo','').trim(); m=m.replace(/^0([0-9])$/,'$1'); return MAP[m]||('modulo-'+m); }
   function vtcMobMin(){ try{ if(window.innerWidth<700){ var pn=document.getElementById("vw-panel"); if(pn&&pn.classList.contains("vw-open")){ pn.classList.remove("vw-open"); var lc=document.getElementById("vw-launch"); if(lc) lc.style.display="flex"; } } }catch(e){} } function vtcHL(el){ try{window.__vtcDrive=Date.now();}catch(e){} try{document.querySelectorAll(".vtc-hl").forEach(function(e){e.classList.remove("vtc-hl");});}catch(e){} if(el) el.classList.add("vtc-hl"); vtcMobMin(); }
   function vtcResolve(p){ var raw=String((p&&(p.modulo||p.module||p.id))||'').toLowerCase().replace(/\s+/g,' ').trim();
     var pm=raw.match(/(?:pitch|paso|step)\s*-?\s*([0-9]{1,2})/);
@@ -2047,7 +2047,8 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
         try{ if(!window._vKeep) window._vKeep=setInterval(function(){ try{ if(conv&&conv.sendUserActivity) conv.sendUserActivity(); }catch(e){} },8000); }catch(e){}
         return 'ESPERA EN SILENCIO ABSOLUTO. El sistema detecta automaticamente cuando termina el video y te avisa. NO preguntes si termino. NO digas nada mas. Solo espera el aviso del sistema.';
       }catch(e){ return 'error'; } },
-    obtener_contenido: async(p)=>{ try{
+    leer_modulo_completo: async(p)=>{ try{
+        console.log('📖 Leyendo módulo:', p&&(p.module_id||p.modulo||p.module||p.id));
         var id=vtcId(p);
         var content=getModuleContent(id);
         if(!content) return 'modulo no encontrado o sin contenido';
@@ -2057,15 +2058,6 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
         });
         return result;
       }catch(e){ return 'error al obtener contenido'; } },
-    marcar_parrafo: async(p)=>{ try{
-        var id=p&&p.modulo?vtcId(p.modulo):vtcId(p);
-        var idx=p&&p.indice!==undefined?parseInt(p.indice):0;
-        highlightCurrentBlock(id, idx);
-        var sec=document.getElementById(id);
-        var blocks=sec?sec.querySelectorAll('.content-block'):[];
-        if(idx>=0&&idx<blocks.length) blocks[idx].scrollIntoView({behavior:'instant',block:'center'});
-        return 'Párrafo marcado y visible';
-      }catch(e){ return 'error al marcar'; } },
     ir_al_quiz: async(p)=>{ try{
         var sec=document.getElementById(vtcId(p));
         var q=sec?sec.querySelector('.quiz'):null;
@@ -2155,44 +2147,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
         return rawText;
       }catch(e){ return 'error: '+String(e); } },
 
-    minimizar_chat: async()=>{ try{ var pn=document.getElementById('vw-panel'); var lc=document.getElementById('vw-launch'); if(pn) pn.classList.remove('vw-open'); if(lc) lc.style.display='flex'; try{window.__vtcDrive=Date.now();}catch(e){} return 'Chat minimizado (la sesion sigue activa). El usuario ya ve toda la pantalla. Sigue hablando con normalidad; cuando quiera escribir o ver el chat tocara el boton flotante.'; }catch(e){ return 'error'; } },
-
-    verificar_video: async()=>{ try{ var st=window.__vtcVideoState||{isPlaying:false,isPaused:false,isEnded:false,progress:0}; var state=''; if(st.isPlaying) state='VIDEO REPRODUCIENDO (play) - '+st.progress+'% completado'; else if(st.isPaused) state='VIDEO PAUSADO (pause)'; else if(st.isEnded) state='VIDEO TERMINADO (ended)'; else state='VIDEO DETENIDO o sin reproducir (ready)'; return state; }catch(e){ return 'error'; } },
-
-    iniciarCursoCompleto: async()=>{ try{
-      window.scrollTo({top:0,behavior:'instant'});
-      await new Promise(function(r){setTimeout(r,150);});
-      var hero=document.querySelector('.hero');
-      var heroText=hero?(hero.innerText||hero.textContent).trim():'';
-      return 'HERO SECTION CONTENT:\n'+heroText+'\n\n[INSTRUCCION CRITICA] Lee AHORA el contenido del hero palabra por palabra. LEE EXACTAMENTE LO QUE VES. Después de terminar la lectura del hero, llama a reproducir_video para el video de bienvenida. NUNCA menciones temario, syllabus, navegación, o índice. Solo sigue: Hero → Video → Scroll → Lectura → Explicación.';
-    }catch(e){ return 'error: '+String(e); } },
-
-    scrollAlSiguienteBloque: async()=>{ try{
-      await new Promise(function(r){setTimeout(r,80);});
-      var all=Array.from(document.querySelectorAll('section, .module-section, .content-block, [id^="modulo-"], [id^="bienvenida"], video, .quiz, h2, h3'));
-      var currentScrollTop=window.scrollY||window.pageYOffset;
-      var viewportH=window.innerHeight;
-      var bottomViewport=currentScrollTop+viewportH;
-      var next=all.find(function(el){
-        var rect=el.getBoundingClientRect();
-        var elTop=rect.top+currentScrollTop;
-        return elTop>=bottomViewport-120;
-      });
-      if(next){
-        var rect=next.getBoundingClientRect();
-        var navH=88;
-        var elH=Math.min(rect.height,400);
-        var targetTop=Math.max(navH+16,(viewportH-elH)/2);
-        var delta=rect.top-targetTop;
-        if(Math.abs(delta)>8){
-          window.scrollBy({top:Math.round(delta),behavior:'instant'});
-        }
-        await new Promise(function(r){setTimeout(r,150);});
-      }
-      return 'Scroll DOWN suave completado';
-    }catch(e){ return 'error: '+String(e); } },
-
-    verificar_voz: async()=>{ return 'Identificacion por voz no disponible en esta version. El usuario ya se identifico con nombre y numero de empleado en el formulario de acceso. Continua con esos datos.'; }
+    minimizar_chat: async()=>{ try{ var pn=document.getElementById('vw-panel'); var lc=document.getElementById('vw-launch'); if(pn) pn.classList.remove('vw-open'); if(lc) lc.style.display='flex'; try{window.__vtcDrive=Date.now();}catch(e){} return 'Chat minimizado (la sesion sigue activa). El usuario ya ve toda la pantalla. Sigue hablando con normalidad; cuando quiera escribir o ver el chat tocara el boton flotante.'; }catch(e){ return 'error'; } }
   };
 
   function stopKeepalive(){ try{ if(window._vKeep){clearInterval(window._vKeep); window._vKeep=null;} }catch(e){} }
@@ -2202,10 +2157,10 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       agentId:AGENT,
       dynamicVariables:{ user_name:ctx.name, employee_number:ctx.emp, departamento:ctx.dep||'' },
       clientTools,
-      onConnect:()=>{setStatus('<b>En línea</b>');mic.classList.add('vw-live');launch.classList.add('vw-active');},
+      onConnect:()=>{setStatus(ctx.textOnly?'<b>En línea (modo texto)</b>':'<b>En línea</b>');if(!ctx.textOnly)mic.classList.add('vw-live');launch.classList.add('vw-active');},
       onDisconnect:(d)=>{setStatus('Sesión terminada');console.warn('ConvAI disconnect:',d);mic.classList.remove('vw-live');launch.classList.remove('vw-active');conv=null;started=false;window.__vtcSpeaking=false;stopKeepalive();},
       onError:(e)=>{console.error('ConvAI onError:',e);setStatus('Error: '+((e&&(e.message||e.reason))||'conexión'));},
-      onModeChange:(m)=>{const md=(m&&m.mode)||m;window.__vtcSpeaking=(md==='speaking');if(md==='speaking'){typing(false);setStatus('<b>Victor hablando…</b>');}else setStatus('<b>Escuchando…</b>');},
+      onModeChange:(m)=>{const md=(m&&m.mode)||m;window.__vtcSpeaking=(md==='speaking');if(md==='speaking'){typing(false);setStatus(ctx.textOnly?'<b>Victor respondiendo…</b>':'<b>Victor hablando…</b>');}else setStatus(ctx.textOnly?'<b>Modo texto</b> — escribe tu mensaje':'<b>Escuchando…</b>');},
       onMessage:(m)=>{const s=m.source||m.role,txt=m.message||m.text||'';if(s==='ai'||s==='agent'){typing(false);bubble('ai',txt);}else bubble('user',txt);},
     };
   }
@@ -2222,10 +2177,13 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
        (2) la red bloquee WebRTC (firewalls corporativos / hoteles). */
     const attempts=[];
     const o1=baseOpts(ctx); o1.connectionType='webrtc';
-    if(typeof ctx.firstMessage==='string' && ctx.firstMessage.length>0){ o1.overrides={ agent:{ firstMessage:ctx.firstMessage } }; }
+    const ovr1={};
+    if(typeof ctx.firstMessage==='string' && ctx.firstMessage.length>0){ ovr1.agent={ firstMessage:ctx.firstMessage }; }
+    if(ctx.textOnly){ ovr1.conversation={ textOnly:true }; }
+    if(Object.keys(ovr1).length){ o1.overrides=ovr1; }
     attempts.push(o1);
-    const o2=baseOpts(ctx); o2.connectionType='webrtc'; attempts.push(o2);
-    const o3=baseOpts(ctx); o3.connectionType='websocket'; attempts.push(o3);
+    const o2=baseOpts(ctx); o2.connectionType='webrtc'; if(ctx.textOnly){ o2.overrides={ conversation:{ textOnly:true } }; } attempts.push(o2);
+    const o3=baseOpts(ctx); o3.connectionType='websocket'; if(ctx.textOnly){ o3.overrides={ conversation:{ textOnly:true } }; } attempts.push(o3);
 
     for(let i=0;i<attempts.length;i++){
       try{ conv=await SDK.startSession(attempts[i]); break; }
@@ -2236,6 +2194,26 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
     return true;
   }
 
+  /* ═══ FALLBACK A TEXTO cuando getUserMedia falla ═══ */
+  function micErrorMessage(e){
+    var n=(e&&e.name)||'';
+    if(n==='NotAllowedError'||n==='PermissionDeniedError') return 'Permiso de micrófono denegado. Puedes continuar solo escribiendo.';
+    if(n==='NotFoundError'||n==='DevicesNotFoundError') return 'No detecté micrófono en tu dispositivo. Continúa con texto.';
+    if(n==='NotSupportedError') return 'Tu navegador no soporta audio. Continúa escribiendo.';
+    return 'Error de micrófono: '+((e&&e.message)||'desconocido')+'. Puedes continuar con texto.';
+  }
+  function removeTextFallbackBtn(){ var b=document.getElementById('vw-textonly-btn'); if(b) b.remove(); }
+  function showTextFallbackBtn(onClick){
+    removeTextFallbackBtn();
+    var errEl=$('vw-err'); if(!errEl||!errEl.parentNode) return;
+    var b=document.createElement('button');
+    b.id='vw-textonly-btn'; b.type='button';
+    b.textContent='Continuar solo con texto';
+    b.style.cssText='display:block;margin:10px auto 0;padding:8px 16px;background:#5B4F78;color:#FFF;border:none;border-radius:4px;cursor:pointer;font-size:14px;';
+    b.onclick=function(){ b.disabled=true; b.textContent='Conectando…'; onClick(); };
+    errEl.parentNode.insertBefore(b, errEl.nextSibling);
+  }
+
   async function begin(){
     const name=$('vw-name').value.trim(), emp=$('vw-emp').value.trim(), dep=$('vw-dep').value.trim();
     if(window.viTrack) window.viTrack.setUser({name,emp,dep,site:'vtc-capacitacion'});
@@ -2244,25 +2222,53 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
     if(!name){err.textContent='Por favor escribe tu nombre.';return;}
     if(!emp){err.textContent='Por favor escribe tu número de empleado.';return;}
     if(!dep){err.textContent='Por favor selecciona tu departamento.';return;}
-    err.textContent=''; try{localStorage.setItem('vtc_user',JSON.stringify({name:name,emp:emp,dep:dep}));}catch(e){}
+    err.textContent=''; removeTextFallbackBtn(); try{localStorage.setItem('vtc_user',JSON.stringify({name:name,emp:emp,dep:dep}));}catch(e){}
     const cta=$('vw-cta'); cta.disabled=true; cta.textContent='Conectando…';
     /* CRITICO: pedir microfono AHORA, en el mismo gesto del click (sin awaits previos) */
-    let micStream=null;
-    try{ micStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true,channelCount:1}}); }
-    catch(e){ err.textContent='Necesito permiso de micrófono para funcionar. Actívalo y vuelve a intentar.'; console.error('getUserMedia falló:',e); cta.disabled=false; cta.textContent='Comenzar capacitación'; return; }
+    let micStream=null, micOk=false, micErr=null;
+    if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia){
+      try{ micStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true,channelCount:1}}); micOk=true; }
+      catch(e){ micErr=e; }
+    } else {
+      micErr=new Error('getUserMedia no disponible'); micErr.name='NotSupportedError';
+    }
+    if(!micOk){
+      /* Discriminar el error y ofrecer fallback a solo-texto en lugar de bloquear */
+      err.textContent=micErrorMessage(micErr);
+      console.warn('📵 getUserMedia falló ('+((micErr&&micErr.name)||'?')+') — fallback a texto disponible:', micErr);
+      cta.disabled=false; cta.textContent='Reintentar con micrófono';
+      showTextFallbackBtn(function(){ console.log('🔄 Iniciando chat solo-texto...'); startCourse(name,emp,dep,true); });
+      return;
+    }
     /* CRITICO: soltar el stream temporal DE INMEDIATO. Su unico proposito era el prompt de permiso.
        Mantenerlo abierto crea DOS capturas simultaneas y en iOS Safari silencia el microfono del SDK. */
     try{ micStream.getTracks().forEach(function(t){t.stop();}); }catch(e){}
+    await startCourse(name,emp,dep,false);
+  }
+
+  async function startCourse(name,emp,dep,textOnly){
+    const err=$('vw-err'), cta=$('vw-cta');
+    err.textContent=''; removeTextFallbackBtn();
+    cta.disabled=true; cta.textContent='Conectando…';
     try{ var _bv=document.querySelector('#bienvenida video'); if(_bv){ _bv.muted=true; var _pp=_bv.play(); if(_pp&&_pp.then) _pp.then(function(){ _bv.pause(); try{_bv.currentTime=0;}catch(e){} _bv.muted=false; }).catch(function(){ _bv.muted=false; }); } }catch(e){}
     const firstMessage = '¡Bienvenido, '+name+'! Soy Victor, tu entrenador personal, y hoy vamos a hacerte mejor. ¿Quieres repasar un módulo o entramos directo a un roleplay?';
-    gate.style.display='none'; chat.style.display='flex'; started=true; setStatus('<b>Preparando tu sesión…</b>');
-    const ok=await connect({name,emp,dep,hist:'',firstMessage});
+    gate.style.display='none'; chat.style.display='flex'; started=true;
+    setStatus(textOnly?'<b>Preparando chat de texto…</b>':'<b>Preparando tu sesión…</b>');
+    const ok=await connect({name,emp,dep,hist:'',firstMessage,textOnly:!!textOnly});
     if(!ok){
       /* Falla de conexión: devolver al usuario al formulario para reintentar (no dejarlo en un chat muerto) */
       started=false; gate.style.display='flex'; chat.style.display='none';
       err.textContent='No se pudo conectar con Victor. Revisa tu internet y vuelve a intentar.';
       cta.disabled=false; cta.textContent='Reintentar';
+      if(textOnly) showTextFallbackBtn(function(){ startCourse(name,emp,dep,true); });
       return;
+    }
+    if(textOnly){
+      /* Modo solo-texto: ocultar el boton de microfono y dejar claro el modo activo */
+      try{ mic.style.display='none'; }catch(e){}
+      setStatus('<b>Modo texto activo</b> — escribe tu mensaje');
+    } else {
+      try{ mic.style.display=''; }catch(e){}
     }
     try{ var _q={},_v={}; try{_q=JSON.parse(localStorage.getItem('vtc_quiz_v1')||'{}');}catch(e){} try{_v=JSON.parse(localStorage.getItem('vtc_video_v1')||'{}');}catch(e){}
       var _msg='[PROGRESO] Quizzes con avance en: '+(Object.keys(_q).join(', ')||'ninguno')+'. Videos vistos: '+Object.keys(_v).length+'.';
@@ -2273,7 +2279,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
 
   function openPanel(){ panel.classList.add('vw-open'); launch.style.display='none'; if(!started){gate.style.display='flex';chat.style.display='none'; try{var u=JSON.parse(localStorage.getItem('vtc_user')||'null'); if(u){ $('vw-name').value=u.name||''; $('vw-emp').value=u.emp||''; if(u.dep){$('vw-dep').value=u.dep;} var c=$('vw-cta'); if(c) c.textContent='Acceder'; var gp=document.querySelector('#vw-gate p'); if(gp&&u.name) gp.textContent='Bienvenido de nuevo, '+u.name+'. Toca Acceder para continuar tu capacitación.'; } }catch(e){} } }
   function minimize(){ panel.classList.remove('vw-open'); launch.style.display='flex'; } // NO corta la sesión
-  function endAll(){ try{conv&&conv.endSession();}catch(e){} conv=null;started=false;window.__vtcSpeaking=false;stopKeepalive(); mic.classList.remove('vw-live');launch.classList.remove('vw-active'); msgs.innerHTML=''; gate.style.display='flex';chat.style.display='none'; $('vw-cta').disabled=false;$('vw-cta').textContent='Comenzar capacitación'; panel.classList.remove('vw-open'); launch.style.display='flex'; }
+  function endAll(){ try{conv&&conv.endSession();}catch(e){} conv=null;started=false;window.__vtcSpeaking=false;stopKeepalive(); mic.classList.remove('vw-live');launch.classList.remove('vw-active'); try{mic.style.display='';}catch(e){} removeTextFallbackBtn(); msgs.innerHTML=''; gate.style.display='flex';chat.style.display='none'; $('vw-cta').disabled=false;$('vw-cta').textContent='Comenzar capacitación'; panel.classList.remove('vw-open'); launch.style.display='flex'; }
 
   launch.onclick=openPanel; $('vw-min').onclick=minimize; $('vw-close').onclick=endAll; $('vw-cta').onclick=begin;
   $('vw-emp').addEventListener('keydown',e=>{if(e.key==='Enter')begin();});
