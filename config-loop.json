@@ -1,0 +1,14 @@
+{
+  "webhook_url": "https://n8n.srv1013903.hstgr.cloud/webhook/elevenlabs-chat-track",
+  "chat_api": "https://victor-ia-training.vercel.app/api/elevenlabs-chat",
+  "chat_url": "https://victor-ia-training.vercel.app/",
+  "headless": true,
+  "loop_interval_minutes": 5,
+  "max_concurrent_sessions": 5,
+  "modules_per_session": "3-5",
+  "responses_random": true,
+  "log_file": "logs/loop-activity.log",
+  "employees_count": 50,
+  "fingerprint_rotation": true,
+  "ip_rotation_mx_usa": true
+}
