@@ -16,12 +16,12 @@
 
 const ELEVENLABS_API_KEY =
   process.env.ELEVENLABS_API_KEY || 'sk_87d5a7899d6c489c94232248c4880a0c4fe317adb3701e67';
-const AGENT_ID = process.env.ELEVENLABS_AGENT_ID || 'agent_9501k3vkt6svekjs6y0qe5xzcek1';
+const AGENT_ID = process.env.ELEVENLABS_AGENT_ID || 'agent_5701kr0h5gg6eetb69tv6c5hwfj1';
 
 // ── Config ─────────────────────────────────────────────────────────────────
-const RESPONSE_TIMEOUT_MS = 25000; // Vercel serverless suele cortar a 30s
+const RESPONSE_TIMEOUT_MS = 35000; // Máximo permitido en Vercel (antes era 25s → timeout silencioso)
 const MAX_MESSAGE_LEN = 4000;
-const MAX_HISTORY_TURNS = 20; // solo se reinyectan los últimos N turnos
+const MAX_HISTORY_TURNS = 10; // reducido de 20 para disminuir overhead (antes causaba timeouts a sesiones largas)
 
 // ── Rate limiting básico (best-effort, en memoria por instancia) ─────────────
 const RATE_WINDOW_MS = 60000; // ventana de 1 min
