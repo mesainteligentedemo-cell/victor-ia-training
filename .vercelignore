@@ -1,0 +1,10 @@
+# Loop local de Python — NO debe subirse a Vercel (rompe el build con "uv pip install")
+requirements.txt
+*.py
+scripts/
+logs/
+node_modules/
+backend/
+*.md
+*.txt
+!frontend/**
