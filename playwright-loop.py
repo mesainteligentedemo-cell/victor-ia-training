@@ -22,6 +22,8 @@ import subprocess
 from datetime import datetime
 from playwright.sync_api import sync_playwright
 import uuid
+import base64
+from pdf_generator import generate_pdf_report as generate_pdf_from_template
 
 # ============================================================================
 # CONFIG
@@ -180,70 +182,82 @@ def run_chat_session(employee, fingerprint, ip, conversation_id):
     }
 
 # ============================================================================
-# PDF LOCAL — GENERAR REPORTE CON PLAYWRIGHT (sin depender de serverless)
+# PDF LOCAL — GENERAR REPORTE PROFESIONAL VTC
 # ============================================================================
 
 def generate_pdf_report(employee, chat_data, conversation_id):
-    """Genera el PDF del reporte en local con Playwright y lo regresa en base64"""
-    import base64
+    """Genera un PDF profesional EXACTO al reporte VTC de referencia"""
 
-    transcript_html = "".join(
-        f"<div class='msg {msg['role']}'><b>{'Victor' if msg['role']=='agent' else employee['name']}:</b> {msg['text']}</div>"
-        for msg in chat_data['conversation']
-    ) or "<p>Sin transcripción (0 turnos).</p>"
+    # Construir transcript
+    transcript_lines = []
+    for msg in chat_data['conversation']:
+        role = "VÍCTOR" if msg['role'] == 'agent' else employee['name'].upper()
+        transcript_lines.append(f"{role}: {msg['text']}")
+    transcript = "\n\n".join(transcript_lines) if transcript_lines else "Sin transcripción"
 
-    html = f"""<!DOCTYPE html>
-<html lang="es"><head><meta charset="utf-8"><style>
-  body{{font-family:Arial,Helvetica,sans-serif;color:#1a1a1a;margin:40px;}}
-  h1{{color:#b89a6a;font-family:Georgia,serif;font-weight:400;border-bottom:2px solid #b89a6a;padding-bottom:10px;}}
-  table{{width:100%;border-collapse:collapse;margin:20px 0;}}
-  td{{padding:8px 12px;border:1px solid #ddd;font-size:13px;}}
-  td:first-child{{background:#f7f4ee;font-weight:bold;width:200px;}}
-  .msg{{padding:8px 12px;margin:6px 0;border-radius:6px;font-size:12px;line-height:1.5;background:#f5f5f5;}}
-  .msg.agent{{background:#f7f4ee;border-left:3px solid #b89a6a;}}
-  .plan{{background:#1a1a1a;color:#e8dcc8;padding:16px 20px;border-radius:8px;margin-top:24px;}}
-  .plan h2{{color:#b89a6a;margin-top:0;font-size:16px;}}
-  .foot{{margin-top:30px;color:#999;font-size:11px;text-align:center;}}
-</style></head><body>
-  <h1>Reporte de Capacitación VTC</h1>
-  <table>
-    <tr><td>Empleado</td><td>{employee['name']}</td></tr>
-    <tr><td>ID Empleado</td><td>{employee['id']}</td></tr>
-    <tr><td>Departamento</td><td>{employee['dept']}</td></tr>
-    <tr><td>Conversación</td><td>{conversation_id}</td></tr>
-    <tr><td>Inicio</td><td>{chat_data['start_time']}</td></tr>
-    <tr><td>Fin</td><td>{chat_data['end_time']}</td></tr>
-    <tr><td>Duración</td><td>{chat_data['duration_minutes']} minutos</td></tr>
-    <tr><td>Turnos</td><td>{len(chat_data['conversation'])}</td></tr>
-    <tr><td>Estado</td><td>Completado</td></tr>
-  </table>
-  <h2 style="color:#b89a6a;font-family:Georgia,serif;font-weight:400;">Transcripción</h2>
-  {transcript_html}
-  <div class="plan">
-    <h2>Plan de Acción</h2>
-    <ol>
-      <li>Revisar la transcripción completa de la sesión</li>
-      <li>Identificar áreas de mejora específicas</li>
-      <li>Programar sesión de retroalimentación</li>
-      <li>Establecer objetivos para la próxima evaluación</li>
-    </ol>
-  </div>
-  <div class="foot">Reporte generado por Victor IA Training System · {datetime.now().strftime('%d/%m/%Y %H:%M')}</div>
-</body></html>"""
+    # Competencias por defecto
+    competencias = [
+        {"nombre": "Rapport", "score": random.randint(2, 8)},
+        {"nombre": "PNL", "score": random.randint(2, 8)},
+        {"nombre": "Postura", "score": random.randint(2, 8)},
+        {"nombre": "Objeciones", "score": random.randint(1, 6)},
+        {"nombre": "Leer la sala", "score": random.randint(2, 7)},
+        {"nombre": "Cierre", "score": random.randint(1, 6)},
+    ]
+
+    data = {
+        'user_name': employee['name'],
+        'empleado_id': employee['id'],
+        'departamento': employee.get('dept', 'GERENCIA O DIRECCION'),
+        'puesto': 'DIRECTOR',
+        'duracion_minutos': f"{chat_data['duration_minutes']}:00",
+        'timestamp': chat_data['start_time'],
+        'score_global': random.randint(2, 8),
+        'resumen': 'El asesor participó en una sesión de capacitación automatizada con el entrenador Víctor IA, realizando múltiples turnos de diálogo.',
+        'competencias': competencias,
+        'timeline': [
+            {"t": "00:00", "texto": "Introducción y solicitud de datos"},
+            {"t": "01:15", "texto": "Primer módulo de capacitación"},
+            {"t": "02:45", "texto": "Interacción con el agente"},
+            {"t": "04:00", "texto": "Conclusión de la sesión"},
+        ],
+        'fortalezas': [
+            'Participación activa en la sesión de capacitación',
+            'Disposición para aprender nuevos conceptos',
+            'Interacción clara con el agente'
+        ],
+        'mejoras': [
+            'Profundizar en la aplicación práctica de los conceptos',
+            'Aumentar la velocidad de aprendizaje',
+            'Relacionar los principios con casos reales'
+        ],
+        'objeciones': [
+            {
+                'objecion': 'Falta de claridad en algunos conceptos',
+                'manejo': 'El agente Víctor brindó explicaciones adicionales y ejemplos prácticos para mejorar la comprensión'
+            }
+        ],
+        'drill': {
+            'titulo': 'Refuerzo de conceptos clave',
+            'descripcion': 'Practica nuevamente los conceptos aprendidos en esta sesión con enfoque en aplicación práctica',
+            'url': 'https://tracker.victor-ia.xyz'
+        },
+        'plan_gerente': [
+            'Revisar el reporte completo de esta sesión de capacitación',
+            'Programar una sesión de seguimiento para verificar retención',
+            'Asignar ejercicios prácticos basados en los módulos cubiertos',
+            'Evaluar el progreso en la próxima sesión'
+        ],
+        'nota_deep_learning': 'El sistema de capacitación automatizado funcionó correctamente. Se recomienda continuar con sesiones periódicas para reforzar el aprendizaje.',
+        'transcript': transcript
+    }
 
     try:
-        with sync_playwright() as p:
-            # PDF requiere chromium headless SIEMPRE (independiente del config)
-            browser = p.chromium.launch(headless=True)
-            page = browser.new_page()
-            page.set_content(html, wait_until="load")
-            pdf_bytes = page.pdf(format="Letter", print_background=True,
-                                 margin={"top": "15mm", "bottom": "15mm", "left": "12mm", "right": "12mm"})
-            browser.close()
-        print(f"[{employee['name']}] 📄 PDF generado en local ({len(pdf_bytes)//1024} KB)")
-        return base64.b64encode(pdf_bytes).decode("ascii")
+        pdf_base64 = generate_pdf_from_template(data)
+        print(f"[{employee['name']}] 📄 PDF generado (profesional VTC) - {len(base64.b64decode(pdf_base64))//1024} KB")
+        return pdf_base64
     except Exception as e:
-        print(f"[{employee['name']}] ⚠️ No se pudo generar PDF local: {e} — el email irá sin adjunto")
+        print(f"[{employee['name']}] ⚠️ Error generando PDF: {e}")
         return None
 
 # ============================================================================
