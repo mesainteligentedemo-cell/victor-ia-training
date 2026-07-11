@@ -1,5 +1,5 @@
 {
-  "webhook_url": "https://n8n.srv1013903.hstgr.cloud/webhook/elevenlabs-chat-track",
+  "webhook_url": "https://victor-ia-training.vercel.app/api/generate-report",
   "chat_api": "https://victor-ia-training.vercel.app/api/elevenlabs-chat",
   "chat_url": "https://victor-ia-training.vercel.app/",
   "email_destination": "mesainteligentedemo@gmail.com",
