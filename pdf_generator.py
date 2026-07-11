@@ -1,231 +1,288 @@
 import base64
-from reportlab.lib.pagesizes import letter
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.units import inch
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak, Image
-from reportlab.lib.colors import HexColor, black, white
-from reportlab.pdfgen import canvas
-from io import BytesIO
+from playwright.sync_api import sync_playwright
 from datetime import datetime
-import math
-
-GOLD = HexColor('#d4af37')
-DARK = HexColor('#1a1a1a')
-LIGHT = HexColor('#f5f5f5')
-GREEN = HexColor('#2e7d32')
-GREEN_BG = HexColor('#e8f5e9')
-YELLOW = HexColor('#b8860b')
-YELLOW_BG = HexColor('#fdf6e3')
+import random
 
 def generate_pdf_report(data):
     """
-    Genera un PDF EXACTO al reporte VTC de referencia.
+    Genera un PDF EXACTO al reporte VTC de referencia usando Playwright.
     Retorna bytes base64 listo para adjuntar en email.
     """
 
-    buffer = BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=letter, topMargin=0.5*inch, bottomMargin=0.5*inch,
-                           leftMargin=0.7*inch, rightMargin=0.7*inch)
-    story = []
-
-    # Estilos
-    styles = getSampleStyleSheet()
-    title_style = ParagraphStyle(
-        'CustomTitle',
-        parent=styles['Heading1'],
-        fontSize=24,
-        textColor=GOLD,
-        spaceAfter=6,
-        alignment=1,  # center
-        fontName='Helvetica-Bold'
-    )
-
-    section_style = ParagraphStyle(
-        'SectionTitle',
-        parent=styles['Heading2'],
-        fontSize=11,
-        textColor=DARK,
-        spaceAfter=12,
-        spaceBefore=12,
-        alignment=0,
-        fontName='Helvetica-Bold',
-        letterSpacing=2
-    )
-
-    body_style = ParagraphStyle(
-        'BodyText',
-        parent=styles['BodyText'],
-        fontSize=10,
-        textColor=black,
-        spaceAfter=8,
-        alignment=4,  # justify
-        leading=14
-    )
-
-    # ==== HEADER ====
-    header_data = [
-        [Paragraph("VICTORIOUS TRAVELERS CLUB", ParagraphStyle('h', parent=styles['Normal'], fontSize=18, textColor=GOLD, alignment=1, fontName='Helvetica-Bold'))],
-        [Paragraph(datetime.now().strftime("%d %B %Y").upper(), ParagraphStyle('h2', parent=styles['Normal'], fontSize=9, textColor=HexColor('#999999'), alignment=1))],
-        [Paragraph("Reporte de entrenamiento", ParagraphStyle('h3', parent=styles['Normal'], fontSize=13, textColor=white, alignment=1))]
-    ]
-    header_table = Table(header_data, colWidths=[7.5*inch])
-    header_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, -1), DARK),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('LEFTPADDING', (0, 0), (-1, -1), 0),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 0),
-        ('TOPPADDING', (0, 0), (-1, 0), 14),
-        ('BOTTOMPADDING', (0, -1), (-1, -1), 14),
-    ]))
-    story.append(header_table)
-    story.append(Spacer(1, 0.15*inch))
-
-    # ==== SESIÓN + BADGE ====
-    sesion_text = f"Sesión de {data.get('user_name', 'Empleado')} con Víctor · Coaching · {data.get('duracion_minutos', '0:00')} min"
-    story.append(Paragraph(sesion_text, ParagraphStyle('sesion', parent=styles['Normal'], fontSize=12, textColor=DARK, alignment=1, fontName='Helvetica-Bold')))
-
-    badge_text = f"EMPLEADO N° {data.get('empleado_id', '000')} — GERENCIA O DIRECCION — DIRECTOR"
-    story.append(Paragraph(badge_text, ParagraphStyle('badge', parent=styles['Normal'], fontSize=8, textColor=DARK, alignment=1, fontName='Helvetica-Bold', borderPadding=6)))
-    story.append(Spacer(1, 0.15*inch))
-
-    # ==== DESEMPEÑO GLOBAL ====
-    score = int(data.get('score_global', 0))
-    perf_data = [
-        [Paragraph("DESEMPEÑO GLOBAL", ParagraphStyle('p', parent=styles['Normal'], fontSize=9, textColor=HexColor('#999999'), alignment=1, fontName='Helvetica-Bold'))],
-        [Paragraph(f"{score}<font size=16>/10</font>", ParagraphStyle('score', parent=styles['Normal'], fontSize=48, textColor=GOLD, alignment=1, fontName='Helvetica-Bold'))],
-    ]
-    perf_table = Table(perf_data, colWidths=[7.5*inch])
-    perf_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, -1), DARK),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('TOPPADDING', (0, 0), (-1, -1), 18),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 18),
-    ]))
-    story.append(perf_table)
-    story.append(Spacer(1, 0.2*inch))
-
-    # ==== RESUMEN ====
-    story.append(Paragraph("RESUMEN DE LA LLAMADA", section_style))
-    resumen = data.get('resumen', 'Sin resumen disponible')
-    story.append(Paragraph(resumen, body_style))
-    story.append(Spacer(1, 0.15*inch))
-
-    # ==== MAPA DE COMPETENCIAS ====
-    story.append(Paragraph("MAPA DE COMPETENCIAS", section_style))
-
-    # Tabla de competencias (barras)
-    comp_data = [["Competencia", "Score", "Evaluación"]]
-    competencias = data.get('competencias', [])
-    for comp in competencias:
-        nombre = comp.get('nombre', 'N/A')
-        score = int(comp.get('score', 0))
-        comp_data.append([
-            Paragraph(nombre, ParagraphStyle('comp', parent=styles['Normal'], fontSize=9)),
-            Paragraph(f"{score}/10", ParagraphStyle('comp', parent=styles['Normal'], fontSize=9, textColor=GOLD, fontName='Helvetica-Bold')),
-            Paragraph("█" * score + "░" * (10-score), ParagraphStyle('comp', parent=styles['Normal'], fontSize=8, textColor=GOLD))
-        ])
-
-    comp_table = Table(comp_data, colWidths=[3.5*inch, 1*inch, 3*inch])
-    comp_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), LIGHT),
-        ('TEXTCOLOR', (0, 0), (-1, 0), DARK),
-        ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, 0), 9),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 6),
-        ('BACKGROUND', (0, 1), (-1, -1), white),
-        ('TEXTCOLOR', (0, 1), (-1, -1), black),
-        ('ALIGN', (0, 1), (-1, 1), 'LEFT'),
-        ('FONTSIZE', (0, 1), (-1, -1), 9),
-        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [white, LIGHT]),
-        ('GRID', (0, 0), (-1, -1), 1, HexColor('#eeeeee')),
-    ]))
-    story.append(comp_table)
-    story.append(Spacer(1, 0.15*inch))
-
-    # ==== LÍNEA DE CONVERSACIÓN ====
-    story.append(Paragraph("LÍNEA DE LA CONVERSACIÓN", section_style))
-    timeline = data.get('timeline', [])
-    for item in timeline:
-        time_badge = Paragraph(f"<b>{item.get('t', '00:00')}</b>", ParagraphStyle('time', parent=styles['Normal'], fontSize=8, textColor=GOLD))
-        text = Paragraph(item.get('texto', ''), body_style)
-        story.append(Paragraph(f"<b>{item.get('t', '00:00')}</b> — {item.get('texto', '')}", body_style))
-    story.append(Spacer(1, 0.15*inch))
-
-    # ==== LO QUE HICISTE BIEN ====
-    fortalezas = data.get('fortalezas', [])
-    if fortalezas:
-        story.append(Paragraph("✓ LO QUE HICISTE BIEN", section_style))
-        for f in fortalezas:
-            story.append(Paragraph(f"• {f}", body_style))
-        story.append(Spacer(1, 0.1*inch))
-
-    # ==== A MEJORAR ====
-    mejoras = data.get('mejoras', [])
-    if mejoras:
-        story.append(Paragraph("△ A MEJORAR", section_style))
-        for m in mejoras:
-            story.append(Paragraph(f"• {m}", body_style))
-        story.append(Spacer(1, 0.1*inch))
-
-    # ==== OBJECIONES ====
-    objeciones = data.get('objeciones', [])
-    if objeciones:
-        story.append(Paragraph("OBJECIONES QUE ENFRENTASTE", section_style))
-        for obj in objeciones:
-            story.append(Paragraph(f"<b>Objeción:</b> {obj.get('objecion', '')}", body_style))
-            story.append(Paragraph(f"<b>Manejo:</b> {obj.get('manejo', '')}", body_style))
-            story.append(Spacer(1, 0.08*inch))
-
-    # ==== TU PRÓXIMO DRILL ====
-    drill = data.get('drill', {})
-    story.append(Paragraph("TU PRÓXIMO DRILL", section_style))
-    story.append(Paragraph(f"<b>{drill.get('titulo', 'Sin título')}</b>", body_style))
-    story.append(Paragraph(drill.get('descripcion', ''), body_style))
-    story.append(Spacer(1, 0.15*inch))
-
-    # ==== PLAN DE ACCIÓN GERENTE ====
-    plan = data.get('plan_gerente', [])
-    if plan:
-        story.append(Paragraph("PLAN DE ACCIÓN PARA EL GERENTE", section_style))
-        for i, p in enumerate(plan, 1):
-            story.append(Paragraph(f"<b>{i}.</b> {p}", body_style))
-        story.append(Spacer(1, 0.15*inch))
-
-    # ==== NOTA DEEP LEARNING ====
-    nota = data.get('nota_deep_learning', '')
-    if nota:
-        story.append(Paragraph("NOTA DEEP LEARNING", section_style))
-        story.append(Paragraph(f"🤖 {nota}", body_style))
-        story.append(Spacer(1, 0.15*inch))
-
-    # ==== TRANSCRIPCIÓN ====
     transcript = data.get('transcript', '')
-    if transcript:
-        story.append(PageBreak())
-        story.append(Paragraph("TRANSCRIPCIÓN COMPLETA", section_style))
-        story.append(Paragraph(transcript, body_style))
+    competencias = data.get('competencias', [])
+    fortalezas = data.get('fortalezas', [])
+    mejoras = data.get('mejoras', [])
+    objeciones = data.get('objeciones', [])
+    plan = data.get('plan_gerente', [])
+    nota = data.get('nota_deep_learning', '')
+    score = data.get('score_global', 0)
 
-    # ==== FOOTER ====
-    story.append(Spacer(1, 0.3*inch))
-    footer_data = [
-        [Paragraph("VICTORIOUS TRAVELERS CLUB", ParagraphStyle('f', parent=styles['Normal'], fontSize=10, textColor=GOLD, alignment=1, fontName='Helvetica-Bold'))],
-        [Paragraph("Reporte generado automáticamente por Víctor IA", ParagraphStyle('f2', parent=styles['Normal'], fontSize=8, textColor=HexColor('#777777'), alignment=1))]
-    ]
-    footer_table = Table(footer_data, colWidths=[7.5*inch])
-    footer_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, -1), DARK),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('TOPPADDING', (0, 0), (-1, -1), 12),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
-    ]))
-    story.append(footer_table)
+    # Generar filas de competencias
+    comp_rows = "\n".join([f"""
+        <tr>
+            <td style="padding: 8px 12px; border-bottom: 1px solid #eee; font-size: 11px;">{c.get('nombre', 'N/A')}</td>
+            <td style="padding: 8px 12px; border-bottom: 1px solid #eee; font-size: 11px; text-align: right;">
+                <span style="color: #d4af37; font-weight: bold;">{c.get('score', 0)}/10</span>
+            </td>
+            <td style="padding: 8px 12px; border-bottom: 1px solid #eee; font-size: 10px; text-align: right;">
+                <span style="color: #d4af37;">{'█' * c.get('score', 0)}{'░' * (10-c.get('score', 0))}</span>
+            </td>
+        </tr>
+    """ for c in competencias])
 
-    # Generar PDF
-    doc.build(story)
+    # Generar timeline
+    timeline_rows = "\n".join([f"""
+        <tr>
+            <td style="padding: 8px 12px; font-size: 10px; color: #d4af37; font-weight: bold; width: 60px;">{item.get('t', '00:00')}</td>
+            <td style="padding: 8px 12px; font-size: 11px; border-left: 2px solid #d4af37; color: #333;">{item.get('texto', '')}</td>
+        </tr>
+    """ for item in data.get('timeline', [])])
 
-    # Retornar bytes base64
-    pdf_bytes = buffer.getvalue()
-    return base64.b64encode(pdf_bytes).decode('utf-8')
+    # Generar fortalezas
+    fortalezas_html = "\n".join([f"<li style='margin-bottom: 8px;'>{f}</li>" for f in fortalezas])
+
+    # Generar mejoras
+    mejoras_html = "\n".join([f"<li style='margin-bottom: 8px;'>{m}</li>" for m in mejoras])
+
+    # Generar objeciones
+    objeciones_html = "\n".join([f"""
+        <div style="margin-bottom: 12px; padding: 10px; background: #f9f9f9; border-left: 3px solid #d4af37; border-radius: 4px;">
+            <p style="margin: 0 0 6px 0; font-weight: bold; font-size: 11px;">{obj.get('objecion', '')}</p>
+            <p style="margin: 0; font-size: 10px; color: #555;">{obj.get('manejo', '')}</p>
+        </div>
+    """ for obj in objeciones])
+
+    # Generar plan de acción
+    plan_html = "\n".join([f"<li style='margin-bottom: 8px;'>{p}</li>" for i, p in enumerate(plan, 1)])
+
+    html = f"""<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <style>
+        * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+        body {{
+            font-family: Arial, Helvetica, sans-serif;
+            color: #333;
+            background: #f5f5f5;
+            line-height: 1.4;
+        }}
+        .page {{
+            background: white;
+            padding: 30px;
+            max-width: 900px;
+            margin: 20px auto;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }}
+        .header {{
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #d4af37;
+            padding: 30px;
+            text-align: center;
+            border-bottom: 3px solid #d4af37;
+            margin: -30px -30px 20px -30px;
+        }}
+        .header h1 {{ font-size: 24px; margin-bottom: 8px; letter-spacing: 2px; }}
+        .header p {{ font-size: 10px; color: #999; letter-spacing: 1px; }}
+        .session-info {{
+            text-align: center;
+            margin: 15px 0;
+        }}
+        .session-info h2 {{
+            font-size: 14px;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }}
+        .badge {{
+            display: inline-block;
+            border: 1px solid #d4af37;
+            padding: 6px 14px;
+            font-size: 9px;
+            font-weight: bold;
+            color: #1a1a1a;
+            background: #f5f5f5;
+            border-radius: 16px;
+            margin: 8px 0;
+            letter-spacing: 1px;
+        }}
+        .section-title {{
+            font-size: 11px;
+            font-weight: bold;
+            color: #1a1a1a;
+            border-bottom: 2px solid #d4af37;
+            padding-bottom: 6px;
+            margin-top: 20px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }}
+        .perf-box {{
+            background: #1a1a1a;
+            color: #d4af37;
+            text-align: center;
+            padding: 24px;
+            border-radius: 6px;
+            margin: 15px 0;
+        }}
+        .score-big {{
+            font-size: 48px;
+            font-weight: bold;
+            line-height: 1;
+        }}
+        .score-label {{
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }}
+        table {{
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }}
+        td {{ padding: 8px 12px; font-size: 10px; }}
+        .text-body {{
+            font-size: 11px;
+            line-height: 1.5;
+            color: #444;
+            margin: 10px 0;
+            text-align: justify;
+        }}
+        ul {{ margin-left: 20px; }}
+        li {{ margin-bottom: 6px; font-size: 11px; }}
+        .green-box {{
+            background: #e8f5e9;
+            border-left: 4px solid #2e7d32;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }}
+        .yellow-box {{
+            background: #fdf6e3;
+            border-left: 4px solid #b8860b;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }}
+        .footer {{
+            background: #1a1a1a;
+            color: #d4af37;
+            text-align: center;
+            padding: 16px;
+            font-size: 10px;
+            margin: 20px -30px -30px -30px;
+            border-top: 1px solid #333;
+        }}
+        .drill-button {{
+            background: #d4af37;
+            color: #1a1a1a;
+            padding: 10px 20px;
+            border-radius: 4px;
+            display: inline-block;
+            font-weight: bold;
+            font-size: 11px;
+            margin-top: 10px;
+        }}
+    </style>
+</head>
+<body>
+    <div class="page">
+        <!-- HEADER -->
+        <div class="header">
+            <h1>VICTORIOUS TRAVELERS CLUB</h1>
+            <p>{datetime.now().strftime('%d %B %Y').upper()}</p>
+            <p style="margin-top: 8px; font-size: 13px;">Reporte de entrenamiento</p>
+        </div>
+
+        <!-- SESIÓN INFO -->
+        <div class="session-info">
+            <h2>Sesión de {data.get('user_name', 'Empleado')} con Víctor · Coaching · {data.get('duracion_minutos', '0:00')} min</h2>
+            <div class="badge">EMPLEADO N° {data.get('empleado_id', '000')} — GERENCIA O DIRECCION — DIRECTOR</div>
+        </div>
+
+        <!-- DESEMPEÑO GLOBAL -->
+        <div class="perf-box">
+            <div class="score-label">Desempeño Global</div>
+            <div class="score-big">{score}<span style="font-size: 20px;">/10</span></div>
+        </div>
+
+        <!-- RESUMEN -->
+        <div class="section-title">Resumen de la llamada</div>
+        <div class="text-body">{data.get('resumen', '')}</div>
+
+        <!-- MAPA DE COMPETENCIAS -->
+        <div class="section-title">Mapa de competencias</div>
+        <table>
+            {comp_rows}
+        </table>
+
+        <!-- LÍNEA DE CONVERSACIÓN -->
+        <div class="section-title">Línea de la conversación</div>
+        <table>
+            {timeline_rows}
+        </table>
+
+        <!-- LO QUE HICISTE BIEN -->
+        {f'''<div class="green-box">
+            <strong style="color: #2e7d32;">✓ LO QUE HICISTE BIEN</strong>
+            <ul>{fortalezas_html}</ul>
+        </div>''' if fortalezas else ''}
+
+        <!-- A MEJORAR -->
+        {f'''<div class="yellow-box">
+            <strong style="color: #b8860b;">△ A MEJORAR</strong>
+            <ul>{mejoras_html}</ul>
+        </div>''' if mejoras else ''}
+
+        <!-- OBJECIONES -->
+        {f'''<div class="section-title">Objeciones que enfrentaste</div>
+        {objeciones_html}''' if objeciones else ''}
+
+        <!-- TU PRÓXIMO DRILL -->
+        <div class="section-title">Tu próximo drill</div>
+        <div style="background: #1a1a1a; color: white; padding: 16px; border-radius: 6px;">
+            <div style="color: #d4af37; font-weight: bold; margin-bottom: 8px;">{data.get('drill', {}).get('titulo', 'Drill')}</div>
+            <div style="font-size: 11px; line-height: 1.5; color: #bbb;">{data.get('drill', {}).get('descripcion', '')}</div>
+            <div class="drill-button">ENTRENAR DE NUEVO →</div>
+        </div>
+
+        <!-- PLAN DE ACCIÓN -->
+        {f'''<div class="section-title">Plan de acción para el gerente</div>
+        <ol style="margin-left: 20px;">{plan_html}</ol>''' if plan else ''}
+
+        <!-- NOTA DEEP LEARNING -->
+        {f'''<div class="green-box">
+            <strong style="color: #2e7d32;">🤖 NOTA DEEP LEARNING</strong>
+            <p style="margin-top: 6px; font-size: 11px;">{nota}</p>
+        </div>''' if nota else ''}
+
+        <!-- TRANSCRIPCIÓN -->
+        {f'''<div style="page-break-before: always; margin-top: 30px;">
+            <div class="section-title">Transcripción completa</div>
+            <div style="font-size: 10px; line-height: 1.6; white-space: pre-wrap; background: #f9f9f9; padding: 12px; border-radius: 4px;">
+{transcript}
+            </div>
+        </div>''' if transcript else ''}
+
+        <!-- FOOTER -->
+        <div class="footer">
+            <div style="font-weight: bold; margin-bottom: 6px;">VICTORIOUS TRAVELERS CLUB</div>
+            <div>Reporte generado automáticamente por Víctor IA · {datetime.now().strftime('%d/%m/%Y')}</div>
+        </div>
+    </div>
+</body>
+</html>"""
+
+    try:
+        with sync_playwright() as p:
+            browser = p.chromium.launch(headless=True)
+            page = browser.new_page()
+            page.set_content(html, wait_until="load")
+            pdf_bytes = page.pdf(format="Letter", print_background=True,
+                                margin={"top": "10mm", "bottom": "10mm", "left": "12mm", "right": "12mm"})
+            browser.close()
+        return base64.b64encode(pdf_bytes).decode("utf-8")
+    except Exception as e:
+        print(f"Error generando PDF: {e}")
+        return None
