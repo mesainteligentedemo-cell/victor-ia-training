@@ -180,7 +180,7 @@ def send_to_webhook(employee, fingerprint, ip, chat_data, conversation_id):
     payload = {
         "empleado_id": employee['id'],
         "user_name": employee['name'],
-        "user_email": "training@victor-ia.com",
+        "user_email": CONFIG.get("email_destination", "mesainteligentedemo@gmail.com"),
         "fingerprint": fingerprint['fingerprint_id'],
         "ip": ip,
         "conversation_id": conversation_id,
