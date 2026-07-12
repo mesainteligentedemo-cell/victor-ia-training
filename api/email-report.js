@@ -45,6 +45,56 @@ const stripAccents = (s) => String(s ?? '')
   .normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 
 // ---------------------------------------------------------------------------
+// VALIDACIÓN DE REPORTE COMPLETO
+// Garantiza que ningún reporte se envíe con campos críticos vacíos.
+//   · CRÍTICOS  -> bloquean el envío (HTTP 400) si faltan.
+//   · RECOMENDADOS -> se advierten en la respuesta, pero no bloquean.
+// ---------------------------------------------------------------------------
+function isEmptyValue(v) {
+  if (v === undefined || v === null) return true;
+  if (Array.isArray(v)) return v.length === 0;
+  if (typeof v === 'string') return v.trim() === '';
+  if (typeof v === 'number') return Number.isNaN(v);
+  return false;
+}
+
+function validateReport(vtc) {
+  // Sin estos campos el reporte carece de sentido -> bloquean el envío.
+  const critical = {
+    user_name: vtc.user_name,
+    empleado_id: vtc.empleado_id,
+    duracion_minutos: vtc.duracion_minutos,
+    transcript: vtc.transcript,
+    competencias: vtc.competencias
+  };
+  // Ideales para un reporte "sin omisiones"; si faltan se advierte pero se envía.
+  const recommended = {
+    score_global: vtc.score_global,
+    resumen: vtc.resumen,
+    fortalezas: vtc.fortalezas,
+    mejoras: vtc.mejoras,
+    objeciones: vtc.objeciones,
+    analisis_pnl: vtc.analisis_pnl,
+    plan_gerente: vtc.plan_gerente,
+    principios_neuro: vtc.principios_neuro
+  };
+
+  const missing_fields = Object.keys(critical).filter((k) => isEmptyValue(critical[k]));
+  const warnings = Object.keys(recommended).filter((k) => isEmptyValue(recommended[k]));
+
+  return {
+    valid: missing_fields.length === 0,
+    missing_fields,
+    warnings,
+    fields_verified: Object.keys(critical).length + Object.keys(recommended).length,
+    all_fields_present: missing_fields.length === 0 && warnings.length === 0,
+    error: missing_fields.length
+      ? `Campos críticos faltantes: ${missing_fields.join(', ')}`
+      : null
+  };
+}
+
+// ---------------------------------------------------------------------------
 // 1) TRANSCRIPCIÓN REAL — ElevenLabs ConvAI
 // ---------------------------------------------------------------------------
 async function getTranscriptFromElevenLabs(conversationId) {
@@ -364,11 +414,22 @@ function buildReportHtml(vtc, { forPdf = false } = {}) {
       <tr><td style="padding:14px 18px;font-family:Arial,sans-serif;font-size:12px;line-height:18px;color:${GREEN};"><strong>&#129504; NOTA DEEP LEARNING:</strong>&nbsp; ${esc(vtc.nota_deep_learning)}</td></tr></table></td></tr>`
     : '';
 
-  // La transcripción completa solo va en el PDF (para no inflar el email)
-  const transcriptBlock = forPdf && vtc.transcript
-    ? `${sectionTitle('Transcripci&oacute;n completa')}
-      <tr><td class="px" style="padding:12px 32px 0 32px;"><div style="font-family:Arial,sans-serif;font-size:10px;line-height:1.6;white-space:pre-wrap;background:#f9f9f9;padding:12px;border-radius:4px;color:#333;">${esc(vtc.transcript)}</div></td></tr>`
-    : '';
+  // Transcripción completa — SIEMPRE presente (email y PDF), con turnos marcados.
+  const transcriptTurns = (vtc.messages || []).length
+    ? (vtc.messages || []).map((m) => {
+        const isUser = m.role === 'user';
+        const who = isUser ? 'ASESOR' : 'VÍCTOR';
+        const color = isUser ? '#3a5a8c' : YELLOW;
+        return `<tr><td style="padding:6px 0;font-family:Arial,sans-serif;font-size:12px;line-height:19px;color:#333333;border-bottom:1px solid #eeeeee;">
+          <strong style="color:${color};letter-spacing:1px;">${who}:</strong>&nbsp; ${esc(m.message)}</td></tr>`;
+      }).join('')
+    : (vtc.transcript
+        ? `<tr><td style="font-family:Arial,sans-serif;font-size:11px;line-height:1.6;white-space:pre-wrap;color:#333333;">${esc(vtc.transcript)}</td></tr>`
+        : `<tr><td style="font-family:Arial,sans-serif;font-size:12px;color:#888888;">Transcripci&oacute;n no disponible.</td></tr>`);
+
+  const transcriptBlock = `${sectionTitle('Transcripci&oacute;n completa')}
+      <tr><td class="px" style="padding:12px 32px 0 32px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#f9f9f9;border-radius:6px;">
+      <tr><td style="padding:14px 16px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">${transcriptTurns}</table></td></tr></table></td></tr>`;
 
   return `<!DOCTYPE html>
 <html lang="es" xmlns="http://www.w3.org/1999/xhtml">
@@ -936,6 +997,34 @@ export default async function handler(req, res) {
       ...analysis
     };
 
+    // VALIDACIÓN — ningún reporte se envía con campos críticos vacíos
+    const validation = validateReport(vtc);
+    if (!validation.valid) {
+      console.error('[Handler] validación fallida:', validation.error);
+      return res.status(400).json({
+        success: false,
+        error: validation.error,
+        missing_fields: validation.missing_fields,
+        warnings: validation.warnings
+      });
+    }
+    if (validation.warnings.length) {
+      console.warn('[Handler] campos recomendados vacíos:', validation.warnings.join(', '));
+    }
+
+    // AUDIO OBLIGATORIO — no se envía un reporte sin la grabación original (MP3).
+    // Escape hatch para pruebas/tolerancia: body.require_audio === false.
+    const requireAudio = body.require_audio !== false;
+    if (requireAudio && !audioBase64) {
+      console.error('[Handler] audio no disponible — reporte bloqueado');
+      return res.status(400).json({
+        success: false,
+        error: 'Audio de la conversación no disponible. No se envía el reporte sin la grabación original (MP3).',
+        conversation_id,
+        hint: 'La grabación puede tardar en procesarse tras finalizar la llamada. Reintenta en unos segundos, o envía "require_audio": false para omitir esta validación.'
+      });
+    }
+
     // 4) PDF con Playwright/Chromium
     const pdfBase64 = await generatePDFWithPlaywright(vtc);
 
@@ -989,7 +1078,7 @@ export default async function handler(req, res) {
 
     return res.status(200).json({
       success: true,
-      message: 'Reporte real generado y enviado',
+      message: 'Reporte completo generado y enviado',
       conversation_id,
       score_global: vtc.score_global,
       transcript_turns: transcriptData.messages.length,
@@ -998,7 +1087,18 @@ export default async function handler(req, res) {
       email_via: emailResult.via,
       email_id: emailResult.id,
       db_saved: dbSaved,
-      empleado_validado
+      empleado_validado,
+      attachments: {
+        pdf: !!pdfBase64,
+        audio: !!audioBase64,
+        transcript_lines: transcriptData.messages.length
+      },
+      validation: {
+        fields_verified: validation.fields_verified,
+        all_fields_present: validation.all_fields_present,
+        missing_fields: validation.missing_fields,
+        warnings: validation.warnings
+      }
     });
   } catch (error) {
     console.error('[Handler] error fatal:', error.message);
