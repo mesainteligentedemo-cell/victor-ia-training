@@ -2068,8 +2068,54 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
   }
   window.vtcSpeakBadge=vtcSpeakBadge;
 
+  /* ═══════════════════════════════════════════════════════════════════
+     🔒 BLOQUEO DE SALTOS ENTRE MÓDULOS MIENTRAS VÍCTOR HABLA (V11)
+     El usuario NO puede saltar a otro módulo mientras Víctor explica el
+     actual. Solo Víctor (ir_a_modulo / reproducir_video) mueve la pantalla,
+     o el usuario cuando Víctor NO está hablando.
+     ═════════════════════════════════════════════════════════════════════ */
+  window.__vtcCurrentModule=null;   /* módulo que Víctor está explicando ahora */
+  window.__vtcModuleDone=true;      /* ¿Víctor ya terminó de explicar el módulo actual? */
+
+  function vtcBanner(msg,ms){
+    try{
+      var b=document.getElementById('vtc-nav-block');
+      if(!b){
+        b=document.createElement('div');
+        b.id='vtc-nav-block';
+        b.setAttribute('role','status');
+        b.style.cssText='position:fixed;left:50%;top:78px;transform:translateX(-50%) translateY(-8px);z-index:99999;background:rgba(20,16,12,.97);border:1px solid rgba(184,154,106,.7);color:#f3e9d6;padding:.8rem 1.35rem;border-radius:12px;font:500 .9rem/1.4 system-ui,-apple-system,sans-serif;box-shadow:0 10px 34px rgba(0,0,0,.55);max-width:90vw;text-align:center;opacity:0;transition:opacity .28s ease,transform .28s ease;pointer-events:none;';
+        document.body.appendChild(b);
+      }
+      b.textContent=msg;
+      requestAnimationFrame(function(){ b.style.opacity='1'; b.style.transform='translateX(-50%) translateY(0)'; });
+      clearTimeout(window.__vtcBannerT);
+      window.__vtcBannerT=setTimeout(function(){ b.style.opacity='0'; b.style.transform='translateX(-50%) translateY(-8px)'; },ms||3000);
+    }catch(e){}
+  }
+  window.vtcBanner=vtcBanner;
+
+  /* ¿La navegación la disparó Víctor (ir_a_modulo/reproducir_video) hace <1.5s? */
+  function vtcDrivenRecently(){ return !!(window.__vtcDrive && (Date.now()-window.__vtcDrive)<1500); }
+  /* id de módulo destino desde un href "#modulo-7" → "modulo-7" */
+  function vtcHashTarget(href){ try{ var h=String(href||'').split('#')[1]||''; return h.trim()||null; }catch(e){ return null; } }
+
+  /* Intercepta clics del usuario en TODA la navegación por anclas (#modulo, sidebar, cards, "siguiente") */
+  document.addEventListener('click',function(e){
+    var a=e.target&&e.target.closest?e.target.closest('a[href^="#"],[data-module]'):null;
+    if(!a) return;
+    var target=a.dataset&&a.dataset.module?a.dataset.module:vtcHashTarget(a.getAttribute('href'));
+    if(!target) return;
+    /* Bloquea SOLO saltos a un módulo DISTINTO mientras Víctor habla y no fue él quien navegó */
+    if(window.__vtcSpeaking && target!==window.__vtcCurrentModule && !vtcDrivenRecently()){
+      e.preventDefault(); e.stopPropagation();
+      vtcBanner('⏸  Espera a que Víctor termine de explicar este módulo',3000);
+      return false;
+    }
+  },true);
+
   const clientTools={
-    ir_a_modulo: async(p)=>{ try{ var _ps=vtcPitchNum(p); if(_ps>=1&&_ps<=19){ var _pe=document.querySelector('[data-pitch-step="'+_ps+'"]'); if(_pe){ try{window.__vtcDrive=Date.now();}catch(e){} _pe.scrollIntoView({behavior:'instant',block:'start'}); vtcHL(_pe); return 'Paso '+_ps+' del pitch en pantalla'; } } var id=vtcId(p); if(id==='__top'){ try{window.__vtcDrive=Date.now();}catch(e){} window.scrollTo({top:0,behavior:'instant'}); return 'En el inicio del curso'; } var r=vtcResolve(p); if(r.scroll){ r.scroll.scrollIntoView({behavior:'instant',block:'start'}); vtcHL(r.scroll); return 'Navegado y resaltado'; } return 'modulo no encontrado'; }catch(e){return 'error';} },
+    ir_a_modulo: async(p)=>{ try{ var _ps=vtcPitchNum(p); if(_ps>=1&&_ps<=19){ var _pe=document.querySelector('[data-pitch-step="'+_ps+'"]'); if(_pe){ try{window.__vtcDrive=Date.now();window.__vtcCurrentModule='pitch-'+_ps;window.__vtcModuleDone=false;}catch(e){} _pe.scrollIntoView({behavior:'instant',block:'start'}); vtcHL(_pe); return 'Paso '+_ps+' del pitch en pantalla'; } } var id=vtcId(p); if(id==='__top'){ try{window.__vtcDrive=Date.now();window.__vtcCurrentModule='__top';}catch(e){} window.scrollTo({top:0,behavior:'instant'}); return 'En el inicio del curso'; } var r=vtcResolve(p); if(r.scroll){ try{window.__vtcDrive=Date.now();window.__vtcCurrentModule=(r.id||id);window.__vtcModuleDone=false;}catch(e){} r.scroll.scrollIntoView({behavior:'instant',block:'start'}); vtcHL(r.scroll); return 'Navegado y resaltado'; } return 'modulo no encontrado'; }catch(e){return 'error';} },
     reproducir_video: async(p)=>{ try{
         await new Promise(function(r){setTimeout(r,100);});
         await new Promise(function(r){var n=0,iv=setInterval(function(){n++; if(!window.__vtcSpeaking||n>45){clearInterval(iv);r();}},250);});
@@ -2237,7 +2283,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       onDisconnect:(d)=>{setStatus('Sesión terminada');console.warn('ConvAI disconnect:',d);mic.classList.remove('vw-live');launch.classList.remove('vw-active');conv=null;started=false;window.__vtcSpeaking=false;stopKeepalive();},
       onError:(e)=>{console.error('ConvAI onError:',e);setStatus('Error: '+((e&&(e.message||e.reason))||'conexión'));},
       onModeChange:(m)=>{const md=(m&&m.mode)||m;window.__vtcSpeaking=(md==='speaking');if(md==='speaking'){typing(false);setStatus(ctx.textOnly?'<b>Victor respondiendo…</b>':'<b>Victor hablando…</b>');}else setStatus(ctx.textOnly?'<b>Modo texto</b> — escribe tu mensaje':'<b>Escuchando…</b>');},
-      onMessage:(m)=>{const s=m.source||m.role,txt=m.message||m.text||'';if(s==='ai'||s==='agent'){typing(false);bubble('ai',txt);}else bubble('user',txt);},
+      onMessage:(m)=>{const s=m.source||m.role,txt=m.message||m.text||'';if(s==='ai'||s==='agent'){typing(false);bubble('ai',txt);/* 🔒 V11: cuando Víctor anuncia el salto, marca el módulo como terminado → permite navegar */try{var _t=String(txt||'').toLowerCase();if(_t.indexOf('siguiente módulo')>-1||_t.indexOf('siguiente modulo')>-1||_t.indexOf('siguiente paso')>-1||_t.indexOf('vamos al siguiente')>-1||_t.indexOf('pasamos al siguiente')>-1){window.__vtcModuleDone=true;}}catch(e){}}else bubble('user',txt);},
     };
   }
 
