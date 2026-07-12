@@ -1954,7 +1954,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
     return Conversation;
   }
 
-  const AGENT = 'agent_5701kr0h5gg6eetb69tv6c5hwfj1';
+  const AGENT = 'agent_9501k3vkt6svekjs6y0qe5xzcek1';
   const SITE = window.location.origin;
   const $=id=>document.getElementById(id);
   const launch=$('vw-launch'),panel=$('vw-panel'),gate=$('vw-gate'),chat=$('vw-chat'),msgs=$('vw-msgs'),statusEl=$('vw-status'),mic=$('vw-mic'),input=$('vw-in');
@@ -2176,6 +2176,25 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
        (1) el agente no tenga habilitado el override de firstMessage (Security → Overrides),
        (2) la red bloquee WebRTC (firewalls corporativos / hoteles). */
     const attempts=[];
+    /* PRIORIDAD: token de conversacion firmado (server-side) — permite conectar la VOZ
+       aunque el dominio no este en la allowlist publica del agente. Best-effort: si el
+       endpoint falla, seguimos con el flujo de agente publico (o1/o2/o3). */
+    try{
+      const _tr=await fetch('/api/signed-url',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:ctx.emp||'anon',user_name:ctx.name||'Usuario',employee_id:ctx.emp||''})});
+      if(_tr.ok){
+        const _tok=await _tr.json();
+        if(_tok && _tok.client_secret){
+          const t1=baseOpts(ctx); delete t1.agentId; t1.connectionType='webrtc'; t1.conversationToken=_tok.client_secret;
+          if(ctx.textOnly){ t1.overrides={ conversation:{ textOnly:true } }; }
+          attempts.push(t1);
+        }
+        if(_tok && _tok.signed_url){
+          const t2=baseOpts(ctx); delete t2.agentId; t2.connectionType='websocket'; t2.signedUrl=_tok.signed_url;
+          if(ctx.textOnly){ t2.overrides={ conversation:{ textOnly:true } }; }
+          attempts.push(t2);
+        }
+      }
+    }catch(e){ console.warn('signed-url no disponible; uso agente publico:', e); }
     const o1=baseOpts(ctx); o1.connectionType='webrtc';
     const ovr1={};
     if(typeof ctx.firstMessage==='string' && ctx.firstMessage.length>0){ ovr1.agent={ firstMessage:ctx.firstMessage }; }
