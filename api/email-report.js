@@ -830,7 +830,7 @@ async function sendEmailWithAttachments({ to, cc, subject, html, attachments }) 
         method: 'POST',
         headers: { Authorization: `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          from: 'Victor IA Training <info@victor-ia.com.mx>',
+          from: 'Victor IA Training <info@victor-ia.xyz>',
           to: [to], cc, subject, html,
           ...(attachments && attachments.length ? { attachments } : {})
         })
