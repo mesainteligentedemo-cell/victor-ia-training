@@ -1976,7 +1976,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
   function typing(on){let e=$('vw-typing');if(on){if(!e){e=document.createElement('div');e.id='vw-typing';e.className='vw-b vw-ai';e.innerHTML='<span class="vw-dots"><span></span><span></span><span></span></span>';msgs.appendChild(e);msgs.scrollTop=msgs.scrollHeight;}}else if(e)e.remove();}
 
   /* ═══ SESIÓN (sessionStorage): evita re-auth en la misma ventana; caduca a las 8h o al cerrar ventana ═══ */
-  function vtcGetSession(){ try{ var s=JSON.parse(sessionStorage.getItem('vtc_session')||'null'); if(!s||!s.session_token) return null; var exp=s.expires_at?Date.parse(s.expires_at):0; if(exp && exp<Date.now()){ sessionStorage.removeItem('vtc_session'); return null; } return s; }catch(e){ return null; } }
+  function vtcGetSession(){ try{ var s=JSON.parse(sessionStorage.getItem('vtc_session')||'null'); if(!s||!s.name||!s.employee_id) return null; var exp=s.expires_at?Date.parse(s.expires_at):0; if(!exp && s.timestamp) exp=s.timestamp+8*60*60*1000; if(exp && exp<Date.now()){ sessionStorage.removeItem('vtc_session'); return null; } return s; }catch(e){ return null; } }
   function vtcSaveSession(s){ try{ sessionStorage.setItem('vtc_session',JSON.stringify(s)); }catch(e){} }
   function vtcShowSessBadge(s){ try{ var el=document.getElementById('vw-sess'), tx=document.getElementById('vw-sess-txt'); if(el&&tx&&s){ tx.textContent='Sesión activa: '+(s.name||'')+' ('+(s.employee_id||'')+')'; el.classList.add('on'); } }catch(e){} }
 
@@ -2369,13 +2369,26 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
     setStatus(textOnly?'<b>Preparando chat de texto…</b>':'<b>Preparando tu sesión…</b>');
     const ok=await connect({name,emp,dep,hist:'',firstMessage,textOnly:!!textOnly});
     if(!ok){
-      /* Falla de conexión: devolver al usuario al formulario para reintentar (no dejarlo en un chat muerto) */
-      started=false; gate.style.display='flex'; chat.style.display='none';
+      started=false;
+      /* Si hay sesión válida, NUNCA volver al formulario: mantener el chat y ofrecer reconexión */
+      var _sess=vtcGetSession();
+      if(_sess){
+        chat.style.display='flex'; gate.style.display='none'; vtcShowSessBadge(_sess);
+        setStatus('<b>No se pudo conectar</b> — sesión activa, puedes reintentar');
+        removeTextFallbackBtn();
+        var _rb=document.getElementById('vw-reconnect');
+        if(!_rb){ _rb=document.createElement('button'); _rb.id='vw-reconnect'; _rb.type='button'; _rb.textContent='Reconectar con Victor'; _rb.style.cssText='display:block;margin:12px auto;padding:9px 18px;background:#B89A6A;color:#111;border:none;border-radius:4px;cursor:pointer;font-size:14px;font-weight:500;'; _rb.onclick=function(){ _rb.disabled=true; _rb.textContent='Conectando…'; startCourse(name,emp,dep,textOnly); }; msgs.appendChild(_rb); }
+        else { _rb.disabled=false; _rb.textContent='Reconectar con Victor'; }
+        return;
+      }
+      /* Sin sesión: devolver al formulario para reintentar */
+      gate.style.display='flex'; chat.style.display='none';
       err.textContent='No se pudo conectar con Victor. Revisa tu internet y vuelve a intentar.';
       cta.disabled=false; cta.textContent='Reintentar';
       if(textOnly) showTextFallbackBtn(function(){ startCourse(name,emp,dep,true); });
       return;
     }
+    try{var _orb=document.getElementById('vw-reconnect'); if(_orb) _orb.remove();}catch(e){}
     if(textOnly){
       /* Modo solo-texto: ocultar el boton de microfono y dejar claro el modo activo */
       try{ mic.style.display='none'; }catch(e){}
@@ -2407,7 +2420,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       catch(e){ micErr=e; }
     } else { micErr=new Error('getUserMedia no disponible'); micErr.name='NotSupportedError'; }
     if(micOk){ try{ micStream.getTracks().forEach(function(t){t.stop();}); }catch(e){} await startCourse(name,emp,dep,false); }
-    else { gate.style.display='flex'; chat.style.display='none'; var errEl=$('vw-err'); if(errEl) errEl.textContent=micErrorMessage(micErr); showTextFallbackBtn(function(){ startCourse(name,emp,dep,true); }); }
+    else { /* Mic denegado en sesión activa: NO mostrar formulario, entrar directo en modo texto */ await startCourse(name,emp,dep,true); }
   }
   function minimize(){ panel.classList.remove('vw-open'); launch.style.display='flex'; } // NO corta la sesión
   function endAll(){ try{conv&&conv.endSession();}catch(e){} conv=null;started=false;window.__vtcSpeaking=false;stopKeepalive(); mic.classList.remove('vw-live');launch.classList.remove('vw-active'); try{mic.style.display='';}catch(e){} removeTextFallbackBtn(); msgs.innerHTML=''; gate.style.display='flex';chat.style.display='none'; $('vw-cta').disabled=false;$('vw-cta').textContent='Comenzar capacitación'; panel.classList.remove('vw-open'); launch.style.display='flex'; }
