@@ -552,7 +552,8 @@ function buildPdfReportHtml(vtc) {
 <html lang="es"><head><meta charset="utf-8">
 <style>
   * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  html, body { margin: 0; padding: 0; background: ${P.page}; font-family: Arial, Helvetica, sans-serif; }
+  html { margin: 0; padding: 0; background: ${P.page}; }
+  body { margin: 0; padding: 22px; background: ${P.page}; font-family: Arial, Helvetica, sans-serif; }
   .card { background: ${P.card}; border-radius: 16px; overflow: hidden; color: ${P.txt}; }
   .pad { padding: 30px 34px; }
 
@@ -660,8 +661,9 @@ function buildPdfReportHtml(vtc) {
   .ftr .r { font-size: 12px; color: ${P.dim}; }
   .pagefoot { text-align: center; font-size: 12px; color: #9a9a9a; padding: 16px 0 6px; }
 
-  .avoid { page-break-inside: avoid; }
-  .pb { page-break-before: always; }
+  /* Documento continuo — sin cortes de página (flujo único tipo scroll) */
+  .avoid { }
+  .pb { }
 </style></head>
 <body>
 <div class="card">
@@ -739,7 +741,7 @@ function buildPdfReportHtml(vtc) {
     <p class="p">${(vtc.timeline || []).length ? esc((vtc.timeline || []).map((t) => t.texto).join(' ')) : 'Sesi&oacute;n de conversaci&oacute;n libre (sin recorrido de m&oacute;dulos).'}</p>
 
     <!-- TRANSCRIPCIÓN -->
-    <div class="klabel2 pb">Transcripci&oacute;n completa</div>
+    <div class="klabel2">Transcripci&oacute;n completa</div>
     <div class="foot" style="margin-bottom:10px">Conversaci&oacute;n palabra por palabra entre V&iacute;ctor y el asesor.</div>
     <div class="chat">${bubbles}</div>
 
@@ -784,10 +786,26 @@ async function generatePDFWithPlaywright(vtc) {
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: 'networkidle0' });
     await page.emulateMediaType('screen');
+
+    // Documento continuo: una sola página larga (scroll continuo, sin cortes).
+    // Medimos el alto real del contenido y emitimos un PDF de una sola página
+    // con esa altura exacta, en vez de paginar en tamaño Letter.
+    const contentPx = await page.evaluate(() => {
+      const b = document.body, e = document.documentElement;
+      return Math.ceil(Math.max(
+        b.scrollHeight, b.offsetHeight,
+        e.scrollHeight, e.offsetHeight, e.clientHeight
+      ));
+    });
+    const PAGE_WIDTH_PX = 816;          // ~8.5in @ 96dpi (ancho tipo Letter)
+    const heightPx = Math.max(contentPx + 4, 100); // el padding del body ya da respiro
+
     const pdfBuffer = await page.pdf({
-      format: 'Letter',
+      width: `${PAGE_WIDTH_PX}px`,
+      height: `${heightPx}px`,
       printBackground: true,
-      margin: { top: '9mm', bottom: '9mm', left: '9mm', right: '9mm' }
+      pageRanges: '1',
+      margin: { top: '0mm', bottom: '0mm', left: '0mm', right: '0mm' }
     });
     await browser.close();
     browser = null;
