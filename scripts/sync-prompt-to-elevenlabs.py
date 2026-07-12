@@ -20,8 +20,8 @@ from pathlib import Path
 AGENT_ID = "agent_9501k3vkt6svekjs6y0qe5xzcek1"  # VTC Capacitacion - Agente Victor
 API_BASE = "https://api.elevenlabs.io/v1/convai/agents"
 
-# Fuente de verdad LIVE = V8 (dual-rol). No apuntar a CANONICAL: regresaria el agente.
-PROMPT_FILE = Path(__file__).resolve().parent.parent / "VICTOR_SYSTEM_PROMPT_V8_SIMULACION_DUAL.md"
+# Fuente de verdad LIVE = V9 (simulacion 19 pasos). No apuntar a V8/CANONICAL: regresaria el agente.
+PROMPT_FILE = Path(__file__).resolve().parent.parent / "VICTOR_SYSTEM_PROMPT_V9_SIMULACION_19PASOS.md"
 
 # Fallback: key conocida del ecosistema Victor IA (misma cuenta)
 API_KEY = os.environ.get(
