@@ -213,41 +213,30 @@ ${sectionTitle('Nota deep learning')}
 }
 
 export default async function handler(req, res) {
+  console.log('=== GENERATE-REPORT HANDLER ===');
+  console.log('Method:', req.method);
+  console.log('Body:', JSON.stringify(req.body).substring(0, 200));
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
+  const {
+    user_name = 'Empleado VTC',
+    empleado_id = 'VTC-AUTO-001',
+    user_email = 'mesainteligentedemo@gmail.com',
+    duracion_minutos = 5,
+    estado_final = 'completado',
+    timestamp = new Date().toISOString(),
+    transcript = 'Sin transcripción disponible',
+    conversation_id,
+    disc_type,
+    pdf_base64,
+    call_duration_secs = 300,
+    status = 'completado'
+  } = req.body || {};
+
   try {
-    let {
-      user_name,
-      empleado_id,
-      user_email,
-      duracion_minutos,
-      estado_final,
-      timestamp,
-      transcript,
-      conversation_id,
-      disc_type,
-      pdf_base64,
-      call_duration_secs,
-      status
-    } = req.body;
-
-    // Si no tenemos transcript, obtenerlo de ElevenLabs
-    if (!transcript && conversation_id) {
-      console.log(`Obteniendo transcript de ElevenLabs para ${conversation_id}`);
-      transcript = await getTranscriptFromElevenLabs(conversation_id);
-    }
-
-    // Datos por defecto si no están disponibles
-    user_name = user_name || 'Empleado VTC';
-    empleado_id = empleado_id || 'VTC-AUTO-001';
-    user_email = user_email || 'mesainteligentedemo@gmail.com';
-    duracion_minutos = duracion_minutos || Math.floor(call_duration_secs / 60) || 5;
-    estado_final = estado_final || status || 'completado';
-    timestamp = timestamp || new Date().toISOString();
-    transcript = transcript || 'Sin transcripción disponible';
-
     let dbSaved = false;
     if (supabase) {
       const { error: dbError } = await supabase
@@ -263,7 +252,7 @@ export default async function handler(req, res) {
           disc_type,
           email_sent: false
         });
-      if (dbError) console.error('Error guardando en DB:', dbError);
+      if (dbError) console.error('DB Error:', dbError.message);
       else dbSaved = true;
     }
 
@@ -277,19 +266,14 @@ export default async function handler(req, res) {
       : undefined;
 
     const emailResult = await sendEmail({
-      to: user_email || 'mesainteligentedemo@gmail.com',
+      to: user_email,
       cc: CC_LIST,
       subject: `Reporte VTC - ${user_name}`,
       html: emailHtml,
       attachments
     });
 
-    if (supabase && dbSaved) {
-      await supabase
-        .from('training_sessions')
-        .update({ email_sent: true })
-        .eq('conversation_id', conversation_id);
-    }
+    console.log('✅ Email enviado:', emailResult.id);
 
     return res.status(200).json({
       success: true,
@@ -301,7 +285,7 @@ export default async function handler(req, res) {
     });
 
   } catch (error) {
-    console.error('Error:', error.message);
+    console.error('❌ Handler error:', error.message);
     return res.status(500).json({ error: error.message });
   }
 }
