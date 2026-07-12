@@ -2235,14 +2235,30 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
 
   async function begin(){
     const name=$('vw-name').value.trim(), emp=$('vw-emp').value.trim(), dep=$('vw-dep').value.trim();
-    if(window.viTrack) window.viTrack.setUser({name,emp,dep,site:'vtc-capacitacion'});
-    else window.VI_TRACK_USER = {name,emp,dep,site:'vtc-capacitacion'};
     const err=$('vw-err');
     if(!name){err.textContent='Por favor escribe tu nombre.';return;}
     if(!emp){err.textContent='Por favor escribe tu número de empleado.';return;}
     if(!dep){err.textContent='Por favor selecciona tu departamento.';return;}
-    err.textContent=''; removeTextFallbackBtn(); try{localStorage.setItem('vtc_user',JSON.stringify({name:name,emp:emp,dep:dep}));}catch(e){}
-    const cta=$('vw-cta'); cta.disabled=true; cta.textContent='Conectando…';
+    err.textContent=''; removeTextFallbackBtn();
+    const cta=$('vw-cta'); cta.disabled=true; cta.textContent='Verificando…';
+    /* --- Validación de empleado autorizado (server-side) --- */
+    try{
+      const _vr=await fetch('/api/verify-employee',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:name,employee_id:emp,department:dep})});
+      let _vd={}; try{_vd=await _vr.json();}catch(e){}
+      if(!_vr.ok || !_vd.authorized){
+        err.textContent=(_vd&&_vd.message)?_vd.message:'Acceso denegado. Usuario no autorizado.';
+        cta.disabled=false; cta.textContent='Comenzar capacitación';
+        return;
+      }
+    }catch(e){
+      err.textContent='No se pudo verificar tu acceso. Revisa tu internet e inténtalo de nuevo.';
+      cta.disabled=false; cta.textContent='Reintentar';
+      return;
+    }
+    if(window.viTrack) window.viTrack.setUser({name,emp,dep,site:'vtc-capacitacion'});
+    else window.VI_TRACK_USER = {name,emp,dep,site:'vtc-capacitacion'};
+    try{localStorage.setItem('vtc_user',JSON.stringify({name:name,emp:emp,dep:dep}));}catch(e){}
+    cta.textContent='Conectando…';
     /* CRITICO: pedir microfono AHORA, en el mismo gesto del click (sin awaits previos) */
     let micStream=null, micOk=false, micErr=null;
     if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia){

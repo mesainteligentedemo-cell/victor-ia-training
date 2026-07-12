@@ -890,6 +890,21 @@ export default async function handler(req, res) {
   const empleado_id = body.empleado_id || 'VTC-AUTO-001';
   const timestampIso = body.timestamp || new Date().toISOString();
 
+  // Validación del empleado contra el roster autorizado (3 empleados de Dirección).
+  // No bloquea el reporte, pero lo marca como no validado para auditoría.
+  const AUTHORIZED_EMPLOYEES = [
+    { name: 'Pablo Solar',     employee_id: '1234567' },
+    { name: 'Christian Soria', employee_id: '123456'  },
+    { name: 'Andrés Mateos',   employee_id: '12345'   }
+  ];
+  const _norm = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').trim().toLowerCase().replace(/\s+/g, ' ');
+  const empleado_validado = AUTHORIZED_EMPLOYEES.some(
+    e => e.employee_id === String(empleado_id).trim() && _norm(e.name) === _norm(user_name)
+  );
+  if (!empleado_validado) {
+    console.warn(`[Handler] ACCESO NO VALIDADO — empleado=${user_name} id=${empleado_id} (reporte se genera igual, marcado como no validado)`);
+  }
+
   try {
     console.log(`[Handler] conversation_id=${conversation_id} · empleado=${user_name}`);
 
@@ -961,7 +976,8 @@ export default async function handler(req, res) {
           timestamp: timestampIso,
           transcript: transcriptData.text,
           score_global: vtc.score_global,
-          email_sent: emailResult.status === 200
+          email_sent: emailResult.status === 200,
+          empleado_validado
         });
       if (dbError) console.error('[DB] error:', dbError.message);
       else dbSaved = true;
@@ -981,7 +997,8 @@ export default async function handler(req, res) {
       audio_attached: !!audioBase64,
       email_via: emailResult.via,
       email_id: emailResult.id,
-      db_saved: dbSaved
+      db_saved: dbSaved,
+      empleado_validado
     });
   } catch (error) {
     console.error('[Handler] error fatal:', error.message);
