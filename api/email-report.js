@@ -21,10 +21,28 @@ const CC_LIST = ['chrisoria16@gmail.com', 'eldudemateos@gmail.com'];
 const GOLD = '#d4af37', DARK = '#1a1a1a', LIGHT = '#f5f5f5';
 const GREEN = '#2e7d32', GREEN_BG = '#e8f5e9', YELLOW = '#b8860b', YELLOW_BG = '#fdf6e3';
 
+// Paleta del PDF (tema oscuro luxury — idéntico al referente VTC)
+const PDF = {
+  page: '#ececed',   // fondo de la hoja (gris claro)
+  card: '#181818',   // tarjeta principal (negro)
+  panel: '#1e1e1e',  // cajas internas (gris oscuro)
+  panel2: '#1c1c22', // burbuja del asesor
+  border: '#333333', // bordes sutiles
+  gold: '#d4af37',   // oro
+  txt: '#f2f2f2',    // texto principal
+  muted: '#9a9a9a',  // texto secundario
+  dim: '#6f6f6f',    // texto terciario
+  green: '#5cc08a',  // verde suave (plan / aciertos)
+  blue: '#8fa0c0'    // nombre del asesor
+};
+
 const esc = (s) => String(s ?? '')
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
 const clampScore = (n) => Math.min(Math.max(Math.round(Number(n) || 0), 0), 10);
+
+const stripAccents = (s) => String(s ?? '')
+  .normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 
 // ---------------------------------------------------------------------------
 // 1) TRANSCRIPCIÓN REAL — ElevenLabs ConvAI
@@ -120,7 +138,18 @@ function defaultAnalysis() {
     objeciones: [],
     drill: { titulo: 'Repasar fundamentos', descripcion: 'Practica una ronda completa de la llamada.', url: 'https://tracker.victor-ia.xyz' },
     nota_deep_learning: '',
-    score_global: 0
+    score_global: 0,
+    // Campos extendidos para el PDF (tema oscuro luxury)
+    titular: '',
+    escenario: '—',
+    idioma: 'Español',
+    sentimiento: 'Neutral',
+    tono: 'analítico',
+    principios_neuro: [],
+    participacion: '—',
+    analisis_pnl: '—',
+    nota_bullets: [],
+    comprension_general: 0
   };
 }
 
@@ -144,20 +173,30 @@ async function analyzeTranscriptWithAI(transcript) {
 
 {
   "resumen": "string (2-4 frases, español, qué pasó en la llamada)",
+  "titular": "string (1 frase corta que resume el desempeño de la sesión)",
+  "escenario": "string (descripción del escenario de roleplay que se practicó)",
+  "idioma": "Español | Inglés",
+  "sentimiento": "Positivo | Neutral | Negativo",
+  "tono": "string (1 palabra: consultivo, analítico, agresivo, empático...)",
   "competencias": [{"nombre": "string", "score": 1-10, "feedback": "string breve"}],
+  "principios_neuro": ["string (principios neurocientíficos/PNL activados; vacío si ninguno)"],
   "fortalezas": ["string"],
   "mejoras": ["string"],
+  "objeciones": [{"objecion": "string", "manejo": "string"}],
+  "analisis_pnl": "string (patrones de lenguaje/PNL detectados en el asesor)",
+  "participacion": "string (1 frase sobre cómo participó el asesor)",
   "plan_gerente": ["string (acciones concretas para el gerente)"],
   "timeline": [{"t": "M:SS", "texto": "string (momento clave)"}],
-  "objeciones": [{"objecion": "string", "manejo": "string"}],
   "drill": {"titulo": "string", "descripcion": "string"},
   "nota_deep_learning": "string (1 insight de aprendizaje)",
+  "nota_bullets": ["string (mejoras concretas para el coach Víctor)"],
+  "comprension_general": 1-10,
   "score_global": 1-10
 }
 
 Reglas:
-- Incluye al menos 4 competencias (Rapport, PNL, Manejo de objeciones, Cierre y las que apliquen).
-- score y score_global son enteros de 1 a 10.
+- Las competencias DEBEN mapear a estos 6 ejes del radar: "Rapport", "PNL", "Postura", "Objeciones", "Cierre", "Leer la sala". Usa exactamente esos nombres.
+- score, comprension_general y score_global son enteros de 1 a 10.
 - Todo en español. Solo el JSON, nada más.
 
 TRANSCRIPCIÓN:
@@ -229,7 +268,18 @@ ${transcript}
         url: parsed.drill?.url || base.drill.url
       },
       nota_deep_learning: parsed.nota_deep_learning || '',
-      score_global: clampScore(parsed.score_global)
+      score_global: clampScore(parsed.score_global),
+      // Campos extendidos para el PDF
+      titular: parsed.titular || '',
+      escenario: parsed.escenario || base.escenario,
+      idioma: parsed.idioma || base.idioma,
+      sentimiento: parsed.sentimiento || base.sentimiento,
+      tono: parsed.tono || base.tono,
+      principios_neuro: Array.isArray(parsed.principios_neuro) ? parsed.principios_neuro.filter(Boolean) : [],
+      participacion: parsed.participacion || base.participacion,
+      analisis_pnl: parsed.analisis_pnl || base.analisis_pnl,
+      nota_bullets: Array.isArray(parsed.nota_bullets) ? parsed.nota_bullets.filter(Boolean) : [],
+      comprension_general: clampScore(parsed.comprension_general)
     };
 
     console.log(`[OpenRouter] análisis OK — score_global ${out.score_global}/10, ${out.competencias.length} competencias`);
@@ -369,12 +419,353 @@ ${transcriptBlock}
 }
 
 // ---------------------------------------------------------------------------
+// GRÁFICO RADIAL (SVG puro generado por JS) — Mapa de competencias hexagonal
+// 6 ejes fijos: Rapport · Postura · Objeciones · Leer la sala · Cierre · PNL
+// ---------------------------------------------------------------------------
+function radarSVG(vtc) {
+  const axes = ['Rapport', 'Postura', 'Objeciones', 'Leer la sala', 'Cierre', 'PNL'];
+
+  // Mapeo difuso desde las competencias del análisis IA -> eje del radar
+  const scoreFor = (label) => {
+    const key = stripAccents(label);
+    let best = 0;
+    for (const c of (vtc.competencias || [])) {
+      const n = stripAccents(c.nombre);
+      const hit =
+        (key === 'rapport' && n.includes('rapport')) ||
+        (key === 'postura' && (n.includes('postura') || n.includes('lenguaje corporal'))) ||
+        (key === 'objeciones' && n.includes('objec')) ||
+        (key === 'leer la sala' && (n.includes('leer') || n.includes('sala') || n.includes('escucha'))) ||
+        (key === 'cierre' && n.includes('cierre')) ||
+        (key === 'pnl' && n.includes('pnl'));
+      if (hit) best = Math.max(best, clampScore(c.score));
+    }
+    return best;
+  };
+
+  const W = 440, H = 380, cx = 220, cy = 190, R = 130, N = 6, levels = 4;
+  const ang = (i) => (-90 + i * 60) * Math.PI / 180;
+  const pt = (i, r) => [cx + r * Math.cos(ang(i)), cy + r * Math.sin(ang(i))];
+  const poly = (r) => Array.from({ length: N }, (_, i) => pt(i, r).map((v) => v.toFixed(1)).join(',')).join(' ');
+
+  // Anillos concéntricos (hexágonos)
+  let rings = '';
+  for (let l = 1; l <= levels; l++) rings += `<polygon points="${poly(R * l / levels)}" fill="none" stroke="${PDF.border}" stroke-width="1"/>`;
+
+  // Radios (spokes)
+  let spokes = '';
+  for (let i = 0; i < N; i++) { const [x, y] = pt(i, R); spokes += `<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="#2a2a2a" stroke-width="1"/>`; }
+
+  // Polígono de datos
+  const vals = axes.map(scoreFor);
+  const hasData = vals.some((v) => v > 0);
+  let data = '';
+  if (hasData) {
+    const pts = vals.map((v, i) => pt(i, R * v / 10).map((n) => n.toFixed(1)).join(',')).join(' ');
+    data = `<polygon points="${pts}" fill="rgba(212,175,55,0.18)" stroke="${PDF.gold}" stroke-width="2"/>` +
+      vals.map((v, i) => { const [x, y] = pt(i, R * v / 10); return v > 0 ? `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3.5" fill="${PDF.gold}"/>` : ''; }).join('');
+  }
+
+  // Punto central dorado
+  const center = `<circle cx="${cx}" cy="${cy}" r="4" fill="${PDF.gold}"/>`;
+
+  // Etiquetas de ejes
+  const labelR = R + 24;
+  const labels = axes.map((a, i) => {
+    const [x, y] = pt(i, labelR);
+    const c = Math.cos(ang(i));
+    const anchor = c > 0.3 ? 'start' : (c < -0.3 ? 'end' : 'middle');
+    return `<text x="${x.toFixed(1)}" y="${(y + 4).toFixed(1)}" text-anchor="${anchor}" font-family="Arial,sans-serif" font-size="13" fill="#b9b9b9">${a}</text>`;
+  }).join('');
+
+  return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mapa de competencias" style="max-width:100%;">${rings}${spokes}${data}${center}${labels}</svg>`;
+}
+
+// ---------------------------------------------------------------------------
+// HTML DEL PDF — tema oscuro luxury (idéntico al referente VTC, 4-5 páginas)
+// ---------------------------------------------------------------------------
+function buildPdfReportHtml(vtc) {
+  const P = PDF;
+  const seg = clampScore(vtc.score_global);
+  const comp = clampScore(vtc.comprension_general ?? vtc.score_global);
+  const fmtTime = (s) => { const n = Math.max(0, Math.floor(Number(s) || 0)); return `${Math.floor(n / 60)}:${String(n % 60).padStart(2, '0')}`; };
+  const dash = (v) => (v && String(v).trim() && String(v).trim() !== '—') ? esc(v) : '—';
+
+  const headline = vtc.titular?.trim()
+    || (vtc.resumen ? String(vtc.resumen).split(/(?<=[.!?])\s+/)[0] : '');
+
+  // ---- Metadata inline (4 celdas) ----
+  const metaCells = [
+    { v: vtc.duracion_minutos || '0:00', k: 'TIEMPO HABLADO', gold: true },
+    { v: vtc.idioma || 'Español', k: 'IDIOMA' },
+    { v: vtc.sentimiento || 'Neutral', k: 'SENTIMIENTO' },
+    { v: String(vtc.intervenciones ?? 0), k: 'INTERVENCIONES' }
+  ].map((m) => `<div class="mbox"><div class="mv${m.gold ? ' gold' : ''}">${esc(m.v)}</div><div class="mk">${m.k}</div></div>`).join('');
+
+  // ---- Timeline ----
+  const timeline = (vtc.timeline || []).length
+    ? (vtc.timeline || []).map((t) => `<div class="tl-row"><div class="tl-t">${esc(t.t || '0:00')}</div><div class="tl-x">${esc(t.texto || '')}</div></div>`).join('')
+    : `<div class="tl-row"><div class="tl-t">—</div><div class="tl-x">Sin momentos clave registrados.</div></div>`;
+
+  // ---- Listas de accent ----
+  const bullets = (arr) => (arr && arr.length)
+    ? `<ul class="b">${arr.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>`
+    : `<div class="dash-sm">—</div>`;
+
+  // ---- Principios neuro ----
+  const principios = (vtc.principios_neuro || []).length
+    ? `<ul class="b">${vtc.principios_neuro.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>`
+    : `<p class="p">No registrado en esta sesión.</p>`;
+
+  // ---- Objeciones ----
+  const objeciones = (vtc.objeciones || []).length
+    ? (vtc.objeciones || []).map((o) => `<p class="p"><b class="q">&ldquo;${esc(o.objecion)}&rdquo;</b><br><span class="muted">${esc(o.manejo)}</span></p>`).join('')
+    : `<div class="dash-sm">—</div>`;
+
+  // ---- Plan del gerente ----
+  const plan = (vtc.plan_gerente || []).length
+    ? `<ol class="ol">${vtc.plan_gerente.map((p) => `<li>${esc(p)}</li>`).join('')}</ol>`
+    : `<div class="dash-sm">—</div>`;
+
+  // ---- Nota deep learning (bullets) ----
+  const notaSrc = (vtc.nota_bullets && vtc.nota_bullets.length)
+    ? vtc.nota_bullets
+    : (vtc.nota_deep_learning ? [vtc.nota_deep_learning] : []);
+  const nota = notaSrc.length
+    ? notaSrc.map((n, i) => `<p class="nb${i === 0 ? ' green' : ''}">${esc(n)}</p>`).join('')
+    : `<div class="dash-sm">—</div>`;
+
+  // ---- Transcripción (burbujas de chat) ----
+  const bubbles = (vtc.messages || []).length
+    ? (vtc.messages || []).map((m) => {
+        const isUser = m.role === 'user';
+        const name = isUser ? 'ASESOR' : 'VÍCTOR';
+        return `<div class="brow ${isUser ? 'right' : 'left'}"><div class="bub ${isUser ? 'user' : 'agent'}">
+          <div class="bh"><span class="bn ${isUser ? 'user' : 'agent'}">${name}</span><span class="bt">${fmtTime(m.time)}</span></div>
+          <div class="bm">${esc(m.message)}</div></div></div>`;
+      }).join('')
+    : `<p class="p muted">Transcripción no disponible.</p>`;
+
+  const drillUrl = esc(vtc.drill?.url || 'https://tracker.victor-ia.xyz');
+
+  return `<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<style>
+  * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  html, body { margin: 0; padding: 0; background: ${P.page}; font-family: Arial, Helvetica, sans-serif; }
+  .card { background: ${P.card}; border-radius: 16px; overflow: hidden; color: ${P.txt}; }
+  .pad { padding: 30px 34px; }
+
+  /* Header */
+  .brandline { display: flex; align-items: baseline; gap: 12px; }
+  .brand { font-size: 13px; font-weight: bold; letter-spacing: 3px; color: ${P.gold}; }
+  .date { font-size: 12px; letter-spacing: 2px; color: #b79b52; }
+  h1 { font-size: 40px; font-weight: 400; margin: 10px 0 6px; color: ${P.txt}; letter-spacing: -0.5px; }
+  .sub { font-size: 15px; color: ${P.muted}; }
+  .sub b { color: ${P.txt}; font-weight: bold; }
+  .badges { margin-top: 16px; display: flex; gap: 10px; flex-wrap: wrap; }
+  .badge { font-size: 11px; font-weight: bold; letter-spacing: 1.5px; color: ${P.muted}; border: 1px solid #444; border-radius: 8px; padding: 7px 14px; }
+  .badge.gold { color: ${P.gold}; border-color: ${P.gold}; }
+  .rule { border: 0; border-top: 1px solid #2b2b2b; margin: 0 34px; }
+
+  /* Score */
+  .score { text-align: center; padding: 26px 34px 6px; }
+  .klabel { font-size: 12px; font-weight: bold; letter-spacing: 3px; color: ${P.muted}; text-transform: uppercase; }
+  .bignum { line-height: 1; margin: 8px 0 14px; }
+  .bignum .n { font-size: 118px; font-weight: bold; color: ${P.gold}; }
+  .bignum .slash { font-size: 40px; font-weight: bold; color: ${P.gold}; }
+  .headline { font-size: 15px; color: ${P.muted}; max-width: 560px; margin: 0 auto; line-height: 1.5; }
+
+  /* Cajas */
+  .box { background: ${P.panel}; border: 1px solid ${P.border}; border-radius: 12px; padding: 18px 20px; }
+  .box-t { font-size: 12px; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; }
+  .box-t.gold { color: ${P.gold}; }
+  .box-t.green { color: ${P.green}; }
+  .box-t.muted { color: ${P.muted}; }
+  .p { font-size: 14px; line-height: 1.6; color: #d9d9d9; margin: 0 0 8px; }
+  .p:last-child { margin-bottom: 0; }
+  .p.muted, .muted { color: ${P.muted}; }
+  .lead { font-size: 17px; line-height: 1.4; color: ${P.txt}; margin: 4px 0 10px; }
+  .foot { font-size: 12px; color: ${P.dim}; }
+  .dash { font-size: 26px; color: ${P.txt}; margin: 2px 0 6px; }
+  .dash-sm { font-size: 18px; color: ${P.muted}; }
+
+  .cols { display: flex; gap: 14px; }
+  .cols > .box { flex: 1; }
+
+  .meta { display: flex; gap: 12px; margin-top: 18px; }
+  .mbox { flex: 1; border: 1px solid ${P.border}; border-radius: 10px; padding: 14px 10px; text-align: center; }
+  .mv { font-size: 22px; color: ${P.txt}; }
+  .mv.gold { color: ${P.gold}; }
+  .mk { font-size: 10px; letter-spacing: 1.5px; color: ${P.dim}; margin-top: 4px; }
+
+  .sect-c { text-align: center; font-size: 13px; font-weight: bold; letter-spacing: 3px; color: ${P.muted}; text-transform: uppercase; margin: 30px 0 4px; }
+  .radar { text-align: center; padding: 10px 0 6px; }
+  .klabel2 { font-size: 12px; font-weight: bold; letter-spacing: 2.5px; color: ${P.muted}; text-transform: uppercase; margin: 24px 0 8px; }
+
+  /* Timeline */
+  .tl-row { display: flex; gap: 16px; padding: 6px 0; }
+  .tl-t { color: ${P.gold}; font-size: 13px; font-weight: bold; width: 52px; flex: none; }
+  .tl-x { font-size: 14px; line-height: 1.5; color: #d9d9d9; border-left: 2px solid #2f2f2f; padding-left: 16px; flex: 1; }
+
+  /* Accents */
+  .accent { border-left: 3px solid #444; padding: 4px 0 4px 18px; margin: 18px 0; }
+  .accent.green { border-color: ${P.green}; }
+  .accent.gold { border-color: ${P.gold}; }
+  .accent.gray { border-color: #555; }
+  .acc-t { font-size: 12px; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+  .acc-t.green { color: ${P.green}; }
+  .acc-t.gold { color: ${P.gold}; }
+  .acc-t.muted { color: ${P.muted}; }
+  ul.b { margin: 0; padding-left: 18px; }
+  ul.b li { font-size: 14px; line-height: 1.6; color: #d9d9d9; margin-bottom: 4px; }
+  ol.ol { margin: 6px 0 0; padding-left: 22px; }
+  ol.ol li { font-size: 14px; line-height: 1.6; color: #d9d9d9; margin-bottom: 8px; padding-left: 4px; }
+  ol.ol li::marker { color: ${P.gold}; font-weight: bold; }
+  .q { color: ${P.txt}; }
+
+  /* Drill */
+  .btn-outline { display: inline-block; margin-top: 6px; border: 1px solid ${P.gold}; color: ${P.gold}; font-size: 12px; font-weight: bold; letter-spacing: 2px; padding: 12px 26px; border-radius: 24px; text-decoration: none; }
+  .btn-gold { display: inline-block; margin-top: 6px; background: ${P.gold}; color: #1a1a1a; font-size: 12px; font-weight: bold; letter-spacing: 2px; padding: 13px 26px; border-radius: 24px; text-decoration: none; }
+
+  /* Aprendizaje */
+  .learn-h { display: flex; align-items: center; gap: 12px; margin: 24px 0 8px; }
+  .pill { font-size: 10px; font-weight: bold; letter-spacing: 1.5px; padding: 4px 10px; border-radius: 12px; }
+  .pill.green { background: rgba(92,192,138,0.15); color: ${P.green}; border: 1px solid ${P.green}; }
+  .comp { font-size: 15px; color: ${P.txt}; margin: 6px 0 4px; }
+  .comp .gold { color: ${P.gold}; font-weight: bold; font-size: 20px; }
+  .nb { font-size: 13px; line-height: 1.55; color: #cfcfcf; margin: 0 0 8px; padding-left: 14px; position: relative; }
+  .nb::before { content: "•"; position: absolute; left: 0; color: ${P.muted}; }
+  .nb.green { color: ${P.green}; }
+
+  /* Transcript */
+  .brow { display: flex; margin: 10px 0; }
+  .brow.right { justify-content: flex-end; }
+  .bub { max-width: 78%; border-radius: 12px; padding: 12px 16px; }
+  .bub.agent { background: ${P.panel}; border: 1px solid ${P.border}; }
+  .bub.user { background: ${P.panel2}; border: 1px solid #33384a; }
+  .bh { margin-bottom: 5px; }
+  .bn { font-size: 12px; font-weight: bold; letter-spacing: 2px; }
+  .bn.agent { color: ${P.gold}; }
+  .bn.user { color: ${P.blue}; }
+  .bt { font-size: 11px; color: ${P.dim}; margin-left: 8px; }
+  .bm { font-size: 14px; line-height: 1.55; color: ${P.txt}; }
+  .tbtns { display: flex; gap: 14px; margin-top: 20px; }
+
+  /* Footer */
+  .ftr { display: flex; justify-content: space-between; align-items: flex-end; padding: 20px 34px 26px; }
+  .ftr .l { font-size: 13px; color: ${P.muted}; line-height: 1.6; }
+  .ftr .l b { color: ${P.txt}; }
+  .ftr .l .gold { color: ${P.gold}; }
+  .ftr .r { font-size: 12px; color: ${P.dim}; }
+  .pagefoot { text-align: center; font-size: 12px; color: #9a9a9a; padding: 16px 0 6px; }
+
+  .avoid { page-break-inside: avoid; }
+  .pb { page-break-before: always; }
+</style></head>
+<body>
+<div class="card">
+  <!-- HEADER -->
+  <div class="pad">
+    <div class="brandline"><span class="brand">VICTORIOUS TRAVELERS CLUB</span><span class="date">${esc(vtc.fecha_corta || vtc.timestamp || '')}</span></div>
+    <h1>Reporte de entrenamiento</h1>
+    <div class="sub">Sesi&oacute;n de <b>${esc(vtc.user_name)}</b> con V&iacute;ctor &middot; ${esc(vtc.tipo_sesion || 'Sesi&oacute;n')} &middot; ${esc(vtc.duracion_minutos)} min</div>
+    <div class="badges"><span class="badge gold">EMPLEADO N&ordm; ${esc(vtc.empleado_id)}</span><span class="badge">DIRECCI&Oacute;N</span><span class="badge">&mdash;</span></div>
+  </div>
+  <hr class="rule">
+
+  <!-- SCORE -->
+  <div class="score">
+    <div class="klabel">Desempe&ntilde;o global</div>
+    <div class="bignum"><span class="n">${seg}</span><span class="slash">/10</span></div>
+    ${headline ? `<div class="headline">${esc(headline)}</div>` : ''}
+  </div>
+
+  <div class="pad" style="padding-top:20px">
+    <!-- RESUMEN -->
+    <div class="box avoid"><div class="box-t gold">Resumen de la llamada</div><p class="p">${esc(vtc.resumen)}</p></div>
+
+    <!-- 2 COLUMNAS -->
+    <div class="cols" style="margin-top:16px">
+      <div class="box avoid"><div class="box-t muted">Escenario</div><div class="lead">${dash(vtc.escenario)}</div><div class="foot">${esc(vtc.tono || 'anal&iacute;tico')} &middot; ${esc(vtc.idioma || 'Espa&ntilde;ol')}</div></div>
+      <div class="box avoid"><div class="box-t muted">M&oacute;dulos practicados</div><div class="dash">&mdash;</div><div class="foot">${esc(vtc.tipo_sesion || 'Sesi&oacute;n')}</div></div>
+    </div>
+
+    <!-- METADATA -->
+    <div class="meta">${metaCells}</div>
+
+    <!-- MAPA DE COMPETENCIAS -->
+    <div class="sect-c">Mapa de competencias</div>
+    <div class="radar avoid">${radarSVG(vtc)}</div>
+
+    <!-- PRINCIPIOS NEURO -->
+    <div class="klabel2">Principios neurocient&iacute;ficos activados</div>
+    ${principios}
+
+    <!-- TIMELINE -->
+    <div class="klabel2">L&iacute;nea de la conversaci&oacute;n</div>
+    <div class="avoid">${timeline}</div>
+
+    <!-- ACIERTOS -->
+    <div class="accent green avoid"><div class="acc-t green">Lo que hiciste bien</div>${bullets(vtc.fortalezas)}</div>
+    <!-- MEJORAS -->
+    <div class="accent gold avoid"><div class="acc-t gold">A mejorar</div>${bullets(vtc.mejoras)}</div>
+    <!-- OBJECIONES -->
+    <div class="accent gray avoid"><div class="acc-t muted">Objeciones que enfrentaste</div>${objeciones}</div>
+
+    <!-- ANÁLISIS PNL -->
+    <div class="box avoid" style="margin-top:18px"><div class="box-t gold">An&aacute;lisis PNL</div><p class="p">${dash(vtc.analisis_pnl)}</p></div>
+
+    <!-- DRILL -->
+    <div class="box avoid" style="margin-top:22px"><div class="box-t gold">Tu pr&oacute;ximo drill</div>
+      <div class="lead">${esc(vtc.drill?.descripcion || vtc.drill?.titulo || '')}</div>
+      <a class="btn-outline" href="${drillUrl}">ENTRENAR DE NUEVO</a>
+    </div>
+
+    <!-- PLAN GERENTE -->
+    <div class="box avoid" style="margin-top:18px"><div class="box-t green">Plan de acci&oacute;n &middot; para el gerente</div>
+      <div class="foot" style="margin-bottom:6px">Pasos concretos para llevar a este asesor a la excelencia.</div>${plan}</div>
+
+    <!-- APRENDIZAJE -->
+    <div class="learn-h"><span class="klabel2" style="margin:0">An&aacute;lisis del aprendizaje</span><span class="pill green">CONSULTA</span></div>
+    <div class="comp">Comprensi&oacute;n general <span class="gold">${comp}/10</span></div>
+    <div class="klabel2">Participaci&oacute;n</div>
+    <p class="p">${dash(vtc.participacion)}</p>
+    <div class="box avoid" style="margin-top:12px"><div class="box-t muted">Nota deep learning &mdash; mejoras para V&iacute;ctor</div>${nota}</div>
+
+    <!-- ACTIVIDAD -->
+    <div class="klabel2">Actividad de la sesi&oacute;n</div>
+    <div class="foot" style="margin-bottom:8px">Lo que Victor hizo paso a paso durante la sesi&oacute;n.</div>
+    <p class="p">${(vtc.timeline || []).length ? esc((vtc.timeline || []).map((t) => t.texto).join(' ')) : 'Sesi&oacute;n de conversaci&oacute;n libre (sin recorrido de m&oacute;dulos).'}</p>
+
+    <!-- TRANSCRIPCIÓN -->
+    <div class="klabel2 pb">Transcripci&oacute;n completa</div>
+    <div class="foot" style="margin-bottom:10px">Conversaci&oacute;n palabra por palabra entre V&iacute;ctor y el asesor.</div>
+    <div class="chat">${bubbles}</div>
+
+    <div class="tbtns">
+      <a class="btn-outline" href="${drillUrl}">ESCUCHAR CONVERSACI&Oacute;N</a>
+      <a class="btn-gold" href="${drillUrl}">VOLVER A ENTRENAR</a>
+    </div>
+  </div>
+
+  <hr class="rule">
+  <div class="ftr">
+    <div class="l"><b>V&Iacute;CTOR</b> &middot; Coach de IA del piso<br>Generado por <span class="gold">Victor IA</span></div>
+    <div class="r">Sesi&oacute;n ${esc(vtc.conversation_id || '')}</div>
+  </div>
+</div>
+<div class="pagefoot">Este reporte es interno del equipo VTC.</div>
+</body></html>`;
+}
+
+// ---------------------------------------------------------------------------
 // 4) PDF PROFESIONAL — Playwright/Chromium headless (base64)
 //    Usa puppeteer-core + @sparticuz/chromium (estándar Vercel serverless).
 //    Degrada con gracia: si Chromium no está disponible, retorna null.
 // ---------------------------------------------------------------------------
 async function generatePDFWithPlaywright(vtc) {
-  const html = buildReportHtml(vtc, { forPdf: true });
+  const html = buildPdfReportHtml(vtc);
   let browser;
   try {
     const [{ default: chromium }, puppeteer] = await Promise.all([
@@ -392,10 +783,11 @@ async function generatePDFWithPlaywright(vtc) {
 
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: 'networkidle0' });
+    await page.emulateMediaType('screen');
     const pdfBuffer = await page.pdf({
       format: 'Letter',
       printBackground: true,
-      margin: { top: '10mm', bottom: '10mm', left: '12mm', right: '12mm' }
+      margin: { top: '9mm', bottom: '9mm', left: '9mm', right: '9mm' }
     });
     await browser.close();
     browser = null;
@@ -501,9 +893,13 @@ export default async function handler(req, res) {
       user_name,
       empleado_id,
       duracion_minutos,
-      tipo_sesion: body.tipo_sesion || 'Coaching',
+      tipo_sesion: body.tipo_sesion || 'Sesión',
       timestamp: new Date(timestampIso).toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' }),
+      fecha_corta: new Date(timestampIso).toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' }).toUpperCase(),
       transcript: transcriptData.text,
+      messages: transcriptData.messages,
+      intervenciones: transcriptData.messages.length,
+      conversation_id,
       ...analysis
     };
 
