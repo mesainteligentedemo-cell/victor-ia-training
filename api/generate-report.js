@@ -5,8 +5,28 @@ const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 const supabase = SUPABASE_URL && SUPABASE_KEY ? createClient(SUPABASE_URL, SUPABASE_KEY) : null;
 
 const RESEND_KEY = process.env.RESEND_API_KEY || '';
+const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY || 'sk_87d5a7899d6c489c94232248c4880a0c4fe317adb3701e67';
 const TRACKER_EMAIL_API = 'https://tracker.victor-ia.xyz/api/email/send';
 const CC_LIST = ['chrisoria16@gmail.com', 'eldudemateos@gmail.com'];
+
+async function getTranscriptFromElevenLabs(conversationId) {
+  try {
+    const resp = await fetch(`https://api.elevenlabs.io/v1/convai/conversations/${conversationId}`, {
+      method: 'GET',
+      headers: { 'xi-api-key': ELEVENLABS_API_KEY }
+    });
+    if (!resp.ok) {
+      console.error(`ElevenLabs API error: ${resp.status}`);
+      return 'Transcripción no disponible';
+    }
+    const data = await resp.json();
+    const messages = data.conversation || [];
+    return messages.map(m => `${m.role?.toUpperCase()}: ${m.message}`).join('\n\n') || 'Sin transcripción';
+  } catch (e) {
+    console.error('Error obteniendo transcript de ElevenLabs:', e.message);
+    return 'Transcripción no disponible';
+  }
+}
 
 async function sendEmail({ to, cc, subject, html, attachments }) {
   if (RESEND_KEY) {
@@ -198,7 +218,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const {
+    let {
       user_name,
       empleado_id,
       user_email,
@@ -208,12 +228,25 @@ export default async function handler(req, res) {
       transcript,
       conversation_id,
       disc_type,
-      pdf_base64
+      pdf_base64,
+      call_duration_secs,
+      status
     } = req.body;
 
-    if (!user_name || !empleado_id) {
-      return res.status(400).json({ error: 'Faltan datos requeridos' });
+    // Si no tenemos transcript, obtenerlo de ElevenLabs
+    if (!transcript && conversation_id) {
+      console.log(`Obteniendo transcript de ElevenLabs para ${conversation_id}`);
+      transcript = await getTranscriptFromElevenLabs(conversation_id);
     }
+
+    // Datos por defecto si no están disponibles
+    user_name = user_name || 'Empleado VTC';
+    empleado_id = empleado_id || 'VTC-AUTO-001';
+    user_email = user_email || 'mesainteligentedemo@gmail.com';
+    duracion_minutos = duracion_minutos || Math.floor(call_duration_secs / 60) || 5;
+    estado_final = estado_final || status || 'completado';
+    timestamp = timestamp || new Date().toISOString();
+    transcript = transcript || 'Sin transcripción disponible';
 
     let dbSaved = false;
     if (supabase) {
