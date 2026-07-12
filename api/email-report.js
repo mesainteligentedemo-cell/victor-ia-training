@@ -4,35 +4,50 @@ const RESEND_KEY = process.env.RESEND_API_KEY || '';
 const CC_LIST = ['chrisoria16@gmail.com', 'eldudemateos@gmail.com'];
 
 async function sendEmail({ to, cc, subject, html }) {
-  if (!RESEND_KEY) {
-    return { via: 'error', id: null };
+  // Intentar Resend primero
+  if (RESEND_KEY) {
+    try {
+      const resp = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${RESEND_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          from: 'Victor IA Training <info@victor-ia.com.mx>',
+          to: [to],
+          cc,
+          subject,
+          html
+        })
+      });
+
+      const data = await resp.json().catch(() => ({}));
+      if (resp.ok) {
+        return { via: 'resend', id: data.id || 'sent', status: 200 };
+      }
+    } catch (e) {
+      console.error('Resend fallback:', e.message);
+    }
   }
 
+  // Fallback: tracker API
   try {
-    const resp = await fetch('https://api.resend.com/emails', {
+    const resp = await fetch('https://tracker.victor-ia.xyz/api/email/send', {
       method: 'POST',
-      headers: {
-        Authorization: `Bearer ${RESEND_KEY}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        from: 'Victor IA Training <info@victor-ia.com.mx>',
-        to: [to],
-        cc,
-        subject,
-        html
-      })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ to, cc, subject, html })
     });
 
     const data = await resp.json().catch(() => ({}));
-    if (resp.ok) {
-      return { via: 'resend', id: data.id || 'sent', status: 200 };
+    if (resp.ok || data.ok) {
+      return { via: 'tracker', id: data.id || 'sent', status: 200 };
     }
-    return { via: 'error', id: null, status: resp.status };
   } catch (e) {
-    console.error('Email error:', e.message);
-    return { via: 'error', id: null };
+    console.error('Tracker fallback error:', e.message);
   }
+
+  return { via: 'none', id: null, status: 500 };
 }
 
 function generateSimpleHtml(data) {
