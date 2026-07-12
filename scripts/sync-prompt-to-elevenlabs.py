@@ -20,8 +20,8 @@ from pathlib import Path
 AGENT_ID = "agent_9501k3vkt6svekjs6y0qe5xzcek1"  # VTC Capacitacion - Agente Victor
 API_BASE = "https://api.elevenlabs.io/v1/convai/agents"
 
-# El prompt canonical vive en la raiz del proyecto (un nivel arriba de /scripts)
-PROMPT_FILE = Path(__file__).resolve().parent.parent / "VICTOR_SYSTEM_PROMPT_CANONICAL.md"
+# Fuente de verdad LIVE = V8 (dual-rol). No apuntar a CANONICAL: regresaria el agente.
+PROMPT_FILE = Path(__file__).resolve().parent.parent / "VICTOR_SYSTEM_PROMPT_V8_SIMULACION_DUAL.md"
 
 # Fallback: key conocida del ecosistema Victor IA (misma cuenta)
 API_KEY = os.environ.get(
