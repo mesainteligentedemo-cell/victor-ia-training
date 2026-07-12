@@ -79,6 +79,13 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(7,7,8,.95);b
 .vtc-reading{background:rgba(184,154,106,.15)!important;border-left:3px solid var(--gold)!important;padding-left:1.5rem!important;}
 .vtc-reading .block-title{color:var(--gold)!important;}
 
+/* ═══ V12 · COORDINACIÓN DE BLOQUES DENTRO DE MÓDULO ═══ */
+/* Cuando un módulo está en curso, sus bloques se atenúan salvo el activo. */
+.module-section.module-in-progress .content-block{opacity:.42;filter:saturate(.85);transition:opacity .35s ease,border-color .35s ease,filter .35s ease;}
+.content-block.active-block{opacity:1!important;filter:none!important;border-left:4px solid var(--gold);padding-left:20px;}
+.content-block.completed-block{opacity:.7!important;filter:none!important;}
+.module-section.module-in-progress .content-block.completed-block{opacity:.7!important;}
+
 /* LESSON VIDEO */
 .lesson-video{margin:0 0 1.25rem;}
 .lesson-video video{width:100%;display:block;border:1px solid var(--faint);border-radius:6px;background:#000;aspect-ratio:16/9;object-fit:cover;background-size:cover;background-position:center;}
@@ -464,12 +471,12 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       <div class="lesson-video feature"><video controls preload="none" playsinline webkit-playsinline poster="/videos/modulo-F.jpg"><source src="/videos/modulo-F.mp4" type="video/mp4"></video></div>
     </div>
 
-    <div class="content-block" id="bloque-f-01">
+    <div class="content-block" id="bloque-f-01" data-block-id="f-01" data-block-name="Por qué este módulo existe">
       <div class="block-title">Por qué este módulo existe</div>
       <p class="block-text">El 60% de los vendedores nuevos pierden cierres porque no entienden <strong>qué venden realmente.</strong> No venden puntos ni semanas. No venden habitaciones. Venden el derecho a que una familia tenga vacaciones de calidad garantizada, año tras año, sin la ruleta de la plataforma de rentas ni las cuotas crecientes del timeshare clásico. El vendedor que no entiende esto, presenta features. El que lo entiende, vende <em>transformación de estilo de vida.</em></p>
     </div>
 
-    <div class="content-block" id="bloque-f-02">
+    <div class="content-block" id="bloque-f-02" data-block-id="f-02" data-block-name="Qué es VTC — en una línea">
       <div class="block-title">Qué es VTC — en una línea</div>
       <div class="script-box">
         <div class="script-label">Definición de trabajo</div>
@@ -477,7 +484,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       </div>
     </div>
 
-    <div class="content-block" id="bloque-f-03">
+    <div class="content-block" id="bloque-f-03" data-block-id="f-03" data-block-name="El modelo de negocio — quién gana qué">
       <div class="block-title">El modelo de negocio — quién gana qué</div>
       <p class="block-text">Entender cómo fluye el dinero te da autoridad en sala. Cuando el prospecto pregunta "¿y ustedes cómo ganan?", tienes una respuesta honesta y confiable.</p>
       <div class="steps">
@@ -487,7 +494,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       </div>
     </div>
 
-    <div class="content-block" id="bloque-f-04">
+    <div class="content-block" id="bloque-f-04" data-block-id="f-04" data-block-name="Vocabulario del piso — obligatorio">
       <div class="block-title">Vocabulario del piso — obligatorio</div>
       <p class="block-text">Un vendedor que no habla el idioma del piso pierde credibilidad con su gerente y con su equipo. Estos términos son parte del vocabulario diario:</p>
       <div class="tiedown-box">
@@ -506,7 +513,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       </div>
     </div>
 
-    <div class="content-block" id="bloque-f-05">
+    <div class="content-block" id="bloque-f-05" data-block-id="f-05" data-block-name="Los 3 errores que destruyen carreras en timeshare">
       <div class="block-title">Los 3 errores que destruyen carreras en timeshare</div>
       <div class="comparison">
         <div class="comp-col">
@@ -528,7 +535,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       </div>
     </div>
 
-    <div class="content-block" id="bloque-f-06">
+    <div class="content-block" id="bloque-f-06" data-block-id="f-06" data-block-name="Qué vendes realmente">
       <div class="block-title">Qué vendes realmente</div>
       <p class="block-text">Memoriza esto y repítelo antes de cada presentación:</p>
       <div class="script-box">
@@ -565,7 +572,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       <div class="lesson-video feature"><video controls preload="none" playsinline webkit-playsinline poster="/videos/modulo-M0.jpg"><source src="/videos/modulo-M0.mp4" type="video/mp4"></video></div>
     </div>
 
-    <div class="content-block" id="bloque-0-01">
+    <div class="content-block" id="bloque-0-01" data-block-id="0-01" data-block-name="Los 4 arquetipos del vendedor de timeshare">
       <div class="block-title">Los 4 arquetipos del vendedor de timeshare</div>
       <p class="block-text">Cada vendedor tiende naturalmente hacia uno de estos arquetipos. Identificar el tuyo es el primer paso para corregirlo o potenciarlo.</p>
       <div class="milestones">
@@ -596,7 +603,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       <p class="pnl-text">Las neuronas espejo copian el estado emocional de la persona que tienen enfrente. Si entras al tour ansioso, preocupado o "hambriento" de cierre — el prospecto lo siente antes de que digas una sola palabra. Si entras en estado de abundancia, confianza y genuina disposición de ayudar — el prospecto lo siente igual. <strong style="color:var(--cream)">Tu estado emocional es el primer argumento de venta.</strong> Entra en estado antes de entrar en sala.</p>
     </div>
 
-    <div class="content-block" id="bloque-0-02">
+    <div class="content-block" id="bloque-0-02" data-block-id="0-02" data-block-name="Protocolo de estado emocional antes de la presentación">
       <div class="block-title">Protocolo de estado emocional antes de la presentación</div>
       <div class="steps">
         <div class="step"><div class="step-num"></div><div class="step-content"><div class="step-title">Ancla de estado</div><div class="step-text">Recuerda vívidamente tu mejor cierre. ¿Cómo te sentiste cuando firmaron? ¿Qué dijo la pareja al final? Revive esa emoción — tu cuerpo activa el mismo estado que aquella vez.</div></div></div>
@@ -606,7 +613,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       </div>
     </div>
 
-    <div class="content-block" id="bloque-0-03">
+    <div class="content-block" id="bloque-0-03" data-block-id="0-03" data-block-name="La mentalidad de abundancia vs la mentalidad de escasez">
       <div class="block-title">La mentalidad de abundancia vs la mentalidad de escasez</div>
       <div class="comparison">
         <div class="comp-col">
@@ -630,7 +637,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       </div>
     </div>
 
-    <div class="content-block" id="bloque-0-04">
+    <div class="content-block" id="bloque-0-04" data-block-id="0-04" data-block-name="Manejar la presión del floor">
       <div class="block-title">Manejar la presión del floor</div>
       <p class="block-text">Los gerentes presionan. Los números presionan. El cliente presiona. La única respuesta efectiva es: <strong>sistema + proceso.</strong> El vendedor que tiene un proceso claro no necesita improvisar bajo presión — ejecuta el siguiente paso y confía en el resultado.</p>
       <div class="urgency-box">
@@ -653,7 +660,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       <div class="lesson-video feature"><video controls preload="none" playsinline webkit-playsinline poster="/videos/modulo-M1.jpg"><source src="/videos/modulo-M1.mp4" type="video/mp4"></video></div>
     </div>
 
-    <div class="content-block" id="bloque-1-01">
+    <div class="content-block" id="bloque-1-01" data-block-id="1-01" data-block-name="Los 5 criterios de calificación — todos deben cumplirse">
       <div class="block-title">Los 5 criterios de calificación — todos deben cumplirse</div>
       <div class="tiedown-box">
         <div class="tiedown-label">Criterios obligatorios</div>
@@ -667,7 +674,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       </div>
     </div>
 
-    <div class="content-block" id="bloque-1-02">
+    <div class="content-block" id="bloque-1-02" data-block-id="1-02" data-block-name="Cómo calificar en conversación natural — nunca como cuestion">
       <div class="block-title">Cómo calificar en conversación natural — nunca como cuestionario</div>
       <p class="block-text">La calificación se hace en conversación, no con un formulario. El prospecto que siente que lo están evaluando se cierra. El que siente que estás genuinamente interesado en conocerlo, se abre.</p>
       <div class="comparison">
@@ -692,7 +699,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       </div>
     </div>
 
-    <div class="content-block" id="bloque-1-03">
+    <div class="content-block" id="bloque-1-03" data-block-id="1-03" data-block-name="La regla del co-decisor">
       <div class="block-title">La regla del co-decisor</div>
       <p class="block-text">Si solo viene uno de la pareja, tienes exactamente <strong>3 opciones:</strong></p>
       <div class="steps">
@@ -731,7 +738,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       <div class="lesson-video feature"><video controls preload="none" playsinline webkit-playsinline poster="/videos/modulo-M2.jpg"><source src="/videos/modulo-M2.mp4" type="video/mp4"></video></div>
     </div>
 
-    <div class="content-block" id="bloque-2-01">
+    <div class="content-block" id="bloque-2-01" data-block-id="2-01" data-block-name="El trabajo del OPC en 4 momentos">
       <div class="block-title">El trabajo del OPC en 4 momentos</div>
       <div class="steps">
         <div class="step"><div class="step-num"></div><div class="step-content"><div class="step-title">Abordaje — los primeros 5 segundos</div><div class="step-text">La primera impresión es pre-verbal. Sonrisa genuina, contacto visual, postura abierta. El prospecto decide en los primeros segundos si va a escuchar o va a buscar cómo escapar.</div></div></div>
@@ -741,7 +748,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       </div>
     </div>
 
-    <div class="content-block" id="bloque-2-02">
+    <div class="content-block" id="bloque-2-02" data-block-id="2-02" data-block-name="El pitch del OPC — 30 segundos máximos">
       <div class="block-title">El pitch del OPC — 30 segundos máximos</div>
       <div class="script-box">
         <div class="script-label">Script en español</div>
@@ -753,7 +760,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       </div>
     </div>
 
-    <div class="content-block" id="bloque-2-03">
+    <div class="content-block" id="bloque-2-03" data-block-id="2-03" data-block-name="Las 5 objeciones del OPC — con respuesta exacta">
       <div class="block-title">Las 5 objeciones del OPC — con respuesta exacta</div>
       <div class="tiedown-box">
         <div class="tiedown-label">Respuestas reflejas — memorizar</div>
@@ -778,7 +785,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       </p>
     </div>
 
-    <div class="content-block" id="bloque-2-04">
+    <div class="content-block" id="bloque-2-04" data-block-id="2-04" data-block-name="Módulo 2A — El Selfgen: generación propia de prospectos">
       <div class="block-title">Módulo 2A — El Selfgen: generación propia de prospectos</div>
       <p class="block-text">El selfgen no espera que el OPC le traiga prospectos — los genera de su propia red. Su ventaja competitiva es una: <strong>el prospecto ya confía en él antes de llegar.</strong> Eso aumenta el closing rate en promedio 2x vs prospectos de OPC.</p>
       <div class="script-box">
@@ -817,7 +824,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       <p class="pnl-text">La oxitocina — la hormona de la confianza — se libera cuando sentimos que alguien está genuinamente presente con nosotros. Sin oxitocina, la amígdala (el centro del miedo) permanece activa y bloquea la decisión. <strong style="color:var(--cream)">Un prospecto sin rapport no puede comprar aunque quiera.</strong> Su cerebro no lo deja. El rapport no es opcional — es la condición neurológica de la venta.</p>
     </div>
 
-    <div class="content-block" id="bloque-3-01">
+    <div class="content-block" id="bloque-3-01" data-block-id="3-01" data-block-name="Las 4 herramientas de rapport — PNL aplicado">
       <div class="block-title">Las 4 herramientas de rapport — PNL aplicado</div>
 
       <div class="pnl-box">
@@ -869,7 +876,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       </div>
     </div>
 
-    <div class="content-block" id="bloque-3-02">
+    <div class="content-block" id="bloque-3-02" data-block-id="3-02" data-block-name="Los 6 Hot Buttons — encontrar el que cierra">
       <div class="block-title">Los 6 Hot Buttons — encontrar el que cierra</div>
       <p class="block-text">El hot button es la motivación emocional más profunda del prospecto. No es lo que dicen que quieren — es lo que realmente los mueve a decidir. Identificarlo en los primeros 20 minutos determina cómo enmarcar todo el resto de la presentación.</p>
       <div class="module-grid" style="margin-top:1.25rem;">
@@ -912,7 +919,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       </div>
     </div>
 
-    <div class="content-block" id="bloque-3-03">
+    <div class="content-block" id="bloque-3-03" data-block-id="3-03" data-block-name="La transición del rapport al tour">
       <div class="block-title">La transición del rapport al tour</div>
       <div class="script-box">
         <div class="script-label">Script de transición — después de 15–20 min de rapport</div>
@@ -935,12 +942,12 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       <div class="lesson-video feature"><video controls preload="none" playsinline webkit-playsinline poster="/videos/modulo-M4.jpg"><source src="/videos/modulo-M4.mp4" type="video/mp4"></video></div>
     </div>
 
-    <div class="content-block" id="bloque-4-01">
+    <div class="content-block" id="bloque-4-01" data-block-id="4-01" data-block-name="El tour como herramienta de neurociencia">
       <div class="block-title">El tour como herramienta de neurociencia</div>
       <p class="block-text">La dopamina — el neurotransmisor del deseo y la anticipación — se activa cuando el prospecto visualiza disfrutando algo que todavía no tiene. Cada parada del tour está diseñada para crear esa visualización. <strong>El prospecto que se imagina viviendo el producto antes de escuchar el precio, cierra más.</strong> El precio llega cuando el deseo ya existe.</p>
     </div>
 
-    <div class="content-block" id="bloque-4-02">
+    <div class="content-block" id="bloque-4-02" data-block-id="4-02" data-block-name="Las 5 paradas del tour — en orden obligatorio">
       <div class="block-title">Las 5 paradas del tour — en orden obligatorio</div>
       <div class="steps">
         <div class="step"><div class="step-num"></div><div class="step-content">
@@ -966,7 +973,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       </div>
     </div>
 
-    <div class="content-block" id="bloque-4-03">
+    <div class="content-block" id="bloque-4-03" data-block-id="4-03" data-block-name="Tie-downs del tour — sembrar la compra sin precio">
       <div class="block-title">Tie-downs del tour — sembrar la compra sin precio</div>
       <div class="tiedown-box">
         <div class="tiedown-label">Preguntas de tie-down durante el recorrido</div>
@@ -981,7 +988,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       <p class="block-text" style="margin-top:1rem;">Cada tie-down es un "sí" pequeño. El que acumula 5 síes pequeños antes del precio, tiene el cierre 3 veces más probable. Esta es la técnica de <em>consistencia cognitiva</em> — el cerebro tiende a ser consistente con sus respuestas previas.</p>
     </div>
 
-    <div class="content-block" id="bloque-4-04">
+    <div class="content-block" id="bloque-4-04" data-block-id="4-04" data-block-name="La transición del tour a la sala">
       <div class="block-title">La transición del tour a la sala</div>
       <div class="script-box">
         <div class="script-label">Script de transición — después del tour</div>
@@ -1009,7 +1016,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       <p class="urgency-text"><strong>Rapport → Tour → Presentación → Precio</strong><br/>Invertir el orden destruye el cierre. El cerebro no puede comprar algo que no desea todavía. Si presentas el precio antes de construir el deseo, el precio siempre parecerá demasiado alto.</p>
     </div>
 
-    <div class="content-block" id="bloque-5-01">
+    <div class="content-block" id="bloque-5-01" data-block-id="5-01" data-block-name="Paso 1 — La calculadora del gasto vacacional">
       <div class="block-title">Paso 1 — La calculadora del gasto vacacional</div>
       <p class="block-text">Esta es la herramienta de urgencia más poderosa de la presentación. Activa la <strong>aversión a la pérdida</strong> — el cerebro siente el dolor de seguir gastando de forma ineficiente más intensamente que el placer de ahorrar. Escribe los números en papel o en pantalla mientras los dices.</p>
       <div class="script-box">
@@ -1019,7 +1026,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       </div>
     </div>
 
-    <div class="content-block" id="bloque-5-02">
+    <div class="content-block" id="bloque-5-02" data-block-id="5-02" data-block-name="Paso 2 — El sistema de puntos/semanas VTC">
       <div class="block-title">Paso 2 — El sistema de puntos/semanas VTC</div>
       <div class="comparison">
         <div class="comp-col">
@@ -1041,7 +1048,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       </div>
     </div>
 
-    <div class="content-block" id="bloque-5-03">
+    <div class="content-block" id="bloque-5-03" data-block-id="5-03" data-block-name="Paso 3 — La red global de destinos VTC">
       <div class="block-title">Paso 3 — La red global de destinos VTC</div>
       <div class="script-box">
         <div class="script-label">Script — activar hot button de aventura</div>
@@ -1049,7 +1056,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       </div>
     </div>
 
-    <div class="content-block" id="bloque-5-04">
+    <div class="content-block" id="bloque-5-04" data-block-id="5-04" data-block-name="Paso 4 — La Colección de Lujo VTC (cierre de alto ticket)">
       <div class="block-title">Paso 4 — La Colección de Lujo VTC (cierre de alto ticket)</div>
       <div class="script-box">
         <div class="script-label">Script — Colección de Lujo para hot button de estatus</div>
@@ -1057,7 +1064,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       </div>
     </div>
 
-    <div class="content-block" id="bloque-5-05">
+    <div class="content-block" id="bloque-5-05" data-block-id="5-05" data-block-name="Paso 5 — El ancla del estilo de vida (cierre emocional antes">
       <div class="block-title">Paso 5 — El ancla del estilo de vida (cierre emocional antes del precio)</div>
       <div class="script-box">
         <div class="script-label">Script — ancla final antes de revelar el precio</div>
@@ -1080,7 +1087,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       <div class="lesson-video feature"><video controls preload="none" playsinline webkit-playsinline poster="/videos/modulo-M6.jpg"><source src="/videos/modulo-M6.mp4" type="video/mp4"></video></div>
     </div>
 
-    <div class="content-block" id="bloque-6-01">
+    <div class="content-block" id="bloque-6-01" data-block-id="6-01" data-block-name="La transición al precio — y el silencio que sigue">
       <div class="block-title">La transición al precio — y el silencio que sigue</div>
       <div class="script-box">
         <div class="script-label">Script de transición al precio</div>
@@ -1096,7 +1103,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       <p class="pnl-text">Después de dar el precio, el silencio debe durar mínimo 10–15 segundos. Esto activa la <strong>corteza prefrontal</strong> del prospecto — la zona de decisiones racionales. Si rompes el silencio antes de que ellos hablen, estás comunicando ansiedad e inseguridad sobre el precio. <strong style="color:var(--cream)">Quien rompe el silencio primero, cede el poder de la negociación.</strong> Practica el silencio hasta que sea cómodo — es tu arma más poderosa en el cierre.</p>
     </div>
 
-    <div class="content-block" id="bloque-6-02">
+    <div class="content-block" id="bloque-6-02" data-block-id="6-02" data-block-name="Las 3 respuestas posibles después del silencio">
       <div class="block-title">Las 3 respuestas posibles después del silencio</div>
       <div class="tiedown-box">
         <div class="tiedown-label">Cómo leer y responder</div>
@@ -1108,7 +1115,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       </div>
     </div>
 
-    <div class="content-block" id="bloque-6-03">
+    <div class="content-block" id="bloque-6-03" data-block-id="6-03" data-block-name="El cierre alternativo — nunca pregunta abierta">
       <div class="block-title">El cierre alternativo — nunca pregunta abierta</div>
       <div class="comparison">
         <div class="comp-col">
@@ -1130,7 +1137,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       </div>
     </div>
 
-    <div class="content-block" id="bloque-6-04">
+    <div class="content-block" id="bloque-6-04" data-block-id="6-04" data-block-name="La objeción nunca es lo que dicen">
       <div class="block-title">La objeción nunca es lo que dicen</div>
       <div class="tiedown-box">
         <div class="tiedown-label">Traducción real de las objeciones</div>
@@ -1166,7 +1173,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       <p class="pnl-text">Antes de responder cualquier objeción, asegúrate de que sea la ÚNICA. Si hay 3 objeciones y resuelves solo la que dicen, las otras dos bloquean el cierre.<br/><strong style="color:var(--cream)">El proceso:</strong><br/>1. Identificar LA objeción real<br/>2. Confirmar que es la ÚNICA: "¿Si pudiera resolver eso, habría alguna razón más para no avanzar?"<br/>3. Resolver ESA objeción específica<br/>4. Pedir el cierre inmediatamente después</p>
     </div>
 
-    <div class="content-block" id="bloque-7-01" data-pitch-step="7" data-pitch-name="objecion-caro">
+    <div class="content-block" id="bloque-7-01" data-block-id="7-01" data-block-name="Objeción 1 — 'Está muy caro / No lo podemos pagar'" data-pitch-step="7" data-pitch-name="objecion-caro">
       <div class="block-title">Objeción 1 — "Está muy caro / No lo podemos pagar"</div>
       <div class="script-box">
         <div class="script-label">Respuesta validar + reencuadrar</div>
@@ -1175,7 +1182,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       </div>
     </div>
 
-    <div class="content-block" id="bloque-7-02" data-pitch-step="8" data-pitch-name="objecion-pensarlo">
+    <div class="content-block" id="bloque-7-02" data-block-id="7-02" data-block-name="Objeción 2 — 'Necesitamos pensarlo / No decidimos así de ráp" data-pitch-step="8" data-pitch-name="objecion-pensarlo">
       <div class="block-title">Objeción 2 — "Necesitamos pensarlo / No decidimos así de rápido"</div>
       <div class="script-box">
         <div class="script-label">Respuesta — descubrir la objeción real</div>
@@ -1184,7 +1191,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       </div>
     </div>
 
-    <div class="content-block" id="bloque-7-03" data-pitch-step="9" data-pitch-name="objecion-consultarlo">
+    <div class="content-block" id="bloque-7-03" data-block-id="7-03" data-block-name="Objeción 3 — 'Tenemos que consultarlo con [familiar / abogad" data-pitch-step="9" data-pitch-name="objecion-consultarlo">
       <div class="block-title">Objeción 3 — "Tenemos que consultarlo con [familiar / abogado / contador]"</div>
       <div class="script-box">
         <div class="script-label">Respuesta — separar la persona del tercero</div>
@@ -1192,7 +1199,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       </div>
     </div>
 
-    <div class="content-block" id="bloque-7-04" data-pitch-step="10" data-pitch-name="objecion-ya-tuvieron">
+    <div class="content-block" id="bloque-7-04" data-block-id="7-04" data-block-name="Objeción 4 — 'Ya tuvimos vacation club y fue una mala experi" data-pitch-step="10" data-pitch-name="objecion-ya-tuvieron">
       <div class="block-title">Objeción 4 — "Ya tuvimos vacation club y fue una mala experiencia"</div>
       <div class="script-box">
         <div class="script-label">Respuesta — los 3 pasos obligatorios</div>
@@ -1201,7 +1208,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       </div>
     </div>
 
-    <div class="content-block" id="bloque-7-05" data-pitch-step="11" data-pitch-name="objecion-no-momento">
+    <div class="content-block" id="bloque-7-05" data-block-id="7-05" data-block-name="Objeción 5 — 'No es el momento / Situación económica difícil" data-pitch-step="11" data-pitch-name="objecion-no-momento">
       <div class="block-title">Objeción 5 — "No es el momento / Situación económica difícil"</div>
       <div class="script-box">
         <div class="script-label">Respuesta — la urgencia legítima</div>
@@ -1209,7 +1216,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       </div>
     </div>
 
-    <div class="content-block" id="bloque-7-06" data-pitch-step="12" data-pitch-name="objecion-solo-regalo">
+    <div class="content-block" id="bloque-7-06" data-block-id="7-06" data-block-name="Objeción 6 — 'Solo vine por el regalo'" data-pitch-step="12" data-pitch-name="objecion-solo-regalo">
       <div class="block-title">Objeción 6 — "Solo vine por el regalo"</div>
       <div class="script-box">
         <div class="script-label">Respuesta — con humor, sin confrontación</div>
@@ -1218,7 +1225,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       </div>
     </div>
 
-    <div class="content-block" id="bloque-7-07" data-pitch-step="13" data-pitch-name="objecion-internet">
+    <div class="content-block" id="bloque-7-07" data-block-id="7-07" data-block-name="Objeción 7 — 'Lo vemos en internet y les llamamos'" data-pitch-step="13" data-pitch-name="objecion-internet">
       <div class="block-title">Objeción 7 — "Lo vemos en internet y les llamamos"</div>
       <div class="script-box">
         <div class="script-label">Respuesta — la oferta exclusiva de primera visita</div>
@@ -1240,7 +1247,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       <div class="lesson-video feature"><video controls preload="none" playsinline webkit-playsinline poster="/videos/modulo-M8.jpg"><source src="/videos/modulo-M8.mp4" type="video/mp4"></video></div>
     </div>
 
-    <div class="content-block" id="bloque-8-01">
+    <div class="content-block" id="bloque-8-01" data-block-id="8-01" data-block-name="Cuándo activar el TOC — 3 condiciones">
       <div class="block-title">Cuándo activar el TOC — 3 condiciones</div>
       <div class="tiedown-box">
         <div class="tiedown-label">Condiciones para activar el TOC</div>
@@ -1252,7 +1259,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       </div>
     </div>
 
-    <div class="content-block" id="bloque-8-02">
+    <div class="content-block" id="bloque-8-02" data-block-id="8-02" data-block-name="La entrega del TOC — script completo">
       <div class="block-title">La entrega del TOC — script completo</div>
       <div class="script-box">
         <div class="script-label">Script del TOC</div>
@@ -1261,7 +1268,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       </div>
     </div>
 
-    <div class="content-block" id="bloque-8-03">
+    <div class="content-block" id="bloque-8-03" data-block-id="8-03" data-block-name="Los 4 cierres avanzados — cuándo y cómo">
       <div class="block-title">Los 4 cierres avanzados — cuándo y cómo</div>
 
       <div class="script-box">
@@ -1303,7 +1310,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       <div class="lesson-video feature"><video controls preload="none" playsinline webkit-playsinline poster="/videos/modulo-M9.jpg"><source src="/videos/modulo-M9.mp4" type="video/mp4"></video></div>
     </div>
 
-    <div class="content-block" id="bloque-9-01">
+    <div class="content-block" id="bloque-9-01" data-block-id="9-01" data-block-name="Cuándo llamar al manager — T.O.">
       <div class="block-title">Cuándo llamar al manager — T.O.</div>
       <div class="tiedown-box">
         <div class="tiedown-label">Los 4 momentos del T.O.</div>
@@ -1316,7 +1323,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       </div>
     </div>
 
-    <div class="content-block" id="bloque-9-02">
+    <div class="content-block" id="bloque-9-02" data-block-id="9-02" data-block-name="El traspaso al manager — nunca como derrota">
       <div class="block-title">El traspaso al manager — nunca como derrota</div>
       <div class="script-box">
         <div class="script-label">Script del vendedor al pedir el T.O.</div>
@@ -1325,7 +1332,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       </div>
     </div>
 
-    <div class="content-block" id="bloque-9-03" data-pitch-step="16" data-pitch-name="manager-close">
+    <div class="content-block" id="bloque-9-03" data-block-id="9-03" data-block-name="El Manager Close — estructura" data-pitch-step="16" data-pitch-name="manager-close">
       <div class="block-title">El Manager Close — estructura</div>
       <div class="steps">
         <div class="step"><div class="step-num"></div><div class="step-content"><div class="step-title">Presentación breve sin exagerar el rol</div><div class="step-text">"Hola, soy [nombre], el gerente del equipo. Me han dicho que estuvieron viendo el programa — cuéntenme, ¿qué fue lo que más les gustó?" [No: "¿cuál es el problema?"]</div></div></div>
@@ -1335,7 +1342,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       </div>
     </div>
 
-    <div class="content-block" id="bloque-9-04" data-pitch-step="17" data-pitch-name="be-back">
+    <div class="content-block" id="bloque-9-04" data-block-id="9-04" data-block-name="El be-back — maximizar el 2–8% que regresa" data-pitch-step="17" data-pitch-name="be-back">
       <div class="block-title">El be-back — maximizar el 2–8% que regresa</div>
       <p class="block-text">Solo el 2–8% de los be-backs regresan y compran. La razón: el estado emocional del tour no se reproduce en casa — la oxitocina del desayuno, la dopamina del tour y la urgencia del TOC desaparecen cuando llegan a la habitación. Para maximizar be-backs:</p>
       <div class="tiedown-box">
@@ -1364,7 +1371,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       <div class="lesson-video feature"><video controls preload="none" playsinline webkit-playsinline poster="/videos/modulo-M10.jpg"><source src="/videos/modulo-M10.mp4" type="video/mp4"></video></div>
     </div>
 
-    <div class="content-block" id="bloque-10-01">
+    <div class="content-block" id="bloque-10-01" data-block-id="10-01" data-block-name="Estructura 1 — La Presuposición">
       <div class="block-title">Estructura 1 — La Presuposición</div>
       <p class="block-text">Hablas como si la compra ya hubiera ocurrido. El subconsciente no procesa la negación — acepta la imagen que le das.</p>
       <div class="comparison">
@@ -1373,7 +1380,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       </div>
     </div>
 
-    <div class="content-block" id="bloque-10-02">
+    <div class="content-block" id="bloque-10-02" data-block-id="10-02" data-block-name="Estructura 2 — Embedding (Incrustación de Comandos)">
       <div class="block-title">Estructura 2 — Embedding (Incrustación de Comandos)</div>
       <p class="block-text">El comando real está incrustado dentro de una oración más larga. El consciente procesa la oración completa. El subconsciente registra el comando incrustado.</p>
       <div class="script-box">
@@ -1383,7 +1390,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       </div>
     </div>
 
-    <div class="content-block" id="bloque-10-03">
+    <div class="content-block" id="bloque-10-03" data-block-id="10-03" data-block-name="Estructura 3 — La Doble Unión">
       <div class="block-title">Estructura 3 — La Doble Unión</div>
       <p class="block-text">Dos opciones que asumen la misma cosa. Independientemente de cuál elija, la compra ya está implícita.</p>
       <div class="script-box">
@@ -1393,7 +1400,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       </div>
     </div>
 
-    <div class="content-block" id="bloque-10-04">
+    <div class="content-block" id="bloque-10-04" data-block-id="10-04" data-block-name="Estructura 4 — El Lenguaje Sensorial">
       <div class="block-title">Estructura 4 — El Lenguaje Sensorial</div>
       <p class="block-text">Activas los 3 canales sensoriales del prospecto para crear una experiencia interna completa. Los prospectos que procesan de forma visual, auditiva y kinestésica necesitan estímulos diferentes para sentir el producto.</p>
       <div class="script-box">
@@ -1402,7 +1409,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       </div>
     </div>
 
-    <div class="content-block" id="bloque-10-05">
+    <div class="content-block" id="bloque-10-05" data-block-id="10-05" data-block-name="Anclas emocionales — crear y disparar">
       <div class="block-title">Anclas emocionales — crear y disparar</div>
       <div class="steps">
         <div class="step"><div class="step-num"></div><div class="step-content"><div class="step-title">Crear el ancla</div><div class="step-text">El prospecto dice algo emocionalmente positivo ("Sí, nos encantaría llevar a los niños"). En ese momento de máxima emoción, tocas la mesa suavemente o dices su nombre con énfasis específico.</div></div></div>
@@ -1410,7 +1417,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       </div>
     </div>
 
-    <div class="content-block" id="bloque-10-06">
+    <div class="content-block" id="bloque-10-06" data-block-id="10-06" data-block-name="El Reencuadre — cambiar el marco cambia el significado">
       <div class="block-title">El Reencuadre — cambiar el marco cambia el significado</div>
       <div class="tiedown-box">
         <div class="tiedown-label">Reencuadres por objeción</div>
@@ -1436,7 +1443,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       <div class="lesson-video feature"><video controls preload="none" playsinline webkit-playsinline poster="/videos/modulo-M11.jpg"><source src="/videos/modulo-M11.mp4" type="video/mp4"></video></div>
     </div>
 
-    <div class="content-block" id="bloque-11-01">
+    <div class="content-block" id="bloque-11-01" data-block-id="11-01" data-block-name="Americanos (EE.UU.)">
       <div class="block-title">Americanos (EE.UU.)</div>
       <div class="tiedown-box">
         <div class="tiedown-label">Perfil cultural</div>
@@ -1453,7 +1460,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       </div>
     </div>
 
-    <div class="content-block" id="bloque-11-02">
+    <div class="content-block" id="bloque-11-02" data-block-id="11-02" data-block-name="Canadienses">
       <div class="block-title">Canadienses</div>
       <div class="tiedown-box">
         <div class="tiedown-label">Perfil cultural</div>
@@ -1469,7 +1476,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       </div>
     </div>
 
-    <div class="content-block" id="bloque-11-03">
+    <div class="content-block" id="bloque-11-03" data-block-id="11-03" data-block-name="Alemanes y Europeos del Norte">
       <div class="block-title">Alemanes y Europeos del Norte</div>
       <div class="tiedown-box">
         <div class="tiedown-label">Perfil cultural</div>
@@ -1482,7 +1489,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       </div>
     </div>
 
-    <div class="content-block" id="bloque-11-04">
+    <div class="content-block" id="bloque-11-04" data-block-id="11-04" data-block-name="Mexicanos (CDMX, Monterrey, Guadalajara)">
       <div class="block-title">Mexicanos (CDMX, Monterrey, Guadalajara)</div>
       <div class="tiedown-box">
         <div class="tiedown-label">Perfil cultural + dinámica de pareja</div>
@@ -1499,7 +1506,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       </div>
     </div>
 
-    <div class="content-block" id="bloque-11-05">
+    <div class="content-block" id="bloque-11-05" data-block-id="11-05" data-block-name="Colombianos y Latinoamericanos jóvenes">
       <div class="block-title">Colombianos y Latinoamericanos jóvenes</div>
       <div class="tiedown-box">
         <div class="tiedown-label">Perfil cultural</div>
@@ -1511,7 +1518,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       </div>
     </div>
 
-    <div class="content-block" id="bloque-11-06">
+    <div class="content-block" id="bloque-11-06" data-block-id="11-06" data-block-name="Argentinos">
       <div class="block-title">Argentinos</div>
       <p class="block-text">La clave con el argentino: <strong>déjalo llegar a la conclusión solo.</strong> El argentino que siente que lo convencieron, no cierra. El que siente que él descubrió la oportunidad, cierra con convicción — y trae referidos.</p>
       <div class="script-box">
@@ -1547,7 +1554,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       </p>
     </div>
 
-    <div class="content-block" id="bloque-12-01">
+    <div class="content-block" id="bloque-12-01" data-block-id="12-01" data-block-name="Marco legal México — lo que todo vendedor debe conocer">
       <div class="block-title">Marco legal México — lo que todo vendedor debe conocer</div>
       <div class="tiedown-box">
         <div class="tiedown-label">Puntos legales clave</div>
@@ -1561,7 +1568,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       </div>
     </div>
 
-    <div class="content-block" id="bloque-12-02">
+    <div class="content-block" id="bloque-12-02" data-block-id="12-02" data-block-name="La conversación sobre rescisión — obligatoria y estratégica">
       <div class="block-title">La conversación sobre rescisión — obligatoria y estratégica</div>
       <div class="script-box">
         <div class="script-label">Script de la rescisión — decirlo antes de que el cliente lo pregunte</div>
@@ -1592,7 +1599,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       <p class="pnl-text">"La venta no empieza con el producto; empieza con la relación, la confianza, el control del proceso y la capacidad del representante para generar valor antes de hablar de precio."<br/><strong style="color:var(--cream)">El representante nunca da precios.</strong> Su trabajo es generar deseo, valor, claridad e interés — y entregar todo eso al cerrador mediante un T.O. positivo.</p>
     </div>
 
-    <div class="content-block" id="bloque-lvc-01">
+    <div class="content-block" id="bloque-lvc-01" data-block-id="lvc-01" data-block-name="El Mapa del Proceso — 90 minutos">
       <div class="block-title">El Mapa del Proceso — 90 minutos</div>
       <div class="module-grid">
         <div class="module-card"><div class="module-num">Etapa 1 · Área Hosteo</div><div class="module-name">Primera Impresión</div><div class="module-desc">El representante inicia la relación él mismo. La hostess presenta y entrega el survey.</div></div>
@@ -1610,7 +1617,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       </div>
     </div>
 
-    <div class="content-block" id="bloque-lvc-02">
+    <div class="content-block" id="bloque-lvc-02" data-block-id="lvc-02" data-block-name="Etapa 5 — La Carta de Incentivos en detalle">
       <div class="block-title">Etapa 5 — La Carta de Incentivos en detalle</div>
       <div class="script-box">
         <div class="script-label">Script de la carta de incentivos</div>
@@ -1619,7 +1626,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       </div>
     </div>
 
-    <div class="content-block" id="bloque-lvc-03">
+    <div class="content-block" id="bloque-lvc-03" data-block-id="lvc-03" data-block-name="Etapa 6 — Romper el Pacto Mental">
       <div class="block-title">Etapa 6 — Romper el Pacto Mental</div>
       <p class="block-text">Muchos prospectos llegan con el pacto mental instalado: <em>"Vamos a escuchar pero vamos a decir que no."</em> Si no rompes ese pacto en la Etapa 6, el proceso completo trabaja contra ese muro invisible.</p>
       <div class="script-box">
@@ -1629,7 +1636,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       </div>
     </div>
 
-    <div class="content-block" id="bloque-lvc-04">
+    <div class="content-block" id="bloque-lvc-04" data-block-id="lvc-04" data-block-name="Etapa 12 — El T.O. Positivo: el arte del traspaso">
       <div class="block-title">Etapa 12 — El T.O. Positivo: el arte del traspaso</div>
       <div class="script-box">
         <div class="script-label">Script del T.O. positivo — modelo</div>
@@ -1642,7 +1649,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       </div>
     </div>
 
-    <div class="content-block" id="bloque-lvc-05">
+    <div class="content-block" id="bloque-lvc-05" data-block-id="lvc-05" data-block-name="Los 7 Principios del Proceso VTC — nunca se rompen">
       <div class="block-title">Los 7 Principios del Proceso VTC — nunca se rompen</div>
       <div class="tiedown-box">
         <div class="tiedown-label">Mandamientos del proceso</div>
@@ -1670,13 +1677,13 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       <h2 class="module-title" id="seccion-vtc19">Los 19 Módulos del Pitch VTC</h2>
       <p class="module-subtitle">El pitch VTC de 90 minutos está dividido en 19 módulos específicos, cada uno diseñado para activar un principio neurocientífico distinto. El orden es deliberado. Saltarse un módulo rompe la cadena de activación emocional.</p>
 
-    <div class="content-block" id="bloque-vtc19-01">
+    <div class="content-block" id="bloque-vtc19-01" data-block-id="vtc19-01" data-block-name="Módulo 0 · Introducción al Pitch VTC 19">
       <div class="block-title">Módulo 0 · Introducción al Pitch VTC 19</div>
       <div class="lesson-video feature"><video controls preload="none" playsinline webkit-playsinline poster="/videos/modulo-00.jpg"><source src="/videos/modulo-00.mp4" type="video/mp4"></video></div>
     </div>
     </div>
 
-    <div class="content-block" id="bloque-vtc19-02">
+    <div class="content-block" id="bloque-vtc19-02" data-block-id="vtc19-02" data-block-name="Fase 1 — Conexión (Módulos 1–5)">
       <div class="block-title">Fase 1 — Conexión (Módulos 1–5)</div>
 
       <div class="script-box" data-pitch-step="1" data-pitch-name="meet-and-greet" id="pitch-01-meet-greet">
@@ -1710,7 +1717,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       </div>
     </div>
 
-    <div class="content-block" id="bloque-vtc19-03">
+    <div class="content-block" id="bloque-vtc19-03" data-block-id="vtc19-03" data-block-name="Fase 2 — Valor (Módulos 6–11)">
       <div class="block-title">Fase 2 — Valor (Módulos 6–11)</div>
 
       <div class="script-box">
@@ -1750,7 +1757,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       </div>
     </div>
 
-    <div class="content-block" id="bloque-vtc19-04">
+    <div class="content-block" id="bloque-vtc19-04" data-block-id="vtc19-04" data-block-name="Fase 3 — Experiencia (Módulos 12–16)">
       <div class="block-title">Fase 3 — Experiencia (Módulos 12–16)</div>
 
       <div class="script-box">
@@ -1784,7 +1791,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       </div>
     </div>
 
-    <div class="content-block" id="bloque-vtc19-05">
+    <div class="content-block" id="bloque-vtc19-05" data-block-id="vtc19-05" data-block-name="Fase 4 — Cierre (Módulos 17–19)">
       <div class="block-title">Fase 4 — Cierre (Módulos 17–19)</div>
 
       <div class="script-box">
@@ -1806,7 +1813,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       </div>
     </div>
 
-    <div class="content-block" id="bloque-vtc19-06">
+    <div class="content-block" id="bloque-vtc19-06" data-block-id="vtc19-06" data-block-name="Los 11 Principios de Neurociencia — resumen de aplicación">
       <div class="block-title">Los 11 Principios de Neurociencia — resumen de aplicación</div>
       <div class="lesson-video feature"><video controls preload="none" playsinline webkit-playsinline poster="/videos/bonus.jpg"><source src="/videos/bonus.mp4" type="video/mp4"></video></div>
       <div class="module-grid">
@@ -2114,8 +2121,113 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
     }
   },true);
 
+  /* ═══════════════════════════════════════════════════════════════════
+     🔗 V12 · COORDINACIÓN DE BLOQUES DENTRO DE CADA MÓDULO
+     Víctor explica bloque por bloque. El sistema solo avanza al siguiente
+     bloque cuando Víctor termina el actual, y solo salta al siguiente
+     módulo cuando TODOS los bloques del módulo se completaron.
+     ═════════════════════════════════════════════════════════════════════ */
+  window.__vtcBlocks = { current_module:null, current_block:null, current_block_index:0, module_blocks:{}, module_done:false };
+
+  /* Construye el índice de bloques de un módulo: {modulo-f:[f-01,f-02,...]} */
+  function vtcBuildBlockIndex(moduleId){
+    var sec=document.getElementById(moduleId); if(!sec) return [];
+    var blocks=sec.querySelectorAll('.content-block[data-block-id]');
+    var ids=Array.prototype.map.call(blocks,function(b){return b.dataset.blockId;});
+    window.__vtcBlocks.module_blocks[moduleId]=ids;
+    return ids;
+  }
+
+  /* Marca visualmente el bloque activo (scroll + highlight) */
+  function show_block(moduleId, blockIndex){
+    var ids=window.__vtcBlocks.module_blocks[moduleId]; if(!ids||!ids.length) return null;
+    if(blockIndex<0) blockIndex=0; if(blockIndex>=ids.length) blockIndex=ids.length-1;
+    var blockId=ids[blockIndex];
+    var el=document.querySelector('[data-block-id="'+blockId+'"]'); if(!el) return null;
+    /* limpiar estados previos dentro de este módulo */
+    var sec=document.getElementById(moduleId);
+    if(sec){ sec.classList.add('module-in-progress');
+      sec.querySelectorAll('.content-block').forEach(function(b,i){ b.classList.remove('active-block'); });
+    }
+    /* bloques anteriores → completados */
+    for(var k=0;k<blockIndex;k++){ var pe=document.querySelector('[data-block-id="'+ids[k]+'"]'); if(pe) pe.classList.add('completed-block'); }
+    el.classList.remove('completed-block'); el.classList.add('active-block');
+    try{window.__vtcDrive=Date.now();}catch(e){}
+    el.scrollIntoView({behavior:'smooth',block:'start'});
+    try{vtcHL(el);}catch(e){}
+    window.__vtcBlocks.current_block=blockId;
+    window.__vtcBlocks.current_block_index=blockIndex;
+    return blockId;
+  }
+  window.show_block=show_block; window.showBlock=show_block;
+
+  /* Inicia un módulo: resetea a bloque 0 y muestra SOLO el primero */
+  function start_module(moduleId){
+    if(!moduleId||moduleId==='__top') return;
+    /* cerrar el módulo anterior visualmente */
+    if(window.__vtcBlocks.current_module && window.__vtcBlocks.current_module!==moduleId){
+      var prev=document.getElementById(window.__vtcBlocks.current_module);
+      if(prev) prev.classList.remove('module-in-progress');
+    }
+    window.__vtcBlocks.current_module=moduleId;
+    window.__vtcBlocks.current_block_index=0;
+    window.__vtcBlocks.module_done=false;
+    var ids=vtcBuildBlockIndex(moduleId);
+    if(!ids.length){ window.__vtcBlocks.module_done=true; return; }
+    show_block(moduleId,0);
+  }
+  window.start_module=start_module; window.startModule=start_module;
+
+  /* Avanza al siguiente bloque SOLO cuando Víctor terminó el actual.
+     Devuelve 'MODULE_COMPLETE' cuando ya no hay más bloques. */
+  function next_block_in_module(){
+    var cm=window.__vtcBlocks.current_module;
+    var ids=cm?window.__vtcBlocks.module_blocks[cm]:null;
+    if(!cm||!ids||!ids.length) return 'NO_MODULE';
+    if(window.__vtcBlocks.current_block_index < ids.length-1){
+      show_block(cm, window.__vtcBlocks.current_block_index+1);
+      return 'BLOCK_ADVANCED';
+    }
+    /* último bloque → marcarlo completado y cerrar módulo */
+    var lastEl=document.querySelector('[data-block-id="'+ids[ids.length-1]+'"]');
+    if(lastEl){ lastEl.classList.remove('active-block'); lastEl.classList.add('completed-block'); }
+    window.__vtcBlocks.module_done=true;
+    window.__vtcModuleDone=true; /* compat V11: permite navegar al siguiente módulo */
+    return 'MODULE_COMPLETE';
+  }
+  window.next_block_in_module=next_block_in_module; window.nextBlockInModule=next_block_in_module;
+
+  /* 🔒 Bloqueo de SALTOS DE BLOQUE: el usuario solo puede avanzar al bloque
+     inmediatamente siguiente mientras Víctor habla. Nada de saltar de 1 a 3. */
+  document.querySelectorAll('.content-block[data-block-id]').forEach(function(block){
+    block.addEventListener('click',function(e){
+      var cm=window.__vtcBlocks.current_module; if(!cm) return;
+      var ids=window.__vtcBlocks.module_blocks[cm]; if(!ids) return;
+      var targetIdx=ids.indexOf(block.dataset.blockId);
+      if(targetIdx<0) return; /* bloque de otro módulo */
+      var nextIdx=window.__vtcBlocks.current_block_index+1;
+      if(window.__vtcSpeaking && targetIdx!==nextIdx && targetIdx!==window.__vtcBlocks.current_block_index && !vtcDrivenRecently()){
+        e.preventDefault(); e.stopPropagation();
+        vtcBanner('⏸  Espera a que Víctor termine este bloque',3000);
+        return false;
+      }
+    },true);
+  });
+
   const clientTools={
-    ir_a_modulo: async(p)=>{ try{ var _ps=vtcPitchNum(p); if(_ps>=1&&_ps<=19){ var _pe=document.querySelector('[data-pitch-step="'+_ps+'"]'); if(_pe){ try{window.__vtcDrive=Date.now();window.__vtcCurrentModule='pitch-'+_ps;window.__vtcModuleDone=false;}catch(e){} _pe.scrollIntoView({behavior:'instant',block:'start'}); vtcHL(_pe); return 'Paso '+_ps+' del pitch en pantalla'; } } var id=vtcId(p); if(id==='__top'){ try{window.__vtcDrive=Date.now();window.__vtcCurrentModule='__top';}catch(e){} window.scrollTo({top:0,behavior:'instant'}); return 'En el inicio del curso'; } var r=vtcResolve(p); if(r.scroll){ try{window.__vtcDrive=Date.now();window.__vtcCurrentModule=(r.id||id);window.__vtcModuleDone=false;}catch(e){} r.scroll.scrollIntoView({behavior:'instant',block:'start'}); vtcHL(r.scroll); return 'Navegado y resaltado'; } return 'modulo no encontrado'; }catch(e){return 'error';} },
+    ir_a_modulo: async(p)=>{ try{ var _ps=vtcPitchNum(p); if(_ps>=1&&_ps<=19){ var _pe=document.querySelector('[data-pitch-step="'+_ps+'"]'); if(_pe){ try{window.__vtcDrive=Date.now();window.__vtcCurrentModule='pitch-'+_ps;window.__vtcModuleDone=false;}catch(e){} _pe.scrollIntoView({behavior:'instant',block:'start'}); vtcHL(_pe); return 'Paso '+_ps+' del pitch en pantalla'; } } var id=vtcId(p); if(id==='__top'){ try{window.__vtcDrive=Date.now();window.__vtcCurrentModule='__top';}catch(e){} window.scrollTo({top:0,behavior:'instant'}); return 'En el inicio del curso'; } var r=vtcResolve(p); if(r.scroll){ try{window.__vtcDrive=Date.now();window.__vtcCurrentModule=(r.id||id);window.__vtcModuleDone=false;}catch(e){} r.scroll.scrollIntoView({behavior:'instant',block:'start'}); vtcHL(r.scroll); /* V12: inicia coordinacion por bloques si el modulo tiene bloques */ try{ var _mid=(r.id||id); if(_mid && document.getElementById(_mid) && document.querySelectorAll('#'+_mid+' .content-block[data-block-id]').length){ start_module(_mid); return 'Modulo iniciado. Estas en el PRIMER bloque. Explicalo completo; cuando termines llama siguiente_bloque para avanzar. NO saltes bloques.'; } }catch(e){} return 'Navegado y resaltado'; } return 'modulo no encontrado'; }catch(e){return 'error';} },
+    siguiente_bloque: async()=>{ try{
+        var res=next_block_in_module();
+        if(res==='NO_MODULE') return 'No hay un modulo con bloques activo. Usa ir_a_modulo primero.';
+        if(res==='BLOCK_ADVANCED'){
+          var cm=window.__vtcBlocks.current_module, ids=window.__vtcBlocks.module_blocks[cm];
+          var bid=ids[window.__vtcBlocks.current_block_index];
+          var el=document.querySelector('[data-block-id="'+bid+'"]');
+          var nm=(el&&el.dataset.blockName)||bid;
+          return 'Avanzaste al bloque '+nm+' ('+(window.__vtcBlocks.current_block_index+1)+' de '+ids.length+'). Explicalo COMPLETO antes de volver a llamar siguiente_bloque.';
+        }
+        return 'MODULO COMPLETO. Ya explicaste todos los bloques. Ahora si puedes anunciar el siguiente modulo y llamar ir_a_modulo.';
+      }catch(e){ return 'error'; } },
     reproducir_video: async(p)=>{ try{
         await new Promise(function(r){setTimeout(r,100);});
         await new Promise(function(r){var n=0,iv=setInterval(function(){n++; if(!window.__vtcSpeaking||n>45){clearInterval(iv);r();}},250);});
@@ -2283,7 +2395,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       onDisconnect:(d)=>{setStatus('Sesión terminada');console.warn('ConvAI disconnect:',d);mic.classList.remove('vw-live');launch.classList.remove('vw-active');conv=null;started=false;window.__vtcSpeaking=false;stopKeepalive();},
       onError:(e)=>{console.error('ConvAI onError:',e);setStatus('Error: '+((e&&(e.message||e.reason))||'conexión'));},
       onModeChange:(m)=>{const md=(m&&m.mode)||m;window.__vtcSpeaking=(md==='speaking');if(md==='speaking'){typing(false);setStatus(ctx.textOnly?'<b>Victor respondiendo…</b>':'<b>Victor hablando…</b>');}else setStatus(ctx.textOnly?'<b>Modo texto</b> — escribe tu mensaje':'<b>Escuchando…</b>');},
-      onMessage:(m)=>{const s=m.source||m.role,txt=m.message||m.text||'';if(s==='ai'||s==='agent'){typing(false);bubble('ai',txt);/* 🔒 V11: cuando Víctor anuncia el salto, marca el módulo como terminado → permite navegar */try{var _t=String(txt||'').toLowerCase();if(_t.indexOf('siguiente módulo')>-1||_t.indexOf('siguiente modulo')>-1||_t.indexOf('siguiente paso')>-1||_t.indexOf('vamos al siguiente')>-1||_t.indexOf('pasamos al siguiente')>-1){window.__vtcModuleDone=true;}}catch(e){}}else bubble('user',txt);},
+      onMessage:(m)=>{const s=m.source||m.role,txt=m.message||m.text||'';if(s==='ai'||s==='agent'){typing(false);bubble('ai',txt);/* 🔒 V11: cuando Víctor anuncia el salto, marca el módulo como terminado → permite navegar */try{var _t=String(txt||'').toLowerCase();if(_t.indexOf('siguiente módulo')>-1||_t.indexOf('siguiente modulo')>-1||_t.indexOf('siguiente paso')>-1||_t.indexOf('vamos al siguiente')>-1||_t.indexOf('pasamos al siguiente')>-1){window.__vtcModuleDone=true;}/* V12: transicion de BLOQUE dentro del modulo (respaldo por texto si el agente no llama siguiente_bloque) */var _blk=/ahora (?:la siguiente parte|el siguiente bloque|veamos el siguiente|pasamos a la siguiente parte|la siguiente parte)|continuemos con (?:la|el) siguiente/i;var _modNext=/siguiente m[oó]dulo|vamos al siguiente m[oó]dulo|pasamos al siguiente m[oó]dulo|ya vimos todo el m[oó]dulo/i;if(window.__vtcBlocks&&window.__vtcBlocks.current_module&&!window.__vtcBlocks.module_done&&_blk.test(_t)&&!_modNext.test(_t)){try{next_block_in_module();}catch(e2){}}}catch(e){}}else bubble('user',txt);},
     };
   }
 
