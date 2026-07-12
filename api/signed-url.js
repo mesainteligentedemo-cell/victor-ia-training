@@ -56,34 +56,39 @@ export default async function handler(req, res) {
   const { user_id = 'anon', user_name = 'Usuario', employee_id = '' } = body || {};
 
   try {
-    console.log(`📞 Generando signed-url para ${user_name} (${user_id})`);
+    console.log(`📞 Generando token de conversacion para ${user_name} (${user_id})`);
 
-    // Llamar ElevenLabs API para generar conversation token
-    const elevenlabsRes = await fetch('https://api.elevenlabs.io/v1/convai/conversations', {
-      method: 'POST',
-      headers: {
-        'xi-api-key': ELEVENLABS_API_KEY,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        agent_id: AGENT_ID,
-        // Metadata opcional (si ElevenLabs soporta)
-        metadata: {
-          user_id,
-          user_name,
-          employee_id,
-          source: 'victor-ia-training.vercel.app',
-          timestamp: new Date().toISOString()
-        }
-      })
-    });
+    // WebRTC: token de conversacion (endpoint correcto de ElevenLabs)
+    // GET /v1/convai/conversation/token?agent_id=... -> { token }
+    const tokenRes = await fetch(
+      `https://api.elevenlabs.io/v1/convai/conversation/token?agent_id=${encodeURIComponent(AGENT_ID)}`,
+      { method: 'GET', headers: { 'xi-api-key': ELEVENLABS_API_KEY } }
+    );
 
-    if (!elevenlabsRes.ok) {
-      const errBody = await elevenlabsRes.text();
-      throw new Error(`ElevenLabs API (${elevenlabsRes.status}): ${errBody}`);
+    if (!tokenRes.ok) {
+      const errBody = await tokenRes.text();
+      throw new Error(`ElevenLabs token (${tokenRes.status}): ${errBody}`);
     }
 
-    const data = await elevenlabsRes.json();
+    const tokenJson = await tokenRes.json();
+    const conversationToken = tokenJson.token || tokenJson.conversation_token || null;
+
+    // WebSocket fallback: signed URL (best-effort, no bloquea)
+    let signedUrl = null;
+    try {
+      const suRes = await fetch(
+        `https://api.elevenlabs.io/v1/convai/conversation/get-signed-url?agent_id=${encodeURIComponent(AGENT_ID)}`,
+        { method: 'GET', headers: { 'xi-api-key': ELEVENLABS_API_KEY } }
+      );
+      if (suRes.ok) { const suJson = await suRes.json(); signedUrl = suJson.signed_url || null; }
+    } catch (e) { console.warn('get-signed-url fallo (no critico):', e.message); }
+
+    const data = {
+      conversation_id: `conv_${Date.now()}_${(user_id || 'anon')}`,
+      client_secret: conversationToken,
+      signed_url: signedUrl,
+      expires_at: new Date(Date.now() + 15 * 60 * 1000).toISOString()
+    };
 
     // Log en Supabase (auditoría de inicios de sesión)
     const supabase = getSupabase();
