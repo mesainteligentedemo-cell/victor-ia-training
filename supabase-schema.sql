@@ -262,3 +262,85 @@ COMMENT ON TABLE public.roleplay_feedback IS 'Feedback de simulaciones/roleplay 
 --   ('Andrés Mateos', 'VTC-CL-014', true),
 --   ('Christian Soria', 'VTC-CL-023', true)
 -- ON CONFLICT DO NOTHING;
+
+-- ============================================================================
+-- TRACKING DE INTERACCIONES (agregado 2026-07-12)
+-- Tablas requeridas por: api/email-report.js, api/track-interaction.js,
+-- api/report.js, api/audio.js
+-- ============================================================================
+
+-- Tabla 7: Sesiones de entrenamiento (una fila por sesión completada)
+-- Columnas alineadas con el INSERT de api/email-report.js.
+CREATE TABLE IF NOT EXISTS public.training_sessions (
+  id BIGSERIAL PRIMARY KEY,
+  employee_name TEXT,
+  employee_id TEXT,
+  conversation_id TEXT UNIQUE,
+  duration_minutes NUMERIC,
+  status TEXT DEFAULT 'completado',
+  timestamp TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  transcript TEXT,
+  score_global NUMERIC,
+  email_sent BOOLEAN DEFAULT FALSE,
+  empleado_validado BOOLEAN DEFAULT FALSE,
+  pdf_url TEXT,        -- URL del reporte PDF (Supabase Storage / externo)
+  audio_url TEXT,      -- URL del MP3 de la sesión
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_training_sessions_employee_id ON public.training_sessions(employee_id);
+CREATE INDEX IF NOT EXISTS idx_training_sessions_conversation_id ON public.training_sessions(conversation_id);
+CREATE INDEX IF NOT EXISTS idx_training_sessions_timestamp ON public.training_sessions(timestamp DESC);
+
+-- Tabla 8: Interacciones granulares (block_viewed, quiz_answered, module_completed, ...)
+CREATE TABLE IF NOT EXISTS public.training_interactions (
+  id BIGSERIAL PRIMARY KEY,
+  employee_id TEXT NOT NULL,
+  conversation_id TEXT,
+  type TEXT NOT NULL,          -- block_viewed | quiz_answered | module_completed | session_completed | heartbeat
+  module_id TEXT,
+  block_id TEXT,
+  score INT,
+  data JSONB,                  -- payload libre de la interacción
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_training_interactions_employee_id ON public.training_interactions(employee_id);
+CREATE INDEX IF NOT EXISTS idx_training_interactions_conversation_id ON public.training_interactions(conversation_id);
+CREATE INDEX IF NOT EXISTS idx_training_interactions_type ON public.training_interactions(type);
+CREATE INDEX IF NOT EXISTS idx_training_interactions_created_at ON public.training_interactions(created_at DESC);
+
+-- Tabla 9: Errores reportados desde el frontend / runtime
+CREATE TABLE IF NOT EXISTS public.training_errors (
+  id BIGSERIAL PRIMARY KEY,
+  employee_id TEXT,
+  conversation_id TEXT,
+  message TEXT,
+  context JSONB,               -- { source, line, stack, module_id, user_agent, ... }
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_training_errors_employee_id ON public.training_errors(employee_id);
+CREATE INDEX IF NOT EXISTS idx_training_errors_created_at ON public.training_errors(created_at DESC);
+
+-- RLS para las nuevas tablas (solo service_role escribe/lee vía backend)
+ALTER TABLE public.training_sessions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.training_interactions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.training_errors ENABLE ROW LEVEL SECURITY;
+
+-- Nota: el backend usa SUPABASE_SERVICE_ROLE_KEY, que bypassa RLS.
+-- Estas policies permiten lectura al service_role de forma explícita.
+DO $$ BEGIN
+  CREATE POLICY "svc training_sessions" ON public.training_sessions
+    FOR ALL USING (auth.role() = 'service_role') WITH CHECK (auth.role() = 'service_role');
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+DO $$ BEGIN
+  CREATE POLICY "svc training_interactions" ON public.training_interactions
+    FOR ALL USING (auth.role() = 'service_role') WITH CHECK (auth.role() = 'service_role');
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+DO $$ BEGIN
+  CREATE POLICY "svc training_errors" ON public.training_errors
+    FOR ALL USING (auth.role() = 'service_role') WITH CHECK (auth.role() = 'service_role');
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;

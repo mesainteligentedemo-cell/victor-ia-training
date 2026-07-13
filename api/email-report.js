@@ -1054,9 +1054,18 @@ export default async function handler(req, res) {
     // Persistir en Supabase (best-effort, no bloquea)
     let dbSaved = false;
     if (supabase) {
+      // pdf_url / audio_url: si no hay storage externo, se guardan como data: URI
+      // (así /api/report y /api/audio sirven el binario). Guard de tamaño para no
+      // inflar la fila con adjuntos gigantes (>6 MB base64 → se omite).
+      const MAX_INLINE = 6 * 1024 * 1024;
+      const pdf_url = (pdfBase64 && pdfBase64.length <= MAX_INLINE)
+        ? `data:application/pdf;base64,${pdfBase64}` : (body.pdf_url || null);
+      const audio_url = (audioBase64 && audioBase64.length <= MAX_INLINE)
+        ? `data:audio/mpeg;base64,${audioBase64}` : (body.audio_url || null);
+
       const { error: dbError } = await supabase
         .from('training_sessions')
-        .insert({
+        .upsert({
           employee_name: user_name,
           employee_id: empleado_id,
           conversation_id,
@@ -1066,10 +1075,28 @@ export default async function handler(req, res) {
           transcript: transcriptData.text,
           score_global: vtc.score_global,
           email_sent: emailResult.status === 200,
-          empleado_validado
-        });
-      if (dbError) console.error('[DB] error:', dbError.message);
+          empleado_validado,
+          pdf_url,
+          audio_url
+        }, { onConflict: 'conversation_id' });
+      if (dbError) console.error('[DB] training_sessions error:', dbError.message);
       else dbSaved = true;
+
+      // Marcar la sesión como completada en el progreso del empleado
+      const { error: progErr } = await supabase
+        .from('training_interactions')
+        .insert({
+          employee_id: empleado_id,
+          conversation_id,
+          type: 'session_completed',
+          data: {
+            score_global: vtc.score_global,
+            duration_minutes: durSecs ? durSecs / 60 : null,
+            email_sent: emailResult.status === 200,
+            timestamp: timestampIso
+          }
+        });
+      if (progErr) console.error('[DB] training_interactions(session_completed) error:', progErr.message);
     }
 
     if (emailResult.status !== 200) {

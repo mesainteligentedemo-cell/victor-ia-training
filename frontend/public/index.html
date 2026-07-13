@@ -2139,10 +2139,36 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
   }
 
   /* Marca visualmente el bloque activo (scroll + highlight) */
+  /* ===== TRACKING DE INTERACCIONES (VTC → /api/track-interaction) =====
+     Self-contained, best-effort, nunca rompe la UX. Lee el empleado de
+     sessionStorage('vtc_session') y el conversation_id de window.__vtcConvId. */
+  (function(){
+    if(window.__vtcTrack) return;
+    var _sent=Object.create(null);           /* dedupe de eventos idempotentes */
+    function _emp(){ try{ var s=JSON.parse(sessionStorage.getItem('vtc_session')||'null'); return (s&&s.employee_id)||null; }catch(e){ return null; } }
+    function track(type, data, opts){
+      try{
+        var emp=_emp(); if(!emp) return;               /* sin empleado no hay a quién atribuir */
+        opts=opts||{};
+        if(opts.once){ var key=type+':'+(opts.key||JSON.stringify(data||{})); if(_sent[key]) return; _sent[key]=1; }
+        fetch('/api/track-interaction',{method:'POST',headers:{'Content-Type':'application/json'},keepalive:!!opts.keepalive,
+          body:JSON.stringify({employee_id:emp,conversation_id:window.__vtcConvId||null,type:type,data:data||{},timestamp:new Date().toISOString()})
+        }).catch(function(){});
+      }catch(e){}
+    }
+    window.__vtcTrack=track;
+    /* heartbeat cada 20s mientras haya sesión de empleado activa */
+    try{ setInterval(function(){ if(_emp()) track('heartbeat',{module_id:(window.__vtcBlocks&&window.__vtcBlocks.current_module)||null}); },20000); }catch(e){}
+    /* errores de runtime → error_reported */
+    try{ window.addEventListener('error',function(ev){ track('error_reported',{message:(ev&&ev.message)||'error',source:(ev&&ev.filename)||'',line:(ev&&ev.lineno)||0,module_id:(window.__vtcBlocks&&window.__vtcBlocks.current_module)||null}); }); }catch(e){}
+    try{ window.addEventListener('unhandledrejection',function(ev){ track('error_reported',{message:'unhandledrejection: '+(((ev&&ev.reason)&&(ev.reason.message||ev.reason))||'')}); }); }catch(e){}
+  })();
+
   function show_block(moduleId, blockIndex){
     var ids=window.__vtcBlocks.module_blocks[moduleId]; if(!ids||!ids.length) return null;
     if(blockIndex<0) blockIndex=0; if(blockIndex>=ids.length) blockIndex=ids.length-1;
     var blockId=ids[blockIndex];
+    try{ window.__vtcTrack && window.__vtcTrack('block_viewed',{module_id:moduleId,block_id:blockId,block_index:blockIndex},{once:true,key:moduleId+'#'+blockId}); }catch(e){}
     var el=document.querySelector('[data-block-id="'+blockId+'"]'); if(!el) return null;
     /* limpiar estados previos dentro de este módulo */
     var sec=document.getElementById(moduleId);
@@ -2392,7 +2418,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       dynamicVariables:{ user_name:ctx.name, employee_number:ctx.emp, departamento:ctx.dep||'' },
       clientTools,
       onConnect:()=>{setStatus(ctx.textOnly?'<b>En línea (modo texto)</b>':'<b>En línea</b>');if(!ctx.textOnly)mic.classList.add('vw-live');launch.classList.add('vw-active');},
-      onDisconnect:(d)=>{setStatus('Sesión terminada');console.warn('ConvAI disconnect:',d);mic.classList.remove('vw-live');launch.classList.remove('vw-active');conv=null;started=false;window.__vtcSpeaking=false;stopKeepalive();},
+      onDisconnect:(d)=>{setStatus('Sesión terminada');console.warn('ConvAI disconnect:',d);try{ window.__vtcTrack && window.__vtcTrack('session_completed',{reason:'disconnect'},{keepalive:true}); }catch(e){}mic.classList.remove('vw-live');launch.classList.remove('vw-active');conv=null;started=false;window.__vtcSpeaking=false;stopKeepalive();},
       onError:(e)=>{console.error('ConvAI onError:',e);setStatus('Error: '+((e&&(e.message||e.reason))||'conexión'));},
       onModeChange:(m)=>{const md=(m&&m.mode)||m;window.__vtcSpeaking=(md==='speaking');if(md==='speaking'){typing(false);setStatus(ctx.textOnly?'<b>Victor respondiendo…</b>':'<b>Victor hablando…</b>');}else setStatus(ctx.textOnly?'<b>Modo texto</b> — escribe tu mensaje':'<b>Escuchando…</b>');},
       onMessage:(m)=>{const s=m.source||m.role,txt=m.message||m.text||'';if(s==='ai'||s==='agent'){typing(false);bubble('ai',txt);/* 🔒 V11: cuando Víctor anuncia el salto, marca el módulo como terminado → permite navegar */try{var _t=String(txt||'').toLowerCase();if(_t.indexOf('siguiente módulo')>-1||_t.indexOf('siguiente modulo')>-1||_t.indexOf('siguiente paso')>-1||_t.indexOf('vamos al siguiente')>-1||_t.indexOf('pasamos al siguiente')>-1){window.__vtcModuleDone=true;}/* V12: transicion de BLOQUE dentro del modulo (respaldo por texto si el agente no llama siguiente_bloque) */var _blk=/ahora (?:la siguiente parte|el siguiente bloque|veamos el siguiente|pasamos a la siguiente parte|la siguiente parte)|continuemos con (?:la|el) siguiente/i;var _modNext=/siguiente m[oó]dulo|vamos al siguiente m[oó]dulo|pasamos al siguiente m[oó]dulo|ya vimos todo el m[oó]dulo/i;if(window.__vtcBlocks&&window.__vtcBlocks.current_module&&!window.__vtcBlocks.module_done&&_blk.test(_t)&&!_modNext.test(_t)){try{next_block_in_module();}catch(e2){}}}catch(e){}}else bubble('user',txt);},
@@ -2444,6 +2470,9 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
     }
     connecting=false;
     if(!conv){ setStatus('No se pudo conectar. Intenta de nuevo.'); return false; }
+    /* capturar conversation_id para el tracking de interacciones */
+    try{ window.__vtcConvId = (conv.getId&&conv.getId()) || (conv.conversationId) || (conv.id) || window.__vtcConvId || null; }catch(e){}
+    try{ window.__vtcTrack && window.__vtcTrack('block_viewed',{event:'session_started',module_id:(window.__vtcBlocks&&window.__vtcBlocks.current_module)||null}); }catch(e){}
     return true;
   }
 
@@ -2582,7 +2611,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
     else { /* Mic denegado en sesión activa: NO mostrar formulario, entrar directo en modo texto */ await startCourse(name,emp,dep,true); }
   }
   function minimize(){ panel.classList.remove('vw-open'); launch.style.display='flex'; } // NO corta la sesión
-  function endAll(){ try{conv&&conv.endSession();}catch(e){} conv=null;started=false;window.__vtcSpeaking=false;stopKeepalive(); mic.classList.remove('vw-live');launch.classList.remove('vw-active'); try{mic.style.display='';}catch(e){} removeTextFallbackBtn(); msgs.innerHTML=''; gate.style.display='flex';chat.style.display='none'; $('vw-cta').disabled=false;$('vw-cta').textContent='Comenzar capacitación'; panel.classList.remove('vw-open'); launch.style.display='flex'; }
+  function endAll(){ try{ window.__vtcTrack && window.__vtcTrack('session_completed',{reason:'user_ended'},{keepalive:true}); }catch(e){} try{conv&&conv.endSession();}catch(e){} conv=null;started=false;window.__vtcSpeaking=false;stopKeepalive(); mic.classList.remove('vw-live');launch.classList.remove('vw-active'); try{mic.style.display='';}catch(e){} removeTextFallbackBtn(); msgs.innerHTML=''; gate.style.display='flex';chat.style.display='none'; $('vw-cta').disabled=false;$('vw-cta').textContent='Comenzar capacitación'; panel.classList.remove('vw-open'); launch.style.display='flex'; }
 
   launch.onclick=openPanel; $('vw-min').onclick=minimize; $('vw-close').onclick=endAll; $('vw-cta').onclick=begin;
   $('vw-emp').addEventListener('keydown',e=>{if(e.key==='Enter')begin();});
@@ -2736,10 +2765,16 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
     document.getElementById('cnTotal').textContent=total;
     document.getElementById('cnPct').textContent=Math.round(frac*100)+'%';
     ring.style.strokeDashoffset=CIRC*(1-frac);
+    /* módulo recién completado → module_completed (una sola vez por módulo) */
+    try{ trackIds.forEach(function(id){ if(modFull(id)) window.__vtcTrack && window.__vtcTrack('module_completed',{module_id:id,progress_percent:Math.round(frac*100)},{once:true,key:id}); }); }catch(e){}
   }
 
   /* hooks: el quiz marca aprobado; lectura y video se marcan solos */
-  window.vtcSetDone=function(id,passed){ quizPass[id]=!!passed; render(); };
+  window.vtcSetDone=function(id,passed){
+    quizPass[id]=!!passed;
+    try{ if(passed) window.__vtcTrack && window.__vtcTrack('quiz_answered',{module_id:id,passed:true},{once:true,key:id}); }catch(e){}
+    render();
+  };
   window.vtcMarkRead=function(id){ if(!readM[id]){ readM[id]=1; rsave(); render(); } };
 
   /* medir el video: visto al alcanzar 95% del tiempo o al terminar */
