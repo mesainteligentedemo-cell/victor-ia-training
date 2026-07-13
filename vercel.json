@@ -1,12 +1,7 @@
 {
   "version": 2,
-  "buildCommand": "echo 'Build with API support'",
-  "outputDirectory": "public",
-  "functions": {
-    "api/**/*.js": {
-      "runtime": "nodejs18.x"
-    }
-  },
+  "buildCommand": "echo 'Static build + zero-config API functions'",
+  "outputDirectory": "frontend/public",
   "rewrites": [
     {
       "source": "/((?!api/).*)",

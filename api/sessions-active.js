@@ -4,10 +4,12 @@
 
 import { createClient } from '@supabase/supabase-js';
 
-const supabase = createClient(
-  process.env.SUPABASE_URL || '',
-  process.env.SUPABASE_KEY || ''
-);
+// Usa los mismos nombres de env vars que api/email-report.js (los que existen en Vercel).
+// Guard: solo se instancia el cliente si ambas credenciales existen — evita que
+// createClient('', '') lance al cargar el módulo (FUNCTION_INVOCATION_FAILED / 500).
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || '';
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_KEY || '';
+const supabase = SUPABASE_URL && SUPABASE_KEY ? createClient(SUPABASE_URL, SUPABASE_KEY) : null;
 
 export default async function handler(req, res) {
   // CORS para tracker.victor-ia.xyz
@@ -25,6 +27,16 @@ export default async function handler(req, res) {
   }
 
   try {
+    // Sin credenciales configuradas: responder 200 con datos vacíos (nunca 500).
+    if (!supabase) {
+      return res.status(200).json({
+        active_sessions: [],
+        total: 0,
+        timestamp: new Date().toISOString(),
+        message: 'Supabase no configurado'
+      });
+    }
+
     // Obtener sesiones activas de Supabase (últimas 2 horas)
     const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString();
 

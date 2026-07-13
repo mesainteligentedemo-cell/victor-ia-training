@@ -4,10 +4,10 @@
 
 import { createClient } from '@supabase/supabase-js';
 
-const supabase = createClient(
-  process.env.SUPABASE_URL || '',
-  process.env.SUPABASE_KEY || ''
-);
+// Mismos nombres de env vars que api/email-report.js. Guard contra createClient('', '').
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || '';
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_KEY || '';
+const supabase = SUPABASE_URL && SUPABASE_KEY ? createClient(SUPABASE_URL, SUPABASE_KEY) : null;
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -24,6 +24,17 @@ export default async function handler(req, res) {
   }
 
   try {
+    // Sin credenciales configuradas: responder 200 con datos vacíos (nunca 500).
+    if (!supabase) {
+      return res.status(200).json({
+        sessions: [],
+        stats: { total_sessions: 0, active_now: 0, unique_employees: 0, by_module: {}, by_department: {} },
+        total: 0,
+        timestamp: new Date().toISOString(),
+        message: 'Supabase no configurado'
+      });
+    }
+
     // Parse query params
     const { employee_id, department, module: moduleFilter, days = '30' } = req.query;
     const daysNum = parseInt(days) || 30;
