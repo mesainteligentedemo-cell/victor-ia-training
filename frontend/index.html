@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VÍCTOR — Master Coach VTC</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+            color: #e0e0e0;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+
+        /* HEADER + PLAYER */
+        .header-section {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(10, 14, 39, 0.98);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.1);
+            padding: 15px 20px;
+        }
+
+        .header-flex {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .status-box {
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            color: #ffd700;
+            min-width: 250px;
+            text-align: center;
+        }
+
+        .progress-bar {
+            height: 3px;
+            background: rgba(255, 215, 0, 0.1);
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 999;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ffd700, #ffed4e);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            margin-top: 80px;
+            display: flex;
+            gap: 40px;
+            align-items: flex-start;
+        }
+
+        .content-left {
+            flex: 1;
+            min-height: 500px;
+        }
+
+        .content-right {
+            flex: 0 0 400px;
+            position: sticky;
+            top: 100px;
+        }
+
+        /* VIDEO PLAYER */
+        .video-player {
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid rgba(255, 215, 0, 0.2);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        video, iframe {
+            width: 100%;
+            height: auto;
+            display: block;
+            min-height: 250px;
+        }
+
+        .video-info {
+            background: rgba(255, 215, 0, 0.05);
+            padding: 16px;
+            border-top: 1px solid rgba(255, 215, 0, 0.1);
+            font-size: 12px;
+            color: #aaa;
+        }
+
+        /* SECTIONS */
+        section {
+            scroll-margin-top: 120px;
+            margin-bottom: 60px;
+            padding-bottom: 40px;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.1);
+        }
+
+        section:last-child {
+            border-bottom: none;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .section-number {
+            font-size: 32px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            min-width: 50px;
+        }
+
+        .section-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .section-subtitle {
+            font-size: 14px;
+            color: #aaa;
+            margin-top: 8px;
+            font-style: italic;
+        }
+
+        /* BLOCKS */
+        .block {
+            background: rgba(255, 215, 0, 0.03);
+            border: 1px solid rgba(255, 215, 0, 0.1);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .block.active {
+            background: rgba(255, 215, 0, 0.1);
+            border-color: rgba(255, 215, 0, 0.3);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.1);
+        }
+
+        .block-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #ffd700;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .block-content {
+            font-size: 15px;
+            line-height: 1.8;
+            color: #d0d0d0;
+        }
+
+        .block-content strong {
+            color: #ffd700;
+        }
+
+        .block-content ul, .block-content ol {
+            margin-left: 20px;
+            margin-top: 12px;
+            margin-bottom: 12px;
+        }
+
+        .block-content li {
+            margin-bottom: 8px;
+        }
+
+        /* HERO */
+        .hero {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 215, 0, 0.03));
+            border: 2px solid rgba(255, 215, 0, 0.2);
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .hero-title {
+            font-size: 48px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+        }
+
+        .hero-subtitle {
+            font-size: 18px;
+            color: #aaa;
+            margin-bottom: 20px;
+        }
+
+        .hero-content {
+            font-size: 16px;
+            line-height: 1.8;
+            color: #d0d0d0;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* BUTTONS */
+        button {
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #0a0e27;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        /* QUIZ */
+        .quiz {
+            background: rgba(255, 215, 0, 0.05);
+            border: 2px solid rgba(255, 215, 0, 0.2);
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 20px;
+        }
+
+        .quiz-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #ffd700;
+            margin-bottom: 16px;
+        }
+
+        .quiz-question {
+            margin-bottom: 20px;
+        }
+
+        .quiz-question label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .quiz-question label:hover {
+            background: rgba(255, 215, 0, 0.05);
+        }
+
+        .quiz-question input[type="radio"] {
+            accent-color: #ffd700;
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+        }
+
+        /* CONTROLS */
+        .controls {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 215, 0, 0.1);
+            color: #ffd700;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 215, 0, 0.2);
+        }
+
+        /* SIDEBAR NAVIGATION */
+        .sidebar-nav {
+            background: rgba(255, 215, 0, 0.03);
+            border: 1px solid rgba(255, 215, 0, 0.1);
+            border-radius: 12px;
+            padding: 16px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .nav-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #ffd700;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            letter-spacing: 1px;
+        }
+
+        .nav-item {
+            padding: 8px 12px;
+            margin-bottom: 4px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 13px;
+            color: #aaa;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 215, 0, 0.05);
+            color: #ffd700;
+        }
+
+        .nav-item.active {
+            background: rgba(255, 215, 0, 0.1);
+            color: #ffd700;
+            border-left-color: #ffd700;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 1024px) {
+            .main-content {
+                flex-direction: column;
+            }
+
+            .content-right {
+                flex: 1;
+                position: relative;
+                top: 0;
+            }
+
+            .header-flex {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .status-box {
+                min-width: 100%;
+            }
+        }
+
+        /* ANIMATION */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .block {
+            animation: slideIn 0.5s ease;
+        }
+
+        /* TRANSCRIPT */
+        .transcript {
+            background: rgba(0, 0, 0, 0.3);
+            border-left: 3px solid #ffd700;
+            padding: 16px;
+            margin-top: 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #ccc;
+            font-style: italic;
+        }
+
+        .timestamp {
+            color: #ffd700;
+            font-weight: 600;
+            margin-right: 8px;
+        }
+
+        /* HIGHLIGHTS */
+        .highlight {
+            background: rgba(255, 215, 0, 0.2);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #ffed4e;
+        }
+
+        /* FOOTER */
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+            font-size: 12px;
+            border-top: 1px solid rgba(255, 215, 0, 0.1);
+            margin-top: 60px;
+        }
+
+        /* LOADING */
+        .loading {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #ffd700;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- HEADER FIJO -->
+<div class="header-section">
+    <div class="header-flex">
+        <div class="logo">VÍCTOR — Master Coach VTC</div>
+        <div class="status-box">
+            <span id="current-module">HERO</span> |
+            <span id="current-block">Módulo Inicial</span> |
+            <span class="loading" id="status-indicator"></span>
+        </div>
+    </div>
+    <div class="progress-bar">
+        <div class="progress-fill" id="progress"></div>
+    </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="container">
+    <div class="main-content">
+        <!-- LEFT: CONTENT -->
+        <div class="content-left">
+
+            <!-- ========== HERO ========== -->
+            <section id="hero">
+                <div class="hero">
+                    <h1 class="hero-title">VÍCTOR</h1>
+                    <p class="hero-subtitle">Master Coach en Ventas de Timeshare VTC</p>
+                    <div class="hero-content">
+                        <p>Bienvenido a la capacitación más completa sobre ventas de timeshare VTC.</p>
+                        <p style="margin-top: 20px;">Durante los próximos minutos vamos a recorrer juntos los 19 pasos exactos que los vendedores VTC TOP utilizan para cerrar ventas.</p>
+                        <p style="margin-top: 20px;">Esto no es teoría. Son técnicas probadas, neurociencia aplicada, y scripts que FUNCIONAN.</p>
+                        <p style="margin-top: 20px; font-weight: 600; color: #ffd700;">¿Listos?</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========== BIENVENIDA ========== -->
+            <section id="bienvenida">
+                <div class="section-header">
+                    <div class="section-number">0</div>
+                    <div>
+                        <h2 class="section-title">BIENVENIDA</h2>
+                        <p class="section-subtitle">Por qué estás aquí y cómo funciona este curso</p>
+                    </div>
+                </div>
+
+                <div class="block active" id="bienvenida-bloque1">
+                    <div class="block-title">🎯 Bloque 1: Por Qué Estás Aquí</div>
+                    <div class="block-content">
+                        <p>Los mejores vendedores VTC no nacen. Se entrenan.</p>
+                        <p style="margin-top: 12px;">Durante estos módulos vamos a desglosar EXACTAMENTE cómo funciona la mente del cliente. Qué los motiva. Qué los detiene. Y cómo tú puedes guiarlos paso a paso hacia la decisión correcta.</p>
+                        <p style="margin-top: 12px;">Esto es <strong>neurociencia + PNL + scripts probados</strong>. Nada de manipulación. Pura psicología honesta.</p>
+                    </div>
+                </div>
+
+                <div class="block" id="bienvenida-bloque2">
+                    <div class="block-title">📚 Bloque 2: Estructura del Curso</div>
+                    <div class="block-content">
+                        <p>Vamos a ver <strong>16 módulos completos</strong>:</p>
+                        <ul>
+                            <li>MÓDULO F: Fundamentos</li>
+                            <li>MÓDULO 0: Mentalidad VTC</li>
+                            <li>MÓDULOS 1-12: Venta paso a paso</li>
+                        </ul>
+                        <p style="margin-top: 12px;">Luego: <strong>El Proceso VTC</strong> (12 etapas completas)</p>
+                        <p>Luego: <strong>VTC 19 Pasos</strong> (el pitch completo palabra por palabra)</p>
+                        <p style="margin-top: 12px;">Cada módulo tiene bloques, contenido exacto, y un quiz para validar que aprendiste.</p>
+                        <p style="margin-top: 12px;">No hay prisa. Aprendemos paso a paso.</p>
+                    </div>
+                </div>
+
+                <div class="quiz">
+                    <div class="quiz-title">📋 Quiz Bienvenida</div>
+                    <div class="quiz-question">
+                        <label>
+                            <input type="radio" name="quiz-bienvenida-1">
+                            <span>¿Cuántos módulos vamos a ver?</span>
+                        </label>
+                        <div style="margin-left: 30px; font-size: 13px; color: #aaa; margin-top: 8px;">
+                            <label><input type="radio" name="q1"> 10 módulos</label>
+                            <label><input type="radio" name="q1"> <strong style="color: #ffd700;">16 módulos</strong> ✓</label>
+                            <label><input type="radio" name="q1"> 12 módulos</label>
+                        </div>
+                    </div>
+                    <div class="quiz-question">
+                        <label>
+                            <input type="radio" name="quiz-bienvenida-2">
+                            <span>¿Qué es lo primero que veremos después de los módulos?</span>
+                        </label>
+                        <div style="margin-left: 30px; font-size: 13px; color: #aaa; margin-top: 8px;">
+                            <label><input type="radio" name="q2"> <strong style="color: #ffd700;">El Proceso VTC</strong> ✓</label>
+                            <label><input type="radio" name="q2"> Casos de estudio</label>
+                            <label><input type="radio" name="q2"> Preguntas y respuestas</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="controls">
+                    <button onclick="scrollToModule('fundamentos')">▶ Siguiente Módulo</button>
+                </div>
+            </section>
+
+            <!-- ========== MÓDULO F: FUNDAMENTOS ========== -->
+            <section id="fundamentos">
+                <div class="section-header">
+                    <div class="section-number">F</div>
+                    <div>
+                        <h2 class="section-title">FUNDAMENTOS</h2>
+                        <p class="section-subtitle">Neurociencia, Hot Buttons y Arquetipos de Vendedor</p>
+                    </div>
+                </div>
+
+                <div class="block active" id="fund-intro">
+                    <div class="block-title">🧠 Introducción a Fundamentos</div>
+                    <div class="block-content">
+                        <p>Este módulo es la <strong>BASE científica</strong> de todo lo que aprenderás.</p>
+                        <p style="margin-top: 12px;">Aquí aprendes:</p>
+                        <ul>
+                            <li><strong>Las 11 Leyes de la Neurociencia</strong> en ventas (por qué el cliente decide)</li>
+                            <li><strong>Los 6 Hot Buttons</strong> (cuál es su motivación real)</li>
+                            <li><strong>Los 4 Arquetipos</strong> de vendedor (cuál eres tú)</li>
+                        </ul>
+                        <p style="margin-top: 12px;">Sin esto, los scripts NO funcionan. CON esto, cierra 80% de tus presentaciones.</p>
+                    </div>
+                    <div class="controls">
+                        <button onclick="playVideo('video-fundamentos')">▶ Ver video Fundamentos</button>
+                    </div>
+                </div>
+
+                <!-- VIDEO -->
+                <div class="video-player" style="margin: 24px 0;">
+                    <iframe id="video-fundamentos"
+                            src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+                            frameborder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowfullscreen>
+                    </iframe>
+                    <div class="video-info">
+                        Video: Fundamentos Neurociencia + Hot Buttons + Arquetipos
+                    </div>
+                </div>
+
+                <!-- BLOQUE 1: LAS 11 LEYES -->
+                <div class="block" id="fund-bloque1">
+                    <div class="block-title">🧠 Bloque 1: Las 11 Leyes de la Neurociencia en Ventas</div>
+                    <div class="block-content">
+                        <p>Cuando un prospecto entra, NO está pensando racionalmente. Está en piloto automático. Amígdala activada. Corteza prefrontal desconectada.</p>
+                        <p style="margin-top: 12px;">Tu trabajo es cambiar eso. Aquí están las 11 leyes:</p>
+
+                        <p style="margin-top: 20px;"><strong style="color: #ffd700;">1. Oxitocina antes de Pitch</strong></p>
+                        <p>El 70% de la decisión se toma ANTES de que hables de números. Genera conexión. Sonrisa genuina, contacto visual, postura abierta. En primeros 10 segundos.</p>
+
+                        <p style="margin-top: 16px;"><strong style="color: #ffd700;">2. Regla del Silencio</strong></p>
+                        <p>Cuando presentes precio, SILENCIO absoluto 10-15 segundos. Quien habla primero, pierde control. Tú esperas. Ellos se debaten internamente.</p>
+
+                        <p style="margin-top: 16px;"><strong style="color: #ffd700;">3. Aversión a Pérdida > Ganancia</strong></p>
+                        <p>'Escribir números' de vacaciones gastadas = 3x más impacto que 'ahorrar dinero'. Muestran pérdida potencial, no ganancia.</p>
+
+                        <p style="margin-top: 16px;"><strong style="color: #ffd700;">4. Dopamina en el Tour</strong></p>
+                        <p>Cada parada = dopamina activada. Visualización emocional. 'Imagina despertando aquí' activa deseo.</p>
+
+                        <p style="margin-top: 16px;"><strong style="color: #ffd700;">5. Tie-downs Acumulativos</strong></p>
+                        <p>Pequeños 'síes' llevan a 'sí' grande. Al final del tour, 5 tie-downs = consistencia cognitiva. No pueden decir 'no' sin contradecirse.</p>
+
+                        <p style="margin-top: 16px;"><strong style="color: #ffd700;">6. Anclaje Emocional Antes de Número</strong></p>
+                        <p>SIEMPRE presenta valor emocional antes de precio. 'Esto es para tu familia' antes de '$___'. Ancla el deseo.</p>
+
+                        <p style="margin-top: 16px;"><strong style="color: #ffd700;">7. Reencuadre de Objeción</strong></p>
+                        <p>'Está muy caro' → 'Exacto. Porque es de lujo. ¿Qué parte te atrae más?' Reencuadra el problema, no defiendas.</p>
+
+                        <p style="margin-top: 16px;"><strong style="color: #ffd700;">8. Espejeo → Congruencia</strong></p>
+                        <p>Espejea postura, ritmo respiratorio, volumen. Crea rapport subconsciente. Congruencia = confianza.</p>
+
+                        <p style="margin-top: 16px;"><strong style="color: #ffd700;">9. Marcado Analógico</strong></p>
+                        <p>Palabras clave GARANTIZAR, EXACTAMENTE, PRECISAMENTE crean certeza. Evita 'podría', 'quizás', 'tal vez'.</p>
+
+                        <p style="margin-top: 16px;"><strong style="color: #ffd700;">10. Calibración Visual</strong></p>
+                        <p>Ojos desenfocados = procesando. Respiración lenta = pensando. Postura rígida = objeción. Tú ves esto, adaptas.</p>
+
+                        <p style="margin-top: 16px;"><strong style="color: #ffd700;">11. Sesgo de Escasez</strong></p>
+                        <p>'Solo hoy', 'última villa disponible', 'autorización del gerente' = urgencia. Amígdala reacciona. Cierras más rápido.</p>
+
+                        <div class="transcript" style="margin-top: 20px;">
+                            <strong>🎙️ Clave:</strong> Estas 11 leyes son NEUROCIENCIA PURA. No son opinión. Son cómo funciona el cerebro humano. Domínalas y tu tasa de cierre SUBE automáticamente.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BLOQUE 2: HOT BUTTONS -->
+                <div class="block" id="fund-bloque2">
+                    <div class="block-title">🔥 Bloque 2: Los 6 Hot Buttons</div>
+                    <div class="block-content">
+                        <p>Tu prospecto tiene UNO de estos 6 hot buttons. Tu trabajo es identificarlo en los primeros 20 minutos y activarlo.</p>
+
+                        <p style="margin-top: 20px;"><strong style="color: #ffd700;">1. FAMILIA</strong></p>
+                        <p><strong>Motivo:</strong> Crear memoria familiar. <strong>Activar:</strong> 'Sus hijos recordarán esto toda la vida.' 'Vacaciones juntos cada año.' <strong>Beneficio emocional =</strong> intenso.</p>
+
+                        <p style="margin-top: 16px;"><strong style="color: #ffd700;">2. ESTATUS</strong></p>
+                        <p><strong>Motivo:</strong> Verse exitoso, exclusivo. <strong>Activar:</strong> 'Nivel Preferred. Villas de $15,000/semana. Miembros VTC pagan $1,765.' <strong>Contraste =</strong> deseabilidad.</p>
+
+                        <p style="margin-top: 16px;"><strong style="color: #ffd700;">3. SEGURIDAD</strong></p>
+                        <p><strong>Motivo:</strong> Saber que está protegido. <strong>Activar:</strong> 'Contrato escriturado. PROFECO. 5 años de rescisión. Tan sólido como propiedad.' <strong>Legalidad =</strong> tranquiliza.</p>
+
+                        <p style="margin-top: 16px;"><strong style="color: #ffd700;">4. AHORRO</strong></p>
+                        <p><strong>Motivo:</strong> No gastar, maximizar valor. <strong>Activar:</strong> '$300/noche vs $1,765 anual. En 5 años recuperas 100%.' <strong>Números duros =</strong> cierre.</p>
+
+                        <p style="margin-top: 16px;"><strong style="color: #ffd700;">5. AVENTURA</strong></p>
+                        <p><strong>Motivo:</strong> Explorar, experimentar nuevos destinos. <strong>Activar:</strong> '4,300 destinos en 100 países. Año que viene Santorini. Siguiente, Tokio.' <strong>Expandir horizonte =</strong> dopamina.</p>
+
+                        <p style="margin-top: 16px;"><strong style="color: #ffd700;">6. ROMANCE</strong></p>
+                        <p><strong>Motivo:</strong> Tiempo de pareja, escapada. <strong>Activar:</strong> '¿Cuándo fue la última vez que se fueron solos? Imaginen Bali en luna de miel nuevamente.' <strong>Conexión emocional pareja =</strong> ventas fáciles.</p>
+
+                        <div class="transcript" style="margin-top: 20px;">
+                            <strong>🎯 Estrategia:</strong> Identifica el hot button EN LOS PRIMEROS 5 MINUTOS. Luego REPITE ese mensaje en cada parada del tour. La repetición de emociones = cierre garantizado.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BLOQUE 3: ARQUETIPOS -->
+                <div class="block" id="fund-bloque3">
+                    <div class="block-title">🎭 Bloque 3: Los 4 Arquetipos de Vendedor</div>
+                    <div class="block-content">
+                        <p>Existen 4 arquetipos VTC. Identifica cuál eres y maximiza tu fortaleza.</p>
+
+                        <p style="margin-top: 20px;"><strong style="color: #ffd700;">1. MAESTRO DEL RAPPORT</strong></p>
+                        <p><strong>Superpoder:</strong> Conexión emocional. Las personas se sienten comprendidas. <strong>Riesgo:</strong> Hablas mucho de ellos, poco del producto. <strong>Fix:</strong> Asegúrate de alcanzar presentación producto.</p>
+
+                        <p style="margin-top: 16px;"><strong style="color: #ffd700;">2. CLOSER LÓGICO</strong></p>
+                        <p><strong>Superpoder:</strong> Argumentos irrefutables, números exactos. <strong>Riesgo:</strong> Olvidas la emoción. <strong>Fix:</strong> Construye valor emocional ANTES del número.</p>
+
+                        <p style="margin-top: 16px;"><strong style="color: #ffd700;">3. URGENCISTA</strong></p>
+                        <p><strong>Superpoder:</strong> Crear FOMO, cierre rápido. <strong>Riesgo:</strong> Pareces agresivo. <strong>Fix:</strong> FOMO honesto ('solo hoy autorización'), no mentiras.</p>
+
+                        <p style="margin-top: 16px;"><strong style="color: #ffd700;">4. CONSULTIVO</strong></p>
+                        <p><strong>Superpoder:</strong> Escuchar, resolver problemas reales. <strong>Riesgo:</strong> Demasiadas preguntas, sin cierre. <strong>Fix:</strong> Después de escuchar, guía directo a cierre.</p>
+
+                        <div class="transcript" style="margin-top: 20px;">
+                            <strong>💡 Reflexión:</strong> ¿Cuál eres TÚ? Usa tu superpoder. MITIGA tu riesgo. Esto te diferencia de 90% de vendedores que usan técnicas genéricas.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="quiz">
+                    <div class="quiz-title">📋 Quiz Módulo F: Fundamentos</div>
+                    <div class="quiz-question">
+                        <label>
+                            <input type="radio" name="quiz-f-1">
+                            <span>¿Cuántos segundos de SILENCIO después de presentar precio?</span>
+                        </label>
+                        <div style="margin-left: 30px; font-size: 13px; color: #aaa; margin-top: 8px;">
+                            <label><input type="radio" name="qf1"> 5 segundos</label>
+                            <label><input type="radio" name="qf1"> <strong style="color: #ffd700;">10-15 segundos</strong> ✓</label>
+                            <label><input type="radio" name="qf1"> 20 segundos</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="controls">
+                    <button onclick="scrollToModule('modulo0')">▶ Siguiente Módulo</button>
+                </div>
+            </section>
+
+            <!-- ========== MÁS MÓDULOS VENDRÁN ========== -->
+            <section id="modulo0" style="padding: 40px; background: rgba(255, 215, 0, 0.05); border-radius: 12px; text-align: center;">
+                <p style="font-size: 18px; color: #aaa;">MÓDULOS 0-12 Y VTC 19 PASOS CONTINÚAN...</p>
+                <p style="font-size: 12px; color: #666; margin-top: 10px;">Sistema frontend cargado. Esperando conexión con ElevenLabs agent.</p>
+            </section>
+
+        </div>
+
+        <!-- RIGHT: SIDEBAR VIDEO + NAV -->
+        <div class="content-right">
+            <div class="sidebar-nav">
+                <div class="nav-title">Navegación</div>
+                <div class="nav-item active" onclick="scrollToModule('hero')">HERO</div>
+                <div class="nav-item" onclick="scrollToModule('bienvenida')">BIENVENIDA</div>
+                <div class="nav-item" onclick="scrollToModule('fundamentos')">F - FUNDAMENTOS</div>
+                <div class="nav-item" onclick="scrollToModule('modulo0')">0 - MENTALIDAD</div>
+                <div class="nav-item" onclick="scrollToModule('modulo1')">1 - CALIFICACIÓN</div>
+                <div class="nav-item" onclick="scrollToModule('modulo2')">2 - OPC</div>
+                <div class="nav-item" onclick="scrollToModule('modulo3')">3 - RAPPORT</div>
+                <div class="nav-item" onclick="scrollToModule('modulo4')">4 - TOUR</div>
+                <div class="nav-item" onclick="scrollToModule('modulo5')">5 - PRODUCTO</div>
+                <div class="nav-item" onclick="scrollToModule('modulo6')">6 - CIERRE</div>
+                <div class="nav-item" onclick="scrollToModule('modulo7')">7 - OBJECIONES</div>
+                <div class="nav-item" onclick="scrollToModule('modulo8')">8 - TOC</div>
+                <div class="nav-item" onclick="scrollToModule('modulo9')">9 - MANAGER</div>
+                <div class="nav-item" onclick="scrollToModule('modulo10')">10 - PNL</div>
+                <div class="nav-item" onclick="scrollToModule('modulo11')">11 - CULTURAS</div>
+                <div class="nav-item" onclick="scrollToModule('modulo12')">12 - ÉTICA</div>
+                <div class="nav-item" onclick="scrollToModule('proceso')">PROCESO VTC 12</div>
+                <div class="nav-item" onclick="scrollToModule('vtc19')">VTC 19 PASOS</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <p>VÍCTOR — Master Coach VTC © 2026 | Sistema de Capacitación Avanzada en Ventas de Timeshare</p>
+</footer>
+
+<script>
+// SCROLL NAVIGATION
+function scrollToModule(moduleId) {
+    const element = document.getElementById(moduleId);
+    if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+        updateActiveNav(moduleId);
+        updateProgress();
+    }
+}
+
+function updateActiveNav(moduleId) {
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    document.querySelector(`[onclick="scrollToModule('${moduleId}')"]`)?.classList.add('active');
+}
+
+// PROGRESS BAR
+function updateProgress() {
+    const scrollTop = window.scrollY;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const scrollPercent = (scrollTop / docHeight) * 100;
+    document.getElementById('progress').style.width = scrollPercent + '%';
+}
+
+// VIDEO PLAYER
+function playVideo(videoId) {
+    const video = document.getElementById(videoId);
+    if (video) {
+        video.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+}
+
+// UPDATE STATUS
+function updateStatus(module, block) {
+    document.getElementById('current-module').textContent = module;
+    document.getElementById('current-block').textContent = block;
+}
+
+// EVENT LISTENERS
+window.addEventListener('scroll', updateProgress);
+
+// BLOCK HIGHLIGHTING
+const blocks = document.querySelectorAll('.block');
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            blocks.forEach(b => b.classList.remove('active'));
+            entry.target.classList.add('active');
+        }
+    });
+}, { threshold: 0.5 });
+
+blocks.forEach(block => observer.observe(block));
+
+// INIT
+updateProgress();
+</script>
+
+<!-- ELEVENLABS CONVAI WIDGET -->
+<elevenlabs-convai agent-id="agent_9501k3vkt6svekjs6y0qe5xzcek1"></elevenlabs-convai>
+<script src="https://unpkg.com/@elevenlabs/convai-widget-embed" async type="text/javascript"></script>
+
+</body>
+</html>
