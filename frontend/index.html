@@ -460,9 +460,204 @@
             0%, 100% { opacity: 0.3; }
             50% { opacity: 1; }
         }
+
+        /* LOGIN MODAL */
+        .login-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(10, 14, 39, 0.95);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .login-modal.hidden {
+            display: none;
+        }
+
+        .login-form-container {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 215, 0, 0.03));
+            border: 2px solid rgba(255, 215, 0, 0.2);
+            border-radius: 12px;
+            padding: 40px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .login-title {
+            font-size: 32px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .login-subtitle {
+            font-size: 14px;
+            color: #aaa;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #ffd700;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            border-radius: 6px;
+            background: rgba(255, 215, 0, 0.05);
+            color: #e0e0e0;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: rgba(255, 215, 0, 0.5);
+            background: rgba(255, 215, 0, 0.1);
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
+        }
+
+        .form-group input::placeholder {
+            color: #666;
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 20px;
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #0a0e27;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .login-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.3);
+        }
+
+        .login-button:active {
+            transform: translateY(0);
+        }
+
+        .login-error {
+            color: #ff6b6b;
+            font-size: 12px;
+            margin-top: 10px;
+            text-align: center;
+            display: none;
+        }
+
+        .login-error.show {
+            display: block;
+        }
+
+        .logout-btn {
+            background: rgba(255, 215, 0, 0.1);
+            color: #ffd700;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 215, 0, 0.2);
+        }
+
+        .user-info {
+            font-size: 11px;
+            color: #aaa;
+            margin-left: auto;
+        }
     </style>
 </head>
 <body>
+
+<!-- LOGIN MODAL -->
+<div class="login-modal" id="loginModal">
+    <div class="login-form-container">
+        <h1 class="login-title">VÍCTOR</h1>
+        <p class="login-subtitle">Acceso a Capacitación</p>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="userName">Nombre</label>
+                <input
+                    type="text"
+                    id="userName"
+                    name="userName"
+                    placeholder="Tu nombre completo"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="userPassword">Contraseña</label>
+                <input
+                    type="password"
+                    id="userPassword"
+                    name="userPassword"
+                    placeholder="••••••••"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="userDepartment">Departamento</label>
+                <select id="userDepartment" name="userDepartment" required>
+                    <option value="">Selecciona tu departamento</option>
+                    <option value="ventas">Ventas</option>
+                    <option value="marketing">Marketing</option>
+                    <option value="operaciones">Operaciones</option>
+                    <option value="recursos-humanos">Recursos Humanos</option>
+                    <option value="capacitacion">Capacitación</option>
+                    <option value="direccion">Dirección</option>
+                    <option value="otro">Otro</option>
+                </select>
+            </div>
+
+            <button type="submit" class="login-button">Acceder a la Capacitación</button>
+
+            <div class="login-error" id="loginError">
+                Por favor completa todos los campos correctamente
+            </div>
+        </form>
+    </div>
+</div>
 
 <!-- HEADER FIJO -->
 <div class="header-section">
@@ -472,6 +667,12 @@
             <span id="current-module">HERO</span> |
             <span id="current-block">Módulo Inicial</span> |
             <span class="loading" id="status-indicator"></span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div class="user-info" id="userInfo" style="display: none;">
+                👤 <span id="displayName"></span>
+            </div>
+            <button class="logout-btn" id="logoutBtn" style="display: none;">Cerrar Sesión</button>
         </div>
     </div>
     <div class="progress-bar">
@@ -765,6 +966,89 @@
 </footer>
 
 <script>
+// ==================== AUTHENTICATION SYSTEM ====================
+
+// Verificar si hay sesión activa
+function checkAuthStatus() {
+    const userData = localStorage.getItem('victorUserData');
+    const loginModal = document.getElementById('loginModal');
+    const userInfo = document.getElementById('userInfo');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const displayName = document.getElementById('displayName');
+
+    if (userData) {
+        // Usuario autenticado
+        const user = JSON.parse(userData);
+        displayName.textContent = user.name;
+        userInfo.style.display = 'flex';
+        logoutBtn.style.display = 'block';
+        loginModal.classList.add('hidden');
+        return true;
+    } else {
+        // No autenticado
+        userInfo.style.display = 'none';
+        logoutBtn.style.display = 'none';
+        loginModal.classList.remove('hidden');
+        return false;
+    }
+}
+
+// Manejar submit del formulario de login
+document.getElementById('loginForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const name = document.getElementById('userName').value.trim();
+    const password = document.getElementById('userPassword').value.trim();
+    const department = document.getElementById('userDepartment').value;
+    const errorMsg = document.getElementById('loginError');
+
+    if (!name || !password || !department) {
+        errorMsg.classList.add('show');
+        return;
+    }
+
+    // Guardar datos en localStorage
+    const userData = {
+        name: name,
+        department: department,
+        loginTime: new Date().toISOString(),
+        sessionId: 'session_' + Math.random().toString(36).substr(2, 9)
+    };
+
+    localStorage.setItem('victorUserData', JSON.stringify(userData));
+    errorMsg.classList.remove('show');
+
+    // Actualizar interfaz
+    checkAuthStatus();
+
+    // Resetear formulario
+    document.getElementById('loginForm').reset();
+
+    // Notificar a VÍCTOR que el usuario está autenticado
+    updateUserStatus(name, department);
+});
+
+// Manejar logout
+document.getElementById('logoutBtn').addEventListener('click', function() {
+    localStorage.removeItem('victorUserData');
+    checkAuthStatus();
+});
+
+// Función para actualizar status de usuario
+function updateUserStatus(name, department) {
+    const userInfo = document.getElementById('displayName');
+    if (userInfo) {
+        userInfo.textContent = `${name} (${department})`;
+    }
+}
+
+// Verificar estado al cargar página
+window.addEventListener('load', function() {
+    checkAuthStatus();
+});
+
+// ==================== END AUTHENTICATION SYSTEM ====================
+
 // SCROLL NAVIGATION
 function scrollToModule(moduleId) {
     const element = document.getElementById(moduleId);
