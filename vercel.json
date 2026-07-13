@@ -1,11 +1,24 @@
 {
   "version": 2,
-  "buildCommand": "echo 'Static build'",
-  "outputDirectory": "frontend/public",
+  "buildCommand": "echo 'Build with API support'",
+  "outputDirectory": "public",
+  "functions": {
+    "api/**/*.js": {
+      "runtime": "nodejs18.x"
+    }
+  },
   "rewrites": [
     {
       "source": "/((?!api/).*)",
       "destination": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
+      ]
     }
   ]
 }
