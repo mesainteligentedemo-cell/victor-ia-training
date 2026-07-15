@@ -1,0 +1,50 @@
+{
+  "timestamp": "2026-07-15T19:56:11.915Z",
+  "url": "https://victor-ia-training.vercel.app/",
+  "tests": [
+    {
+      "name": "Carga de página",
+      "status": "PASS"
+    },
+    {
+      "name": "Título página",
+      "status": "PASS",
+      "value": "VTC — Capacitación Elite · Victorious Travelers Club"
+    },
+    {
+      "name": "Agent ID",
+      "status": "FAIL",
+      "agentIds": [
+        "agent_9501k3vkt6svekjs6y0qe5xzcek1"
+      ]
+    },
+    {
+      "name": "Widget ElevenLabs",
+      "status": "FAIL"
+    },
+    {
+      "name": "Estructura HTML",
+      "status": "PASS",
+      "sectionCount": 20,
+      "hasHeader": false,
+      "hasNav": true
+    },
+    {
+      "name": "Errores console",
+      "status": "PASS"
+    },
+    {
+      "name": "HTTP Headers",
+      "status": "WARNING"
+    },
+    {
+      "name": "Responsive Design",
+      "status": "PASS"
+    }
+  ],
+  "summary": {
+    "passed": 5,
+    "failed": 2,
+    "warnings": 1
+  }
+}

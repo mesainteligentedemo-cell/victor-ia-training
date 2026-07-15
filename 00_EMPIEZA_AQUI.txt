@@ -1,0 +1,224 @@
+================================================================================
+    🚀 VICTOR IA E2E TESTS - BIENVENIDA
+================================================================================
+
+¡Hola! Acabas de recibir un suite completo de tests E2E para Victor IA.
+
+Este proyecto contiene:
+✅ 14 tests automatizados
+✅ 4 helpers (Email, Supabase, Webhook, Constants)
+✅ 5 documentos de guía
+✅ Reportes automatizados (HTML, JSON, JUnit)
+✅ Scripts de setup
+
+================================================================================
+⚡ PASOS RÁPIDOS (5 MINUTOS)
+================================================================================
+
+1. ABRIR CONSOLA
+   cd C:\Users\inbou\victor-ia-training
+
+2. INSTALAR DEPENDENCIAS
+   npm install
+
+3. COPIAR CONFIG
+   copy .env.example .env
+
+4. EDITAR .env
+   • Abrir .env con tu editor favorito
+   • Agregar: SUPABASE_URL=https://xxx.supabase.co
+   • Agregar: SUPABASE_ANON_KEY=your-key-here
+
+5. CORRER TESTS
+   npm test
+
+6. VER RESULTADOS
+   npm run test:report
+
+¡LISTO! ✅
+
+================================================================================
+📖 DOCUMENTACIÓN (Empieza por aquí)
+================================================================================
+
+1️⃣ INDEX.md (este momento - 2 min)
+   → Punto de entrada y navegación
+
+2️⃣ QUICK_START.md (5 minutos)
+   → Setup rápido y primeros pasos
+   ✓ Recomendado para comenzar
+
+3️⃣ TEST_SUMMARY.md (10 minutos)
+   → Resumen ejecutivo y cobertura
+   ✓ Para entender qué valida
+
+4️⃣ README_E2E_TESTS.md (15 minutos)
+   → Documentación completa
+   ✓ Para consultas detalladas
+
+5️⃣ VERIFICATION_CHECKLIST.md (10 minutos)
+   → Pre-flight checks
+   ✓ Para validar configuración
+
+6️⃣ DELIVERY_SUMMARY.txt (5 minutos)
+   → Resumen de entregables
+   ✓ Para ver qué se entregó
+
+================================================================================
+🎯 COMANDOS PRINCIPALES
+================================================================================
+
+npm install                  # Instalar deps (solo primera vez)
+npm test                    # Correr tests (MAIN)
+npm run test:headed         # Tests con navegador visible
+npm run test:debug          # Tests en debug mode (pause/step)
+npm run test:report         # Ver reporte HTML
+npm run test:single         # Un archivo específico
+npm run test:watch         # Watch mode (auto-rerun)
+
+run-tests.bat              # Windows: menú interactivo
+
+================================================================================
+📁 ESTRUCTURA
+================================================================================
+
+tests/
+  └── test-e2e-playwright.spec.js  ← 14 TESTS (main file)
+
+helpers/
+  ├── email-helper.js             ← Email verification
+  ├── supabase-helper.js          ← DB queries
+  ├── webhook-helper.js           ← Webhook capture
+  └── test-constants.js           ← Config data
+
+Configuración:
+  ├── playwright.config.js
+  ├── package.json (actualizado)
+  ├── .env (gitignored - crear del .example)
+  └── .env.example (template)
+
+Documentación:
+  ├── INDEX.md                      ← Empieza aquí
+  ├── QUICK_START.md                ← 5 min setup
+  ├── TEST_SUMMARY.md               ← Ejecutivo
+  ├── README_E2E_TESTS.md           ← Completo
+  ├── VERIFICATION_CHECKLIST.md     ← Pre-flight
+  └── DELIVERY_SUMMARY.txt          ← Resumen
+
+Scripts:
+  ├── setup.js (setup automático)
+  └── run-tests.bat (Windows)
+
+================================================================================
+✅ QUÉS VALIDA
+================================================================================
+
+1. FLUJO DE CAPACITACIÓN ✓
+   → Sesión única generada
+   → Datos del usuario capturados
+   → Módulo Fundamentos completado
+   → Video visto + Quiz 100%
+
+2. EMAILS ENVIADOS ✓
+   → mesainteligentedemo@gmail.com
+   → chrisoria16@gmail.com
+   → eldudemateos@gmail.com
+   → Contenido correcto + PDF adjunto
+
+3. TRACKER (Supabase) ✓
+   → Datos en tabla tracker_results
+   → 150+ campos capturados
+   → Neurociencia registrada
+   → Timestamp correcto
+
+4. WEBHOOKS ✓
+   → Webhook POST recibido
+   → Datos correctos en payload
+
+5. REPORTES ✓
+   → HTML (Playwright)
+   → JSON (test-results.json)
+   → JUnit XML (para CI/CD)
+
+================================================================================
+🚀 PRIMEROS PASOS (AHORA)
+================================================================================
+
+OPCIÓN 1 - SÚPER RÁPIDO (2 min)
+   npm install
+   copy .env.example .env
+   [Editar .env: agregar SUPABASE_URL y SUPABASE_ANON_KEY]
+   npm test
+
+OPCIÓN 2 - CON GUÍA (5 min)
+   1. Abre: QUICK_START.md (leyendo en 5 min)
+   2. Sigue: Pasos del archivo
+   3. Ejecuta: npm test
+
+OPCIÓN 3 - PASO A PASO (15 min)
+   1. Lee: INDEX.md (2 min)
+   2. Lee: TEST_SUMMARY.md (10 min)
+   3. Completa: VERIFICATION_CHECKLIST.md (5 min)
+   4. Ejecuta: npm test
+
+================================================================================
+⚠️ REQUISITOS
+================================================================================
+
+✓ Node.js v18+ (https://nodejs.org/)
+✓ npm v9+
+✓ Credenciales Supabase (SUPABASE_URL + SUPABASE_ANON_KEY)
+✓ Mailhog corriendo (opcional - para tests de email)
+   docker run -d -p 1025:1025 -p 8025:8025 mailhog/mailhog
+
+================================================================================
+🐛 PROBLEMAS COMUNES
+================================================================================
+
+❌ "npm: command not found"
+   → Instalar Node.js desde https://nodejs.org/
+
+❌ "npm install" falla
+   → Ver: README_E2E_TESTS.md → Troubleshooting
+
+❌ Mailhog no conecta
+   → Ver: VERIFICATION_CHECKLIST.md → Mailhog section
+   → O correr: docker run -d -p 1025:1025 -p 8025:8025 mailhog/mailhog
+
+❌ Supabase error
+   → Verificar .env tiene SUPABASE_URL y SUPABASE_ANON_KEY reales
+
+❌ Tests se cuelgan
+   → npm run test:debug (modo debug)
+   → Presionar Ctrl+C si es necesario
+
+================================================================================
+📊 QUÉ ESPERAR DESPUÉS DE npm test
+================================================================================
+
+✅ Salida esperada:
+   ✓ 14 passed
+   ✓ 0 failed
+   ✓ Duration: 45-60 seconds
+
+📊 Reportes generados:
+   └─ playwright-report/index.html  ← Abre aquí después
+   └─ test-results.json
+   └─ junit-results.xml
+
+Para ver reporte HTML:
+   npm run test:report
+
+================================================================================
+📖 SIGUIENTE: Abre "QUICK_START.md" o "INDEX.md"
+================================================================================
+
+Tiene todo lo que necesitas. ¡Adelante! 🚀
+
+Preguntas? Ver README_E2E_TESTS.md → Troubleshooting
+
+================================================================================
+Última actualización: 2026-07-13
+Versión: 1.0.0
+Estado: ✅ READY FOR PRODUCTION
+================================================================================

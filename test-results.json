@@ -1,0 +1,1177 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\inbou\\victor-ia-training\\node_modules\\@playwright\\test\\cli.js",
+      "test"
+    ],
+    "configFile": "C:\\Users\\inbou\\victor-ia-training\\playwright.config.js",
+    "rootDir": "C:/Users/inbou/victor-ia-training/tests",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": "C:\\Users\\inbou\\victor-ia-training\\tests\\global-setup.js",
+    "globalTeardown": "C:\\Users\\inbou\\victor-ia-training\\tests\\global-teardown.js",
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/inbou/victor-ia-training/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "C:/Users/inbou/victor-ia-training/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.spec.js"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "html",
+        {
+          "outputFolder": "playwright-report"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results.json"
+        }
+      ],
+      [
+        "junit",
+        {
+          "outputFile": "junit-results.xml"
+        }
+      ],
+      [
+        "list",
+        null
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "test-e2e-playwright.spec.js",
+      "file": "test-e2e-playwright.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "💼 Flujo de Capacitación",
+          "file": "test-e2e-playwright.spec.js",
+          "line": 35,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Completar sesión de capacitación (simulado)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 15,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "\n📚 Iniciando flujo de capacitación...\n"
+                        },
+                        {
+                          "text": "✓ Session ID: session_1783963462978_8aewau0g3\n"
+                        },
+                        {
+                          "text": "✓ Usuario: Pablo Solar\n"
+                        },
+                        {
+                          "text": "✓ Módulo: Fundamentos\n"
+                        },
+                        {
+                          "text": "✓ Puntuación quiz: 100%\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-07-13T17:24:21.603Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "1a725810fb3538661073-73d7eca5ecf69848cbde",
+              "file": "test-e2e-playwright.spec.js",
+              "line": 47,
+              "column": 3
+            },
+            {
+              "title": "Simular API call a Tracker",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 640,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "\n📡 Simulando POST a Tracker API...\n"
+                        },
+                        {
+                          "text": "✓ Payload preparado para Tracker:\n"
+                        },
+                        {
+                          "text": "  - sessionId: session_1783963462978_8aewau0g3\n"
+                        },
+                        {
+                          "text": "  - user: Pablo Solar\n"
+                        },
+                        {
+                          "text": "  - quizScore: 100\n"
+                        },
+                        {
+                          "text": "  - Status: completado\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-07-13T17:24:23.001Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "1a725810fb3538661073-e6dc4ecde2dc6386b24d",
+              "file": "test-e2e-playwright.spec.js",
+              "line": 91,
+              "column": 3
+            }
+          ]
+        },
+        {
+          "title": "📧 Verificación de Emails",
+          "file": "test-e2e-playwright.spec.js",
+          "line": 124,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Email llegó a todos los destinatarios",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 5154,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n    at C:\\Users\\inbou\\victor-ia-training\\tests\\test-e2e-playwright.spec.js:156:26",
+                        "location": {
+                          "file": "C:\\Users\\inbou\\victor-ia-training\\tests\\test-e2e-playwright.spec.js",
+                          "column": 26,
+                          "line": 156
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 154 |\u001b[39m     }\n \u001b[90m 155 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 156 |\u001b[39m     expect(allDelivered)\u001b[33m.\u001b[39mtoBe(\u001b[36mtrue\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 157 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 158 |\u001b[39m\n \u001b[90m 159 |\u001b[39m   test(\u001b[32m'Email tiene contenido correcto'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\inbou\\victor-ia-training\\tests\\test-e2e-playwright.spec.js",
+                            "column": 26,
+                            "line": 156
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n\n\u001b[0m \u001b[90m 154 |\u001b[39m     }\n \u001b[90m 155 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 156 |\u001b[39m     expect(allDelivered)\u001b[33m.\u001b[39mtoBe(\u001b[36mtrue\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 157 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 158 |\u001b[39m\n \u001b[90m 159 |\u001b[39m   test(\u001b[32m'Email tiene contenido correcto'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\u001b[0m\n\u001b[2m    at C:\\Users\\inbou\\victor-ia-training\\tests\\test-e2e-playwright.spec.js:156:26\u001b[22m"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "\n📬 Verificando entrega de emails...\n"
+                        },
+                        {
+                          "text": "Destinatarios esperados: mesainteligentedemo@gmail.com, chrisoria16@gmail.com, eldudemateos@gmail.com\n"
+                        },
+                        {
+                          "text": "\n📊 Resultados de entrega:\n"
+                        },
+                        {
+                          "text": "✗ mesainteligentedemo@gmail.com: NO ENTREGADO\n"
+                        },
+                        {
+                          "text": "✗ chrisoria16@gmail.com: NO ENTREGADO\n"
+                        },
+                        {
+                          "text": "✗ eldudemateos@gmail.com: NO ENTREGADO\n"
+                        }
+                      ],
+                      "stderr": [
+                        {
+                          "text": "Error fetching emails from Mailhog: \n"
+                        },
+                        {
+                          "text": "Error fetching emails from Mailhog: \n"
+                        },
+                        {
+                          "text": "Error fetching emails from Mailhog: \n"
+                        },
+                        {
+                          "text": "Error fetching emails from Mailhog: \n"
+                        },
+                        {
+                          "text": "Error fetching emails from Mailhog: \n"
+                        },
+                        {
+                          "text": "Error fetching emails from Mailhog: \n"
+                        },
+                        {
+                          "text": "Error fetching emails from Mailhog: \n"
+                        },
+                        {
+                          "text": "Error fetching emails from Mailhog: \n"
+                        },
+                        {
+                          "text": "Error fetching emails from Mailhog: \n"
+                        },
+                        {
+                          "text": "Error fetching emails from Mailhog: \n"
+                        },
+                        {
+                          "text": "⚠️  Algunos emails no fueron entregados\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2026-07-13T17:24:23.937Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\inbou\\victor-ia-training\\test-results\\test-e2e-playwright-📧-Ver-478ec-ó-a-todos-los-destinatarios-chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\inbou\\victor-ia-training\\tests\\test-e2e-playwright.spec.js",
+                        "column": 26,
+                        "line": 156
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "1a725810fb3538661073-119f5ee3e11d770c3674",
+              "file": "test-e2e-playwright.spec.js",
+              "line": 125,
+              "column": 3
+            },
+            {
+              "title": "Email tiene contenido correcto",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 49,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mnull\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mnull\u001b[39m\n    at C:\\Users\\inbou\\victor-ia-training\\tests\\test-e2e-playwright.spec.js:172:27",
+                        "location": {
+                          "file": "C:\\Users\\inbou\\victor-ia-training\\tests\\test-e2e-playwright.spec.js",
+                          "column": 27,
+                          "line": 172
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 170 |\u001b[39m     \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39mlatestEmail) {\n \u001b[90m 171 |\u001b[39m       console\u001b[33m.\u001b[39merror(\u001b[32m'❌ No se encontró email para verificar'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 172 |\u001b[39m       expect(latestEmail)\u001b[33m.\u001b[39mtoBeTruthy()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                           \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 173 |\u001b[39m       \u001b[36mreturn\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m 174 |\u001b[39m     }\n \u001b[90m 175 |\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\inbou\\victor-ia-training\\tests\\test-e2e-playwright.spec.js",
+                            "column": 27,
+                            "line": 172
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mnull\u001b[39m\n\n\u001b[0m \u001b[90m 170 |\u001b[39m     \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39mlatestEmail) {\n \u001b[90m 171 |\u001b[39m       console\u001b[33m.\u001b[39merror(\u001b[32m'❌ No se encontró email para verificar'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 172 |\u001b[39m       expect(latestEmail)\u001b[33m.\u001b[39mtoBeTruthy()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                           \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 173 |\u001b[39m       \u001b[36mreturn\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m 174 |\u001b[39m     }\n \u001b[90m 175 |\u001b[39m\u001b[0m\n\u001b[2m    at C:\\Users\\inbou\\victor-ia-training\\tests\\test-e2e-playwright.spec.js:172:27\u001b[22m"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "\n📄 Verificando contenido del email...\n"
+                        }
+                      ],
+                      "stderr": [
+                        {
+                          "text": "Error fetching emails from Mailhog: \n"
+                        },
+                        {
+                          "text": "❌ No se encontró email para verificar\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2026-07-13T17:24:30.046Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\inbou\\victor-ia-training\\test-results\\test-e2e-playwright-📧-Ver-e452f-il-tiene-contenido-correcto-chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\inbou\\victor-ia-training\\tests\\test-e2e-playwright.spec.js",
+                        "column": 27,
+                        "line": 172
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "1a725810fb3538661073-82318cb1a1d1c096aa4c",
+              "file": "test-e2e-playwright.spec.js",
+              "line": 159,
+              "column": 3
+            },
+            {
+              "title": "Email tiene PDF adjunto",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 34,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mnull\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mnull\u001b[39m\n    at C:\\Users\\inbou\\victor-ia-training\\tests\\test-e2e-playwright.spec.js:230:27",
+                        "location": {
+                          "file": "C:\\Users\\inbou\\victor-ia-training\\tests\\test-e2e-playwright.spec.js",
+                          "column": 27,
+                          "line": 230
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 228 |\u001b[39m     \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39mlatestEmail) {\n \u001b[90m 229 |\u001b[39m       console\u001b[33m.\u001b[39merror(\u001b[32m'❌ Email no encontrado'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 230 |\u001b[39m       expect(latestEmail)\u001b[33m.\u001b[39mtoBeTruthy()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                           \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 231 |\u001b[39m       \u001b[36mreturn\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m 232 |\u001b[39m     }\n \u001b[90m 233 |\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\inbou\\victor-ia-training\\tests\\test-e2e-playwright.spec.js",
+                            "column": 27,
+                            "line": 230
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mnull\u001b[39m\n\n\u001b[0m \u001b[90m 228 |\u001b[39m     \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39mlatestEmail) {\n \u001b[90m 229 |\u001b[39m       console\u001b[33m.\u001b[39merror(\u001b[32m'❌ Email no encontrado'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 230 |\u001b[39m       expect(latestEmail)\u001b[33m.\u001b[39mtoBeTruthy()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                           \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 231 |\u001b[39m       \u001b[36mreturn\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m 232 |\u001b[39m     }\n \u001b[90m 233 |\u001b[39m\u001b[0m\n\u001b[2m    at C:\\Users\\inbou\\victor-ia-training\\tests\\test-e2e-playwright.spec.js:230:27\u001b[22m"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "\n📎 Verificando adjunto PDF...\n"
+                        }
+                      ],
+                      "stderr": [
+                        {
+                          "text": "Error fetching emails from Mailhog: \n"
+                        },
+                        {
+                          "text": "❌ Email no encontrado\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2026-07-13T17:24:30.885Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\inbou\\victor-ia-training\\test-results\\test-e2e-playwright-📧-Ver-8f365-ils-Email-tiene-PDF-adjunto-chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\inbou\\victor-ia-training\\tests\\test-e2e-playwright.spec.js",
+                        "column": 27,
+                        "line": 230
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "1a725810fb3538661073-cabe6c4cd5e49e217530",
+              "file": "test-e2e-playwright.spec.js",
+              "line": 218,
+              "column": 3
+            },
+            {
+              "title": "Email enviado dentro del timeout esperado",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 31,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n    at C:\\Users\\inbou\\victor-ia-training\\tests\\test-e2e-playwright.spec.js:257:25",
+                        "location": {
+                          "file": "C:\\Users\\inbou\\victor-ia-training\\tests\\test-e2e-playwright.spec.js",
+                          "column": 25,
+                          "line": 257
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 255 |\u001b[39m     console\u001b[33m.\u001b[39mlog(\u001b[32m`✓ Total: ${stats.total}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 256 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 257 |\u001b[39m     expect(stats\u001b[33m.\u001b[39mcount)\u001b[33m.\u001b[39mtoBeGreaterThan(\u001b[35m0\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 258 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 259 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 260 |\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\inbou\\victor-ia-training\\tests\\test-e2e-playwright.spec.js",
+                            "column": 25,
+                            "line": 257
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n\n\u001b[0m \u001b[90m 255 |\u001b[39m     console\u001b[33m.\u001b[39mlog(\u001b[32m`✓ Total: ${stats.total}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 256 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 257 |\u001b[39m     expect(stats\u001b[33m.\u001b[39mcount)\u001b[33m.\u001b[39mtoBeGreaterThan(\u001b[35m0\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 258 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 259 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 260 |\u001b[39m\u001b[0m\n\u001b[2m    at C:\\Users\\inbou\\victor-ia-training\\tests\\test-e2e-playwright.spec.js:257:25\u001b[22m"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "\n⏱️  Verificando timing de envío...\n"
+                        },
+                        {
+                          "text": "✓ Emails capturados: 0\n"
+                        },
+                        {
+                          "text": "✓ Total: 0\n"
+                        }
+                      ],
+                      "stderr": [
+                        {
+                          "text": "Error getting email stats: \n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2026-07-13T17:24:31.628Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\inbou\\victor-ia-training\\test-results\\test-e2e-playwright-📧-Ver-cd35c-dentro-del-timeout-esperado-chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\inbou\\victor-ia-training\\tests\\test-e2e-playwright.spec.js",
+                        "column": 25,
+                        "line": 257
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "1a725810fb3538661073-8066db25325447cd28c0",
+              "file": "test-e2e-playwright.spec.js",
+              "line": 245,
+              "column": 3
+            }
+          ]
+        },
+        {
+          "title": "📊 Verificación de Tracker (Supabase)",
+          "file": "test-e2e-playwright.spec.js",
+          "line": 265,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Datos insertados en tabla tracker_results",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 9162,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "\n🔍 Buscando datos en Tracker...\n"
+                        },
+                        {
+                          "text": "✓ Supabase client initialized\n"
+                        },
+                        {
+                          "text": "  (Es normal si no hay conexión real a BD)\n"
+                        }
+                      ],
+                      "stderr": [
+                        {
+                          "text": "Error fetching user sessions: TypeError: fetch failed\n"
+                        },
+                        {
+                          "text": "⚠️  No se encontró registro en Supabase\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2026-07-13T17:24:32.369Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "1a725810fb3538661073-66bb615742214fa05e39",
+              "file": "test-e2e-playwright.spec.js",
+              "line": 266,
+              "column": 3
+            },
+            {
+              "title": "Campos requeridos presentes",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "location": {
+                        "file": "C:\\Users\\inbou\\victor-ia-training\\tests\\test-e2e-playwright.spec.js",
+                        "line": 297,
+                        "column": 12
+                      }
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "skipped",
+                      "duration": 1,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "\n✅ Verificando campos requeridos...\n"
+                        },
+                        {
+                          "text": "⚠️  Sin datos de Tracker para verificar (skipped)\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-07-13T17:24:41.568Z",
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "location": {
+                            "file": "C:\\Users\\inbou\\victor-ia-training\\tests\\test-e2e-playwright.spec.js",
+                            "line": 297,
+                            "column": 12
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "1a725810fb3538661073-834a71e49b2f27c4c3eb",
+              "file": "test-e2e-playwright.spec.js",
+              "line": 292,
+              "column": 3
+            },
+            {
+              "title": "Valores de campos son correctos",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "location": {
+                        "file": "C:\\Users\\inbou\\victor-ia-training\\tests\\test-e2e-playwright.spec.js",
+                        "line": 333,
+                        "column": 12
+                      }
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "skipped",
+                      "duration": 1,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "\n🎯 Verificando valores de campos...\n"
+                        },
+                        {
+                          "text": "⚠️  Sin datos de Tracker para verificar (skipped)\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-07-13T17:24:41.583Z",
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "location": {
+                            "file": "C:\\Users\\inbou\\victor-ia-training\\tests\\test-e2e-playwright.spec.js",
+                            "line": 333,
+                            "column": 12
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "1a725810fb3538661073-00f9352f6c9a89bbffa0",
+              "file": "test-e2e-playwright.spec.js",
+              "line": 328,
+              "column": 3
+            },
+            {
+              "title": "Timestamp está reciente",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "location": {
+                        "file": "C:\\Users\\inbou\\victor-ia-training\\tests\\test-e2e-playwright.spec.js",
+                        "line": 367,
+                        "column": 12
+                      }
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "skipped",
+                      "duration": 1,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "\n🕐 Verificando timestamp...\n"
+                        },
+                        {
+                          "text": "⚠️  Sin datos de Tracker para verificar (skipped)\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-07-13T17:24:41.594Z",
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "location": {
+                            "file": "C:\\Users\\inbou\\victor-ia-training\\tests\\test-e2e-playwright.spec.js",
+                            "line": 367,
+                            "column": 12
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "1a725810fb3538661073-d904187bbeb0c3887ee4",
+              "file": "test-e2e-playwright.spec.js",
+              "line": 362,
+              "column": 3
+            },
+            {
+              "title": "150+ campos capturados correctamente",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "location": {
+                        "file": "C:\\Users\\inbou\\victor-ia-training\\tests\\test-e2e-playwright.spec.js",
+                        "line": 396,
+                        "column": 12
+                      }
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "skipped",
+                      "duration": 2,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "\n📦 Verificando cantidad de campos...\n"
+                        },
+                        {
+                          "text": "⚠️  Sin datos para contar campos (skipped)\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-07-13T17:24:41.611Z",
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "location": {
+                            "file": "C:\\Users\\inbou\\victor-ia-training\\tests\\test-e2e-playwright.spec.js",
+                            "line": 396,
+                            "column": 12
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "1a725810fb3538661073-aa0c09ed9c785d799186",
+              "file": "test-e2e-playwright.spec.js",
+              "line": 391,
+              "column": 3
+            }
+          ]
+        },
+        {
+          "title": "🔗 Verificación de Webhooks",
+          "file": "test-e2e-playwright.spec.js",
+          "line": 424,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Webhook recibido en tiempo esperado",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "location": {
+                        "file": "C:\\Users\\inbou\\victor-ia-training\\tests\\test-e2e-playwright.spec.js",
+                        "line": 430,
+                        "column": 12
+                      }
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "skipped",
+                      "duration": 1,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "\n🔌 Verificando recepción de webhook...\n"
+                        },
+                        {
+                          "text": "⚠️  Sin webhook ID configurado (skipped)\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-07-13T17:24:41.629Z",
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "location": {
+                            "file": "C:\\Users\\inbou\\victor-ia-training\\tests\\test-e2e-playwright.spec.js",
+                            "line": 430,
+                            "column": 12
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "1a725810fb3538661073-bf4a96758ede189de95c",
+              "file": "test-e2e-playwright.spec.js",
+              "line": 425,
+              "column": 3
+            },
+            {
+              "title": "Datos del webhook son correctos",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "location": {
+                        "file": "C:\\Users\\inbou\\victor-ia-training\\tests\\test-e2e-playwright.spec.js",
+                        "line": 465,
+                        "column": 12
+                      }
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "skipped",
+                      "duration": 1,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "\n✔️  Verificando datos del webhook...\n"
+                        },
+                        {
+                          "text": "⚠️  Sin webhook ID configurado (skipped)\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-07-13T17:24:41.641Z",
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "location": {
+                            "file": "C:\\Users\\inbou\\victor-ia-training\\tests\\test-e2e-playwright.spec.js",
+                            "line": 465,
+                            "column": 12
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "1a725810fb3538661073-f07a3435410439cd3827",
+              "file": "test-e2e-playwright.spec.js",
+              "line": 460,
+              "column": 3
+            },
+            {
+              "title": "Método HTTP es POST",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "location": {
+                        "file": "C:\\Users\\inbou\\victor-ia-training\\tests\\test-e2e-playwright.spec.js",
+                        "line": 504,
+                        "column": 12
+                      }
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "skipped",
+                      "duration": 1,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "\n📮 Verificando método HTTP...\n"
+                        },
+                        {
+                          "text": "⚠️  Sin webhook ID configurado (skipped)\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-07-13T17:24:41.653Z",
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "location": {
+                            "file": "C:\\Users\\inbou\\victor-ia-training\\tests\\test-e2e-playwright.spec.js",
+                            "line": 504,
+                            "column": 12
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "1a725810fb3538661073-49c6ab3c25716a5ce8cc",
+              "file": "test-e2e-playwright.spec.js",
+              "line": 499,
+              "column": 3
+            }
+          ]
+        },
+        {
+          "title": "📋 Resumen y Reporte",
+          "file": "test-e2e-playwright.spec.js",
+          "line": 526,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Generar reporte de verificaciones",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "\n========================================\n"
+                        },
+                        {
+                          "text": "📋 RESUMEN DE VERIFICACIONES\n"
+                        },
+                        {
+                          "text": "========================================\n\n"
+                        },
+                        {
+                          "text": "{\n  \"timestamp\": \"2026-07-13T17:24:41.675Z\",\n  \"sessionId\": null,\n  \"testUser\": \"Pablo Solar\",\n  \"module\": \"Fundamentos\",\n  \"checklist\": {\n    \"✓ Flujo de capacitación completado\": true,\n    \"✓ Emails entregados\": true,\n    \"✓ Email con contenido correcto\": true,\n    \"✓ Email con PDF adjunto\": true,\n    \"✓ Datos en Tracker\": false,\n    \"✓ Campos requeridos presentes\": false,\n    \"✓ Valores correctos en Tracker\": false,\n    \"✓ Timestamp reciente\": false,\n    \"✓ Webhook recibido\": false\n  },\n  \"details\": {\n    \"email_recipients\": [\n      \"mesainteligentedemo@gmail.com\",\n      \"chrisoria16@gmail.com\",\n      \"eldudemateos@gmail.com\"\n    ],\n    \"quiz_score\": 100,\n    \"module_id\": \"modulo_f\",\n    \"tracker_url\": \"https://tracker.victor-ia.xyz\",\n    \"session_created\": \"2026-07-13T17:24:41.676Z\"\n  }\n}\n"
+                        },
+                        {
+                          "text": "\n✅ Reporte completado\n"
+                        },
+                        {
+                          "text": "📊 Ver detalles: playwright-report/index.html\n"
+                        },
+                        {
+                          "text": "📄 Resultados JSON: test-results.json\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-07-13T17:24:41.667Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "1a725810fb3538661073-f7ce3fd8b7401c89b28a",
+              "file": "test-e2e-playwright.spec.js",
+              "line": 527,
+              "column": 3
+            },
+            {
+              "title": "Verificar que no hay errores críticos",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 9,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n    at C:\\Users\\inbou\\victor-ia-training\\tests\\test-e2e-playwright.spec.js:578:22",
+                        "location": {
+                          "file": "C:\\Users\\inbou\\victor-ia-training\\tests\\test-e2e-playwright.spec.js",
+                          "column": 22,
+                          "line": 578
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 576 |\u001b[39m       \u001b[36mconst\u001b[39m status \u001b[33m=\u001b[39m passed \u001b[33m?\u001b[39m \u001b[32m'✓'\u001b[39m \u001b[33m:\u001b[39m \u001b[32m'✗'\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m 577 |\u001b[39m       console\u001b[33m.\u001b[39mlog(\u001b[32m`  ${status} ${check}`\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 578 |\u001b[39m       expect(passed)\u001b[33m.\u001b[39mtoBe(\u001b[36mtrue\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 579 |\u001b[39m     }\n \u001b[90m 580 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 581 |\u001b[39m })\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\inbou\\victor-ia-training\\tests\\test-e2e-playwright.spec.js",
+                            "column": 22,
+                            "line": 578
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n\n\u001b[0m \u001b[90m 576 |\u001b[39m       \u001b[36mconst\u001b[39m status \u001b[33m=\u001b[39m passed \u001b[33m?\u001b[39m \u001b[32m'✓'\u001b[39m \u001b[33m:\u001b[39m \u001b[32m'✗'\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m 577 |\u001b[39m       console\u001b[33m.\u001b[39mlog(\u001b[32m`  ${status} ${check}`\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 578 |\u001b[39m       expect(passed)\u001b[33m.\u001b[39mtoBe(\u001b[36mtrue\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 579 |\u001b[39m     }\n \u001b[90m 580 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 581 |\u001b[39m })\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at C:\\Users\\inbou\\victor-ia-training\\tests\\test-e2e-playwright.spec.js:578:22\u001b[22m"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "\n🔐 Verificaciones críticas:\n"
+                        },
+                        {
+                          "text": "  ✗ Session ID generado\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-07-13T17:24:41.681Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\inbou\\victor-ia-training\\test-results\\test-e2e-playwright-📋-Res-5b23d-que-no-hay-errores-críticos-chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\inbou\\victor-ia-training\\tests\\test-e2e-playwright.spec.js",
+                        "column": 22,
+                        "line": 578
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "1a725810fb3538661073-2bb2842e6a3b8e960cc4",
+              "file": "test-e2e-playwright.spec.js",
+              "line": 566,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-07-13T17:24:19.538Z",
+    "duration": 22244.833,
+    "expected": 4,
+    "skipped": 7,
+    "unexpected": 5,
+    "flaky": 0
+  }
+}

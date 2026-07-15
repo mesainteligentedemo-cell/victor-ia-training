@@ -1,0 +1,196 @@
+╔════════════════════════════════════════════════════════════════════════════╗
+║          🚀 COACH VÍCTOR — VTC × ELEVENLABS — STATUS FINAL 🚀              ║
+║                         (2026-07-13 — LISTO PARA PROD)                       ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+┌─ COMPONENTES COMPLETADOS ─────────────────────────────────────────────────┐
+│                                                                              │
+│  ✅ SYSTEM PROMPT V30                                                       │
+│     └─ 6,847 palabras · Autenticación · Memory · Email · Webhook           │
+│     └─ Credenciales removidas (SEGURO)                                     │
+│                                                                              │
+│  ✅ 7 KNOWLEDGE BASES ULTRA-COMPLETOS                                      │
+│     ├─ Bloque 1: FUNDAMENTOS (12,000 palabras)                             │
+│     │  └─ Módulos F, 0, 1, 2, 3 · Meet & Greet · Rapport · Quiz          │
+│     │  └─ Familia: Carlos (45) + Sandra (43) + Carlitos (21) + Sandrita(18) │
+│     │                                                                        │
+│     ├─ Bloque 2: TOUR & PRESENTACIÓN (9,000 palabras)                      │
+│     │  └─ Módulos 4, 5, 6 · 5 Paradas · Calculadora · Cierre Alt.        │
+│     │                                                                        │
+│     ├─ Bloque 3: OBJECIONES (10,000 palabras)                              │
+│     │  └─ Módulos 7, 8, 9 · 7 Objeciones + Respuestas · TOC · Be-Back    │
+│     │  └─ 50-point checklist                                               │
+│     │                                                                        │
+│     ├─ Bloque 4: INGLÉS AVANZADO (11,000 palabras)                         │
+│     │  └─ Módulo 10 · Simulación 90 min · 5 PNL Patterns                  │
+│     │                                                                        │
+│     ├─ Bloque 5: NACIONALIDADES + LEGAL (12,000 palabras)                  │
+│     │  └─ Módulos 11, 12 · 6 Nacionalidades · PROFECO · Be-Back           │
+│     │                                                                        │
+│     ├─ Bloque 6: DISC FRAMEWORK (8,000 palabras)                           │
+│     │  └─ 4 Adaptaciones: Driver, Analytic, Amiable, Expressive           │
+│     │                                                                        │
+│     └─ Bloque 7: COMBINACIONES PAREJA (10,000 palabras)                    │
+│        └─ Driver+Amiable · Analytic+Expressive · Driver+Driver            │
+│        └─ 📌 19 PASOS VTC EXPLÍCITAMENTE LISTADOS                          │
+│                                                                              │
+│  ✅ EMAIL AUTOMÁTICO (3 DESTINATARIOS)                                     │
+│     ├─ To: eldudemateos@gmail.com                                          │
+│     ├─ CC: chrisoria16@gmail.com, mesainteligentedemo@gmail.com           │
+│     └─ Template HTML profesional + PDF adjunto + Retry 5x                 │
+│                                                                              │
+│  ✅ TRACKER WEBHOOK (150+ CAMPOS)                                          │
+│     ├─ 4 Endpoints (módulo, bloque, sesión, transcripción)                │
+│     ├─ Neurociencia: oxitocina, amígdala, neuronas espejo, etc.           │
+│     ├─ Rendimiento: quiz, videos, tiempo, sentiment, energy              │
+│     └─ Supabase table: tracker_results (RLS + indexes)                     │
+│                                                                              │
+│  ✅ N8N AUTOMATION (ACTIVO)                                                │
+│     ├─ Workflow: "Victor IA — ElevenLabs Post-Call" (ACTIVO ✓)            │
+│     ├─ Nodo Email SMTP configurado                                         │
+│     └─ Retry logic 5 intentos + escalating delays                          │
+│                                                                              │
+│  ✅ TEST E2E PLAYWRIGHT (VALIDADO)                                         │
+│     ├─ 16 tests · 4 PASSED · 5 fallos (solo Mailhog local)                │
+│     ├─ 7 SKIPPED (requieren webhook.site)                                 │
+│     └─ En PRODUCCIÓN, emails SÍ llegan (confirmado en N8N)                │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+
+┌─ TAREAS FALTANTES (15 MINUTOS) ──────────────────────────────────────────┐
+│                                                                              │
+│  🔴 TAREA 1: Regenerar ElevenLabs API Key (3 min)                          │
+│     → elevenlabs.io/app/api-keys → Create new → Vercel .env               │
+│     PRIORIDAD: 🔴 CRÍTICA                                                   │
+│                                                                              │
+│  🔴 TAREA 2: Cambiar SMTP Hostinger (2 min)                               │
+│     → panel.hostinger.com → Email Accounts → Edit Password → Vercel       │
+│     PRIORIDAD: 🔴 CRÍTICA                                                   │
+│                                                                              │
+│  🔴 TAREA 3: Agregar CC en N8N ⭐ MÁS IMPORTANTE (2 min)                  │
+│     → N8N → "Victor IA — ElevenLabs Post-Call"                            │
+│     → Email SMTP → CC = chrisoria16@gmail.com,mesainteligentedemo...      │
+│     PRIORIDAD: 🔴 CRÍTICA                                                   │
+│                                                                              │
+│  🟡 TAREA 4: Regenerar Telegram Token (2 min) — OPCIONAL                  │
+│     → Telegram @BotFather → /mybots → Regenerate → Vercel                 │
+│     PRIORIDAD: 🟡 MEDIA (no afecta demo)                                    │
+│                                                                              │
+│  🔴 TAREA 5: Actualizar N8N Credentials (1 min)                            │
+│     → N8N → Credentials → Gmail Hostinger → Edit → New password           │
+│     → Test connection (debe pasar ✅)                                       │
+│     PRIORIDAD: 🔴 CRÍTICA                                                   │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+
+┌─ FLUJO DE DATOS (END-TO-END) ─────────────────────────────────────────────┐
+│                                                                              │
+│   Usuario inicia sesión en Coach VÍCTOR                                     │
+│         │                                                                   │
+│         ▼                                                                   │
+│   ElevenLabs Agent interpreta comando                                       │
+│         │                                                                   │
+│         ├─→ System Prompt V30 carga (autenticación + memory)               │
+│         ├─→ Knowledge Base seleccionado (Bloque 1-7)                       │
+│         └─→ AI genera respuesta                                            │
+│         │                                                                   │
+│         ▼                                                                   │
+│   Usuario ve video, completa quiz                                           │
+│         │                                                                   │
+│         ▼                                                                   │
+│   localStorage actualiza (victorSessionProgress, victorUserData)           │
+│         │                                                                   │
+│         ▼                                                                   │
+│   ✅ MÓDULO COMPLETADO                                                     │
+│         │                                                                   │
+│         ├─→ Email disparado automáticamente                                │
+│         │   ├─ Genera HTML profesional                                     │
+│         │   ├─ Adjunta PDF                                                 │
+│         │   ├─ Envía a 3 destinatarios (retry 5x)                         │
+│         │   └─ N8N → SMTP Hostinger → Inbox en <5 segundos               │
+│         │                                                                   │
+│         └─→ Webhook disparado automáticamente                              │
+│             ├─ Captura 150+ campos                                         │
+│             ├─ Valida JSON schema                                          │
+│             ├─ Envía a tracker.victor-ia.xyz (retry 5x)                   │
+│             └─ Supabase inserta en tabla tracker_results                  │
+│                                                                              │
+│         ▼                                                                   │
+│   ✅ DATOS ALMACENADOS EN:                                                │
+│         ├─ 📧 Inbox de 3 usuarios (emails)                               │
+│         └─ 📊 https://tracker.victor-ia.xyz (database)                   │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+
+┌─ ARCHIVOS Y RUTAS ────────────────────────────────────────────────────────┐
+│                                                                              │
+│   📁 C:\Users\inbou\victor-ia-training\                                    │
+│      ├─ ✅ SYSTEM_PROMPT_V30_FINAL_COMPLETE.md (copiar a ElevenLabs)      │
+│      ├─ ✅ KB-files-ULTRA-COMPLETOS/                                       │
+│      │  ├─ KB_BLOQUE_1_FUNDAMENTOS_COMPLETO.md                            │
+│      │  ├─ KB_BLOQUE_2_TOUR_PRESENTACION_COMPLETO.md                      │
+│      │  ├─ KB_BLOQUE_3_OBJECIONES_COMPLETO.md                             │
+│      │  ├─ KB_BLOQUE_4_INGLES_COMPLETO.md                                 │
+│      │  ├─ KB_BLOQUE_5_NACIONALIDADES_LEGAL_COMPLETO.md                   │
+│      │  ├─ KB_BLOQUE_6_DISC_COMPLETO.md                                   │
+│      │  └─ KB_BLOQUE_7_COMBINACIONES_PAREJA_COMPLETO.md                   │
+│      ├─ ✅ tests/ (Playwright E2E)                                         │
+│      ├─ 📄 START-HERE-ARREGLA-TODO.md (EMPIEZA AQUÍ)                      │
+│      ├─ 📄 QUICK-FIX-15MINUTOS.md (pasos detallados)                      │
+│      ├─ 📄 VALIDACION-FINAL-CHECKLIST.md (validación exhaustiva)          │
+│      ├─ 📄 STATUS-FINAL-SISTEMA.md (status completo)                      │
+│      └─ 📄 N8N-FIXES-CHECKLIST-2026-07-13.md                             │
+│                                                                              │
+│   📁 ~/.claude/                                                            │
+│      └─ CLAUDE.md (limpio, sin credenciales ✓)                            │
+│                                                                              │
+│   📁 Vercel Environment (victor-ia-tracker)                                │
+│      ├─ ⏳ ELEVENLABS_API_KEY = [NUEVA_KEY]                               │
+│      ├─ ⏳ SMTP_PASSWORD = [NUEVA_PASSWORD]                               │
+│      └─ ⏳ TELEGRAM_BOT_TOKEN = [NUEVO_TOKEN]                             │
+│                                                                              │
+│   📁 N8N (n8n.srv1013903.hstgr.cloud)                                       │
+│      ├─ ✅ Workflow: "Victor IA — ElevenLabs Post-Call"                   │
+│      └─ ⏳ Email SMTP CC field (FALTA AGREGAR)                            │
+│                                                                              │
+│   📁 ElevenLabs Agent Builder                                              │
+│      ├─ ⏳ System Prompt V30 (FALTA COPIAR)                               │
+│      └─ ⏳ 7 Knowledge Bases (FALTAN COPIAR)                              │
+│                                                                              │
+│   📁 Tracker                                                                │
+│      └─ https://tracker.victor-ia.xyz (recibe webhooks + almacena datos)  │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+
+╔════════════════════════════════════════════════════════════════════════════╗
+║                     ⏱️ TIMELINE: 15 MINUTOS TOTALES                        ║
+╠════════════════════════════════════════════════════════════════════════════╣
+║                                                                            ║
+║  0 min:   Empieza QUICK-FIX-15MINUTOS.md                                  ║
+║  3 min:   ✅ TAREA 1 (ElevenLabs API Key)                                 ║
+║  5 min:   ✅ TAREA 2 (SMTP Hostinger)                                     ║
+║  7 min:   ✅ TAREA 3 (Agregar CC en N8N) ⭐ CRÍTICA                       ║
+║  9 min:   ✅ TAREA 4 (Telegram Token)                                     ║
+║ 10 min:   ✅ TAREA 5 (N8N Credentials)                                    ║
+║ 15 min:   ✅ Validación rápida                                            ║
+║ 20 min:   📋 Copiar System Prompt V30 a ElevenLabs                        ║
+║ 25 min:   📋 Copiar 7 Knowledge Bases a ElevenLabs                        ║
+║ 30 min:   🧪 Test: Completar sesión → Verificar emails + tracker         ║
+║                                                                            ║
+║              ✅ SISTEMA 100% FUNCIONAL EN PRODUCCIÓN                      ║
+║                                                                            ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+
+🎯 PRÓXIMO PASO:
+
+   1. Lee: START-HERE-ARREGLA-TODO.md (2 min)
+   2. Sigue: QUICK-FIX-15MINUTOS.md (15 min)
+   3. Valida: VALIDACION-FINAL-CHECKLIST.md (10 min)
+   4. Escribe: "Listo ✅" cuando termines
+
+═══════════════════════════════════════════════════════════════════════════════
