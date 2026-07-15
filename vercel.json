@@ -1,7 +1,7 @@
 {
   "version": 2,
-  "buildCommand": "cp -f frontend/index.html frontend/public/index.html && echo 'BUILD_TS=$(date +%s%N)' >> frontend/public/index.html",
-  "outputDirectory": "frontend/public",
+  "buildCommand": "echo 'Serving from frontend directory with correct widget'",
+  "outputDirectory": "frontend",
   "cleanUrls": true,
   "rewrites": [
     {
