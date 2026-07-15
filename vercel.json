@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "rm -rf .next .vercel && echo 'CLEAN BUILD - timestamp:' $(date +%s) && echo 'Static build + zero-config API functions'",
+  "buildCommand": "rm -rf .next .vercel && cp frontend/index.html frontend/public/index.html && echo 'CLEAN BUILD - widget copied - timestamp:' $(date +%s)",
   "outputDirectory": "frontend/public",
   "rewrites": [
     {
