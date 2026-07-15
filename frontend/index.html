@@ -1855,6 +1855,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
 <style>
   #vw-launch{position:fixed;right:24px;bottom:24px;width:64px;height:64px;border-radius:50%;background:#0d0d0f;border:1px solid #b89a6a;box-shadow:0 8px 30px rgba(0,0,0,.5);cursor:pointer;z-index:99998;display:flex;align-items:center;justify-content:center;transition:transform .2s}
   #vw-launch:hover{transform:scale(1.06)} #vw-launch img{width:34px;height:34px;border-radius:50%}
+  #vw-launch .vw-v{font-family:Georgia,'Times New Roman',serif;font-size:34px;font-weight:700;color:#b89a6a;line-height:1;letter-spacing:.5px;pointer-events:none;user-select:none;text-shadow:0 1px 2px rgba(0,0,0,.4)}
   #vw-launch .vw-pulse{position:absolute;inset:-1px;border-radius:50%;border:1px solid #b89a6a;animation:vwp 2.4s infinite ease-out;opacity:0}
   #vw-launch.vw-active .vw-pulse{animation:vwp 1.4s infinite ease-out}
   @keyframes vwp{0%{transform:scale(1);opacity:.6}100%{transform:scale(1.5);opacity:0}}
@@ -1916,7 +1917,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
 </style>
 
 <div id="vtc-speak-badge"><span id="vtc-speak-txt"></span></div>
-<div id="vw-launch" title="Habla con Victor"><span class="vw-pulse"></span><img src="/victor-avatar.png" alt="Victor"></div>
+<div id="vw-launch" title="Habla con Victor"><span class="vw-pulse"></span><span class="vw-v" aria-label="Victor">V</span></div>
 
 <div id="vw-panel">
   <div class="vw-head">
@@ -3119,9 +3120,8 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
 <!-- Widget legado de texto (id="victor-chat", API directa /api/elevenlabs-chat) ELIMINADO 2026-07-12:
      causaba un segundo chat simultáneo. Se conserva únicamente el widget de voz "Victor" (vw-*, @elevenlabs/client WebRTC). -->
 
-<!-- ELEVENLABS CONVAI WIDGET - BUILD: 1784143860 -->
-<elevenlabs-convai agent-id="agent_2201kxes45mbfmsvpn8k7b9z3fnm"></elevenlabs-convai>
-<script src="https://unpkg.com/@elevenlabs/convai-widget-embed" async type="text/javascript"></script>
+<!-- ELEVENLABS CONVAI WIDGET ELIMINADO 2026-07-15: causaba el chat blanco "needhelp" duplicado.
+     Se conserva SOLO el círculo negro de voz "Victor" (#vw-launch, @elevenlabs/client WebRTC). -->
 
 </body>
 </html>
