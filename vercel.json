@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "echo 'Static build + zero-config API functions'",
+  "buildCommand": "echo 'BUILD_ID=$(date +%s)' && echo 'Static build + zero-config API functions'",
   "outputDirectory": "frontend/public",
   "rewrites": [
     {
@@ -10,9 +10,11 @@
   ],
   "headers": [
     {
-      "source": "/index.html",
+      "source": "/(.*)",
       "headers": [
-        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
+        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" },
+        { "key": "Pragma", "value": "no-cache" },
+        { "key": "Expires", "value": "0" }
       ]
     },
     {
@@ -21,5 +23,8 @@
         { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
       ]
     }
-  ]
+  ],
+  "env": {
+    "BUILD_TIMESTAMP": "@now"
+  }
 }
