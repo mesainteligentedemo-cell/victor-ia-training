@@ -1,7 +1,8 @@
 {
   "version": 2,
-  "buildCommand": "rm -rf .next .vercel && cp frontend/index.html frontend/public/index.html && echo 'CLEAN BUILD - widget copied - timestamp:' $(date +%s)",
+  "buildCommand": "cp -f frontend/index.html frontend/public/index.html && echo 'BUILD_TS=$(date +%s%N)' >> frontend/public/index.html",
   "outputDirectory": "frontend/public",
+  "cleanUrls": true,
   "rewrites": [
     {
       "source": "/((?!api/).*)",
