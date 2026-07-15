@@ -16,7 +16,9 @@
 
 const ELEVENLABS_API_KEY =
   process.env.ELEVENLABS_API_KEY || 'sk_87d5a7899d6c489c94232248c4880a0c4fe317adb3701e67';
-const AGENT_ID = process.env.ELEVENLABS_AGENT_ID || 'agent_5701kr0h5gg6eetb69tv6c5hwfj1';
+// Endpoint legado (el widget de texto fue eliminado 2026-07-12, ver frontend/public/index.html).
+// Se mantiene alineado al agente VTC actual por si algo aún lo invoca directamente.
+const AGENT_ID = process.env.ELEVENLABS_AGENT_ID || 'agent_2201kxes45mbfmsvpn8k7b9z3fnm';
 
 // ── Config ─────────────────────────────────────────────────────────────────
 const RESPONSE_TIMEOUT_MS = 35000; // Máximo permitido en Vercel (antes era 25s → timeout silencioso)

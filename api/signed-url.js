@@ -8,7 +8,8 @@
 import { createClient } from '@supabase/supabase-js';
 
 const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY || 'sk_87d5a7899d6c489c94232248c4880a0c4fe317adb3701e67';
-const AGENT_ID = 'agent_9501k3vkt6svekjs6y0qe5xzcek1';
+// Override vía Vercel env ELEVENLABS_AGENT_ID sin tocar código si hay que hacer rollback.
+const AGENT_ID = process.env.ELEVENLABS_AGENT_ID || 'agent_2201kxes45mbfmsvpn8k7b9z3fnm';
 
 function getSupabase() {
   const url = process.env.SUPABASE_URL;

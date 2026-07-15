@@ -138,7 +138,7 @@ export default async function handler(req, res) {
       await supabase.from("active_sessions").insert({
         employee_id: match.employee_id,
         conversation_id: `sess_${sessionUuid}`,
-        agent_id: 'agent_9501k3vkt6svekjs6y0qe5xzcek1',
+        agent_id: process.env.ELEVENLABS_AGENT_ID || 'agent_2201kxes45mbfmsvpn8k7b9z3fnm',
         session_start: new Date(nowSec * 1000).toISOString(),
         last_activity: new Date(nowSec * 1000).toISOString(),
         metadata: {

@@ -1945,6 +1945,12 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
         <option value="Otro">Otro</option>
       </select>
     </div>
+    <div class="vw-f"><label>Idioma</label>
+      <select id="vw-lang">
+        <option value="ES">Español</option>
+        <option value="EN">English</option>
+      </select>
+    </div>
     <div class="vw-err" id="vw-err"></div>
     <button id="vw-cta">Comenzar capacitación</button>
   </div>
@@ -1970,10 +1976,38 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
     return Conversation;
   }
 
-  const AGENT = 'agent_9501k3vkt6svekjs6y0qe5xzcek1';
+  const AGENT = 'agent_2201kxes45mbfmsvpn8k7b9z3fnm';
   const SITE = window.location.origin;
+
+  /* ═══ ROSTER DE VOCES (roleplay) — informativo para el agente vía dynamicVariables.
+     ElevenLabs Conversational AI usa UNA sola voz TTS por llamada; esto NO cambia
+     la voz en vivo mid-call (requeriría Agent-Transfer configurado en el dashboard
+     con 7 sub-agentes, uno por voz). Se envía como contexto para que Víctor sepa
+     qué nombre/idioma le corresponde a cada personaje que actúa vocalmente. */
+  const VOICE_PROFILES = {
+    victor:   { id:'gbTn1bmCvNgk0QEAVyfM', name:'Víctor',       languages:['ES','EN'] },
+    carlos:   { id:'JgmJ33RuT4tPQOENamHR', name:'Carlos',        languages:['ES'] },
+    sandra:   { id:'hrlCBOGwBPZYViXHeZjS', name:'Sandra',        languages:['ES'] },
+    carlitos: { id:'htFfPSZGJwjBv1CL0aMD', name:'Carlitos (20)', languages:['ES'] },
+    sandrita: { id:'13VFWfJ7e20fmvmaqXWl', name:'Sandrita (18)', languages:['ES'] },
+    burt:     { id:'4YYIPFl9wE5c4L2eu2Gb', name:'Burt',          languages:['EN'] },
+    hope:     { id:'uYXf8XasLslADfZ2MB4u', name:'Hope',          languages:['EN'] }
+  };
+  window.__vtcVoiceProfiles = VOICE_PROFILES;
+
+  /* ═══ DETECCIÓN DE IDIOMA — navigator.language + override manual (select #vw-lang) ═══ */
+  function vtcDetectLang(){
+    try{
+      var manual=sessionStorage.getItem('vtc_lang');
+      if(manual==='ES'||manual==='EN') return manual;
+      var nl=(navigator.language||navigator.userLanguage||'es').toLowerCase();
+      return nl.indexOf('en')===0 ? 'EN' : 'ES';
+    }catch(e){ return 'ES'; }
+  }
+  function vtcSetLang(l){ try{ sessionStorage.setItem('vtc_lang', l); }catch(e){} }
   const $=id=>document.getElementById(id);
   const launch=$('vw-launch'),panel=$('vw-panel'),gate=$('vw-gate'),chat=$('vw-chat'),msgs=$('vw-msgs'),statusEl=$('vw-status'),mic=$('vw-mic'),input=$('vw-in');
+  try{ var _langSel=$('vw-lang'); if(_langSel) _langSel.value=vtcDetectLang(); }catch(e){}
   let conv=null,connecting=false,muted=false,started=false; try{history.scrollRestoration='manual';}catch(e){} try{window.scrollTo(0,0);}catch(e){} window.addEventListener('load',function(){try{window.scrollTo(0,0);}catch(e){}});
 
   function clean(s){return String(s||'').replace(/<\/?[a-zA-ZÀ-ſ][^>]*>/g,'').replace(/\[[^\]\n]{1,40}\]/g,'').replace(/\*\*?([^*]+)\*\*?/g,'$1').replace(/[ \t]{2,}/g,' ').replace(/\s*\n\s*/g,'\n').trim();}
@@ -2415,7 +2449,11 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
   function baseOpts(ctx){
     return {
       agentId:AGENT,
-      dynamicVariables:{ user_name:ctx.name, employee_number:ctx.emp, departamento:ctx.dep||'' },
+      dynamicVariables:{
+        user_name:ctx.name, employee_number:ctx.emp, departamento:ctx.dep||'',
+        idioma_preferido: ctx.lang||'ES',
+        voces_disponibles: Object.keys(VOICE_PROFILES).map(function(k){return k+':'+VOICE_PROFILES[k].name;}).join(', ')
+      },
       clientTools,
       onConnect:()=>{setStatus(ctx.textOnly?'<b>En línea (modo texto)</b>':'<b>En línea</b>');if(!ctx.textOnly)mic.classList.add('vw-live');launch.classList.add('vw-active');},
       onDisconnect:(d)=>{setStatus('Sesión terminada');console.warn('ConvAI disconnect:',d);try{ window.__vtcTrack && window.__vtcTrack('session_completed',{reason:'disconnect'},{keepalive:true}); }catch(e){}mic.classList.remove('vw-live');launch.classList.remove('vw-active');conv=null;started=false;window.__vtcSpeaking=false;stopKeepalive();},
@@ -2553,9 +2591,10 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
     cta.disabled=true; cta.textContent='Conectando…';
     try{ var _bv=document.querySelector('#bienvenida video'); if(_bv){ _bv.muted=true; var _pp=_bv.play(); if(_pp&&_pp.then) _pp.then(function(){ _bv.pause(); try{_bv.currentTime=0;}catch(e){} _bv.muted=false; }).catch(function(){ _bv.muted=false; }); } }catch(e){}
     const firstMessage = '¡Bienvenido, '+name+'! Soy Victor, tu entrenador personal, y hoy vamos a hacerte mejor. ¿Quieres repasar un módulo o entramos directo a un roleplay?';
+    const lang=($('vw-lang')&&$('vw-lang').value)||vtcDetectLang(); vtcSetLang(lang);
     gate.style.display='none'; chat.style.display='flex'; started=true;
     setStatus(textOnly?'<b>Preparando chat de texto…</b>':'<b>Preparando tu sesión…</b>');
-    const ok=await connect({name,emp,dep,hist:'',firstMessage,textOnly:!!textOnly});
+    const ok=await connect({name,emp,dep,hist:'',firstMessage,textOnly:!!textOnly,lang});
     if(!ok){
       started=false;
       /* Si hay sesión válida, NUNCA volver al formulario: mantener el chat y ofrecer reconexión */
