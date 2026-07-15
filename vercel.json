@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "echo 'BUILD_ID=$(date +%s)' && echo 'Static build + zero-config API functions'",
+  "buildCommand": "rm -rf .next .vercel && echo 'CLEAN BUILD - timestamp:' $(date +%s) && echo 'Static build + zero-config API functions'",
   "outputDirectory": "frontend/public",
   "rewrites": [
     {
