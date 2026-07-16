@@ -340,142 +340,474 @@ ${transcript}
   }
 }
 
+// ===========================================================================
+//  NUEVA PALETA + TIPOGRAFÍA (reporte rediseñado)
+//  Crema #F5F5F0 · Tinta #070708 · Oro #B89A6A · Verde/Amarillo/Rojo · líneas
+// ===========================================================================
+const C = {
+  bg: '#F5F5F0', ink: '#070708', body: '#2A2824', gold: '#B89A6A', goldDark: '#8B7250',
+  green: '#27AE60', yellow: '#F39C12', red: '#C0392B', line: '#D4D4D0',
+  headBg: '#0F0F12', rowA: '#F5F5F0', rowB: '#EFEFEA'
+};
+const FONT_MONO = "'IBM Plex Mono','Courier New',monospace";
+const FONT_HEAD = "'Cormorant Garamond','Times New Roman',serif";
+const FONT_BODY = "'Inter','Helvetica Neue',Arial,sans-serif";
+const FONTS_LINK = '<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;700&family=IBM+Plex+Mono:wght@400&family=Inter:wght@300;400&display=swap" rel="stylesheet">';
+
+// Banda de color según score 0-10 (gris si sin dato)
+const bandColor = (score) => {
+  const s = Number(score) || 0;
+  if (s <= 0) return C.line;
+  if (s <= 3) return C.red;
+  if (s <= 6) return C.yellow;
+  return C.green;
+};
+// Banda de color según porcentaje 0-100 (para gauges neuro)
+const bandColorPct = (v) => {
+  const n = Number(v) || 0;
+  if (n >= 60) return C.green;
+  if (n >= 30) return C.yellow;
+  return C.red;
+};
+
+const compAvg = (arr) => (arr && arr.length)
+  ? arr.reduce((a, c) => a + clampScore(c.score), 0) / arr.length : 0;
+
+const parseDurMin = (s) => {
+  const m = /(\d+):(\d{1,2})/.exec(String(s || ''));
+  return m ? Number(m[1]) + Number(m[2]) / 60 : (Number(s) || 0);
+};
+
 // ---------------------------------------------------------------------------
-// HTML del reporte (usado tanto para el email como base para el PDF)
+// GRÁFICO A — HEATMAP DE COMPETENCIAS (barras segmentadas por color)
+// ---------------------------------------------------------------------------
+function heatmapSVG(competencias) {
+  const rows = (competencias || []).filter((c) => c && c.nombre).slice(0, 8);
+  if (!rows.length) return '';
+  const padL = 150, cw = 24, gap = 5, rh = 30, top = 12;
+  const W = padL + 10 * (cw + gap) + 52, H = top + rows.length * rh + 8;
+  let g = '';
+  rows.forEach((c, r) => {
+    const sc = clampScore(c.score), y = top + r * rh;
+    g += `<text x="0" y="${y + 15}" font-family="${FONT_MONO}" font-size="12" fill="${C.ink}">${esc(String(c.nombre).slice(0, 20))}</text>`;
+    for (let i = 0; i < 10; i++) {
+      const x = padL + i * (cw + gap);
+      g += `<rect x="${x}" y="${y}" width="${cw}" height="20" rx="3" fill="${i < sc ? bandColor(sc) : C.line}"/>`;
+    }
+    g += `<text x="${padL + 10 * (cw + gap) + 8}" y="${y + 15}" font-family="${FONT_MONO}" font-size="12" font-weight="bold" fill="${C.gold}">${sc}/10</text>`;
+  });
+  return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Heatmap de competencias" style="max-width:100%;height:auto;">${g}</svg>`;
+}
+
+// ---------------------------------------------------------------------------
+// GRÁFICO B — SPARKLINE HISTÓRICO (línea + puntos, últimas 5 sesiones)
+// history: [{pct, score, date}] más reciente primero
+// ---------------------------------------------------------------------------
+function sparklineSVG(history) {
+  const W = 400, H = 150, padL = 36, padR = 16, padT = 16, padB = 26;
+  const data = (history || []).slice(0, 5).reverse(); // viejo -> nuevo
+  const bg = `<rect x="0" y="0" width="${W}" height="${H}" fill="none"/>`;
+  if (!data.length) {
+    return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Histórico" style="max-width:100%;height:auto;">${bg}
+      <text x="${W / 2}" y="${H / 2}" text-anchor="middle" font-family="${FONT_BODY}" font-size="14" fill="${C.body}">Primera sesión, sin histórico</text></svg>`;
+  }
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+  const xOf = (i) => data.length === 1 ? padL + plotW / 2 : padL + (i / (data.length - 1)) * plotW;
+  const yOf = (v) => padT + (1 - Math.max(0, Math.min(100, v)) / 100) * plotH;
+  let grid = '';
+  for (let k = 0; k <= 4; k++) {
+    const yy = padT + (k / 4) * plotH, val = 100 - k * 25;
+    grid += `<line x1="${padL}" y1="${yy}" x2="${W - padR}" y2="${yy}" stroke="${C.line}" stroke-width="1"/>`;
+    grid += `<text x="${padL - 6}" y="${yy + 4}" text-anchor="end" font-family="${FONT_MONO}" font-size="9" fill="${C.body}">${val}</text>`;
+  }
+  const pts = data.map((d, i) => `${xOf(i).toFixed(1)},${yOf(d.pct).toFixed(1)}`).join(' ');
+  const line = data.length > 1 ? `<polyline points="${pts}" fill="none" stroke="${C.gold}" stroke-width="2.5"/>` : '';
+  const dots = data.map((d, i) => `<circle cx="${xOf(i).toFixed(1)}" cy="${yOf(d.pct).toFixed(1)}" r="4" fill="${C.green}"/>`).join('');
+  const xlabels = data.map((d, i) => `<text x="${xOf(i).toFixed(1)}" y="${H - 8}" text-anchor="middle" font-family="${FONT_MONO}" font-size="9" fill="${C.body}">S${i + 1}</text>`).join('');
+  return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Sparkline histórico" style="max-width:100%;height:auto;">${bg}${grid}${line}${dots}${xlabels}</svg>`;
+}
+
+// ---------------------------------------------------------------------------
+// GRÁFICO C — GAUGES NEUROCIENCIA (4 semicírculos con aguja)
+// neuro: {dopamina, cortisol, oxitocina, amigdala} 0-100
+// ---------------------------------------------------------------------------
+function gaugesSVG(neuro) {
+  const items = [
+    ['Dopamina', neuro.dopamina], ['Cortisol', neuro.cortisol],
+    ['Oxitocina', neuro.oxitocina], ['Amígdala', neuro.amigdala]
+  ];
+  const gw = 200, W = 800, H = 300, cy = 150, r = 74;
+  let g = '';
+  items.forEach(([name, valRaw], idx) => {
+    const val = Math.max(0, Math.min(100, Math.round(Number(valRaw) || 0)));
+    const cx = idx * gw + gw / 2;
+    // arco de fondo (semicírculo 180°)
+    const arc = (col, frac, wdt) => {
+      const a0 = Math.PI, a1 = Math.PI - frac * Math.PI;
+      const x0 = cx + r * Math.cos(a0), y0 = cy - r * Math.sin(a0);
+      const x1 = cx + r * Math.cos(a1), y1 = cy - r * Math.sin(a1);
+      const large = frac > 0.5 ? 1 : 0;
+      return `<path d="M ${x0.toFixed(1)} ${y0.toFixed(1)} A ${r} ${r} 0 ${large} 1 ${x1.toFixed(1)} ${y1.toFixed(1)}" fill="none" stroke="${col}" stroke-width="${wdt}" stroke-linecap="round"/>`;
+    };
+    g += arc(C.line, 1, 16);
+    g += arc(bandColorPct(val), val / 100, 16);
+    // aguja
+    const na = Math.PI - (val / 100) * Math.PI;
+    const nx = cx + (r - 8) * Math.cos(na), ny = cy - (r - 8) * Math.sin(na);
+    g += `<line x1="${cx}" y1="${cy}" x2="${nx.toFixed(1)}" y2="${ny.toFixed(1)}" stroke="${C.ink}" stroke-width="3"/>`;
+    g += `<circle cx="${cx}" cy="${cy}" r="6" fill="${C.ink}"/>`;
+    g += `<text x="${cx}" y="${cy + 34}" text-anchor="middle" font-family="${FONT_MONO}" font-size="22" font-weight="bold" fill="${bandColorPct(val)}">${val}%</text>`;
+    g += `<text x="${cx}" y="${cy + 58}" text-anchor="middle" font-family="${FONT_BODY}" font-size="14" fill="${C.body}">${name}</text>`;
+  });
+  return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Gauges de neurociencia" style="max-width:100%;height:auto;">${g}</svg>`;
+}
+
+// ---------------------------------------------------------------------------
+// GRÁFICO D — TIMELINE VISUAL (puntos de color en línea, máx 10 hitos)
+// ---------------------------------------------------------------------------
+function timelineVizSVG(timeline) {
+  const items = (timeline || []).slice(0, 10);
+  const W = 800, H = 100, y = 46, padL = 24, padR = 24;
+  const classify = (t) => {
+    const s = stripAccents(t);
+    if (/objec|dificult|error|fall|dud|no |confus/.test(s)) return C.red;
+    if (/ok|bien|logr|cierre|exito|acuerdo|avanz|correct/.test(s)) return C.green;
+    return C.yellow;
+  };
+  let g = `<line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" stroke="${C.line}" stroke-width="2"/>`;
+  if (!items.length) {
+    g += `<text x="${W / 2}" y="${y + 30}" text-anchor="middle" font-family="${FONT_BODY}" font-size="13" fill="${C.body}">Sin hitos registrados</text>`;
+  } else {
+    const span = (W - padL - padR);
+    items.forEach((it, i) => {
+      const x = items.length === 1 ? padL + span / 2 : padL + (i / (items.length - 1)) * span;
+      const col = classify(it.texto || '');
+      const up = i % 2 === 0;
+      g += `<circle cx="${x.toFixed(1)}" cy="${y}" r="7" fill="${col}"/>`;
+      const ly = up ? y - 16 : y + 26;
+      const label = `${esc(it.t || '0:00')} ${esc(String(it.texto || '').slice(0, 22))}`;
+      g += `<text x="${x.toFixed(1)}" y="${ly}" text-anchor="middle" font-family="${FONT_MONO}" font-size="9" fill="${C.body}">${label}</text>`;
+    });
+  }
+  return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Línea de tiempo" style="max-width:100%;height:auto;">${g}</svg>`;
+}
+
+// ---------------------------------------------------------------------------
+// GRÁFICO E — INDICADORES DE TENDENCIA (↑↓ con % mejora)
+// ---------------------------------------------------------------------------
+function trendIndicatorsHtml(vtc, history) {
+  const prev = (history && history.length) ? history[0] : null;
+  const items = [];
+  // Duración
+  const curMin = parseDurMin(vtc.duracion_minutos);
+  if (prev && prev.duration_min > 0) {
+    const pct = ((curMin - prev.duration_min) / prev.duration_min) * 100;
+    items.push({ label: 'Duración', val: `${vtc.duracion_minutos} min`, delta: pct });
+  } else {
+    items.push({ label: 'Duración', val: `${vtc.duracion_minutos} min`, delta: null });
+  }
+  // Competencias
+  const curAvg = compAvg(vtc.competencias);
+  if (prev && prev.score > 0) {
+    items.push({ label: 'Competencias', val: `${curAvg.toFixed(1)}/10`, delta: curAvg - prev.score, abs: true });
+  } else {
+    items.push({ label: 'Competencias', val: `${curAvg.toFixed(1)}/10`, delta: null });
+  }
+  // Sentimiento
+  const sentText = prev
+    ? `${esc(vtc.sentimiento || 'Neutral')} (vs ${esc(prev.sentiment || 'Neutral')})`
+    : `${esc(vtc.sentimiento || 'Neutral')}`;
+  const sentUp = stripAccents(vtc.sentimiento || '').includes('positiv');
+  items.push({ label: 'Sentimiento', val: sentText, delta: sentUp ? 1 : 0, sentiment: true });
+
+  const cell = (it) => {
+    let color = C.body, arrow = '→', txt = 'sin cambio';
+    if (it.delta === null) { arrow = ''; txt = 'primera sesión'; color = C.body; }
+    else if (it.delta > 0.01) { color = C.green; arrow = '↑'; txt = it.sentiment ? 'mejora' : (it.abs ? `+${it.delta.toFixed(1)}` : `+${it.delta.toFixed(1)}%`); }
+    else if (it.delta < -0.01) { color = C.red; arrow = '↓'; txt = it.abs ? `${it.delta.toFixed(1)}` : `${it.delta.toFixed(1)}%`; }
+    return `<td width="33%" valign="top" style="padding:14px 12px;border:1px solid ${C.line};background:#ffffff;">
+      <div style="font-family:${FONT_MONO};font-size:10px;letter-spacing:1px;color:${C.body};text-transform:uppercase;">${it.label}</div>
+      <div style="font-family:${FONT_HEAD};font-size:20px;color:${C.ink};padding:4px 0;">${it.val}</div>
+      <div style="font-family:${FONT_MONO};font-size:12px;font-weight:bold;color:${color};">${arrow} ${txt}</div></td>`;
+  };
+  return `<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"><tr>${items.map(cell).join('<td width="8">&nbsp;</td>')}</tr></table>`;
+}
+
+// ---------------------------------------------------------------------------
+// getNextModule — determina el próximo módulo según escenario + competencias
+// ---------------------------------------------------------------------------
+const PITCH_MODULES = ['Prospecting', 'Calificación', 'Presentación', 'Cierre', 'Manejo de Objeciones', 'PNL/Rapport'];
+function getNextModule(escenario_actual, competencias) {
+  const avg = compAvg(competencias);
+  const norm = stripAccents(escenario_actual || '');
+  let idx = PITCH_MODULES.findIndex((m) => norm.includes(stripAccents(m).split('/')[0]));
+  if (idx < 0) idx = 0;
+  // Promedio bajo -> repetir módulo actual; alto -> avanzar
+  const nextIdx = avg < 7 ? idx : Math.min(idx + 1, PITCH_MODULES.length - 1);
+  const nombre = PITCH_MODULES[nextIdx];
+  const base = 'https://victor-ia-training.vercel.app';
+  return {
+    nombre,
+    repetir: avg < 7,
+    url: `${base}/?modulo=${encodeURIComponent(nombre.toLowerCase())}`
+  };
+}
+
+// ---------------------------------------------------------------------------
+// deriveNeuro — estima métricas neuro 0-100 desde señales disponibles
+// ---------------------------------------------------------------------------
+function deriveNeuro(vtc) {
+  if (vtc.neuro && typeof vtc.neuro === 'object') {
+    return {
+      dopamina: clampScore(vtc.neuro.dopamina / 10) * 10 || Number(vtc.neuro.dopamina) || 0,
+      cortisol: Number(vtc.neuro.cortisol) || 0,
+      oxitocina: Number(vtc.neuro.oxitocina) || 0,
+      amigdala: Number(vtc.neuro.amigdala) || 0
+    };
+  }
+  const s = clampScore(vtc.score_global) * 10; // 0-100
+  const sent = stripAccents(vtc.sentimiento || '');
+  const pos = sent.includes('positiv'), neg = sent.includes('negativ');
+  const rapport = (vtc.competencias || []).find((c) => stripAccents(c.nombre).includes('rapport'));
+  const rapportPct = rapport ? clampScore(rapport.score) * 10 : s;
+  return {
+    dopamina: Math.round(Math.max(0, Math.min(100, s * 0.9 + (pos ? 12 : 0) - (neg ? 10 : 0)))),
+    cortisol: Math.round(Math.max(0, Math.min(100, 55 - s * 0.4 + (neg ? 22 : 0)))),
+    oxitocina: Math.round(Math.max(0, Math.min(100, rapportPct * 0.85 + (pos ? 10 : 0)))),
+    amigdala: Math.round(Math.max(0, Math.min(100, 50 - s * 0.35 + (neg ? 20 : 0))))
+  };
+}
+
+// ===========================================================================
+//  TABLAS FORMALES (5) — estilos inline para compatibilidad de email
+// ===========================================================================
+const TH = `background:${C.headBg};color:${C.gold};font-family:${FONT_MONO};font-size:11px;letter-spacing:1px;padding:12px;text-align:left;text-transform:uppercase;`;
+const TDl = (i) => `font-family:${FONT_MONO};font-size:11px;color:${C.ink};padding:12px;border-bottom:1px solid ${C.line};background:${i % 2 ? C.rowB : C.rowA};`;
+const tblWrap = (inner) => `<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:collapse;border:1px solid ${C.line};">${inner}</table>`;
+
+// Tabla 1 — Resumen de sesión (9 filas)
+function tableSesion(vtc) {
+  const rows = [
+    ['Empleado', vtc.user_name], ['Número Empleado', vtc.empleado_id],
+    ['Departamento', vtc.departamento || 'Dirección'], ['Fecha', vtc.fecha_iso || vtc.timestamp],
+    ['Hora Inicio', `${vtc.hora_inicio || '—'} CDMX`], ['Hora Cierre', `${vtc.hora_cierre || '—'} CDMX`],
+    ['Duración Total', vtc.duracion_minutos], ['Agente', 'Coach VÍCTOR'], ['Idioma', vtc.idioma || 'ES']
+  ];
+  const body = rows.map(([k, v], i) =>
+    `<tr><td style="${TDl(i)};font-weight:bold;width:45%;">${esc(k)}</td><td style="${TDl(i)}">${esc(v)}</td></tr>`).join('');
+  return tblWrap(`<tr><td colspan="2" style="${TH}">Información de sesión</td></tr>${body}`);
+}
+
+// Tabla 2 — KPIs (con histórico + variación)
+function tableKPIs(vtc, history) {
+  const prev = (history && history.length) ? history[0] : null;
+  const curMin = parseDurMin(vtc.duracion_minutos);
+  const curAvg = compAvg(vtc.competencias);
+  const varCell = (delta, unit) => {
+    if (delta === null || delta === undefined) return `<span style="color:${C.body}">—</span>`;
+    if (delta > 0.01) return `<span style="color:${C.green};font-weight:bold">+${delta.toFixed(1)}${unit} ↑</span>`;
+    if (delta < -0.01) return `<span style="color:${C.red};font-weight:bold">${delta.toFixed(1)}${unit} ↓</span>`;
+    return `<span style="color:${C.body}">→</span>`;
+  };
+  const rows = [
+    ['Duración (min)', curMin.toFixed(2), prev ? prev.duration_min.toFixed(2) : '—',
+      prev && prev.duration_min > 0 ? varCell(((curMin - prev.duration_min) / prev.duration_min) * 100, '%') : '<span style="color:'+C.body+'">—</span>'],
+    ['Competencias Prom.', curAvg.toFixed(1), prev ? prev.score.toFixed(1) : '—',
+      prev ? varCell(curAvg - prev.score, '') : '<span style="color:'+C.body+'">—</span>'],
+    ['Sentimiento', esc(vtc.sentimiento || 'Neutral'), prev ? esc(prev.sentiment || '—') : '—',
+      stripAccents(vtc.sentimiento || '').includes('positiv') ? '<span style="color:'+C.green+';font-weight:bold">↑ Mejora</span>' : '<span style="color:'+C.body+'">→</span>'],
+    ['Intervenciones', String(vtc.intervenciones ?? 0), '—', '<span style="color:'+C.body+'">—</span>'],
+    ['Score Global', `${clampScore(vtc.score_global)}/10`, prev ? `${prev.score.toFixed(1)}/10` : '—',
+      prev ? varCell(clampScore(vtc.score_global) - prev.score, '') : '<span style="color:'+C.body+'">—</span>']
+  ];
+  const body = rows.map(([k, a, h, v], i) =>
+    `<tr><td style="${TDl(i)};font-weight:bold;">${k}</td><td style="${TDl(i)}">${a}</td><td style="${TDl(i)}">${h}</td><td style="${TDl(i)}">${v}</td></tr>`).join('');
+  return tblWrap(`<tr><td style="${TH}">Métrica</td><td style="${TH}">Actual</td><td style="${TH}">Histórico</td><td style="${TH}">Variación</td></tr>${body}`);
+}
+
+// Tabla 3 — Competencias detalladas (con histórico + trend)
+function tableCompetencias(vtc, history) {
+  const prevScore = (history && history.length) ? history[0].score : null;
+  const rows = (vtc.competencias || []).filter((c) => c && c.nombre);
+  if (!rows.length) return tblWrap(`<tr><td style="${TH}">Competencia</td></tr><tr><td style="${TDl(0)}">Sin datos de competencias</td></tr>`);
+  const body = rows.map((c, i) => {
+    const sc = clampScore(c.score);
+    const hist = prevScore !== null ? `${prevScore.toFixed(1)}/10` : '—';
+    let trend = '<span style="color:'+C.body+'">— Nuevo</span>';
+    if (prevScore !== null) {
+      const d = sc - prevScore;
+      trend = d > 0.05 ? `<span style="color:${C.green};font-weight:bold">↑ +${d.toFixed(1)}</span>`
+        : d < -0.05 ? `<span style="color:${C.red};font-weight:bold">↓ ${d.toFixed(1)}</span>`
+          : `<span style="color:${C.body}">→ Igual</span>`;
+    }
+    return `<tr><td style="${TDl(i)};font-weight:bold;">${esc(c.nombre)}</td><td style="${TDl(i)}">${sc}/10</td><td style="${TDl(i)}">${hist}</td><td style="${TDl(i)}">${trend}</td></tr>`;
+  }).join('');
+  return tblWrap(`<tr><td style="${TH}">Competencia</td><td style="${TH}">Score</td><td style="${TH}">Histórico</td><td style="${TH}">Trend</td></tr>${body}`);
+}
+
+// Tabla 4 — Objeciones enfrentadas
+function tableObjeciones(vtc) {
+  const rows = (vtc.objeciones || []).filter((o) => o && (o.objecion || o.manejo));
+  if (!rows.length) {
+    return tblWrap(`<tr><td style="${TH}">Objeciones</td></tr><tr><td style="${TDl(0)}">Sin objeciones enfrentadas</td></tr>`);
+  }
+  const efi = (o) => {
+    const s = stripAccents(o.manejo || '') + stripAccents(o.efectividad || '');
+    if (/parcial|incomplet|no resuel/.test(s)) return `<span style="color:${C.yellow};font-weight:bold">⚠ Parcial</span>`;
+    return `<span style="color:${C.green};font-weight:bold">✔ Resuelta</span>`;
+  };
+  const body = rows.map((o, i) =>
+    `<tr><td style="${TDl(i)};font-weight:bold;">${esc(o.objecion || '—')}</td><td style="${TDl(i)}">${esc(o.manejo || '—')}</td><td style="${TDl(i)}">${efi(o)}</td></tr>`).join('');
+  return tblWrap(`<tr><td style="${TH}">Objeción</td><td style="${TH}">Cómo se manejó</td><td style="${TH}">Efectividad</td></tr>${body}`);
+}
+
+// Tabla 5 — Transcripción abreviada (primeras 3 + última)
+function tableTranscript(vtc) {
+  const msgs = (vtc.messages || []).filter((m) => m && m.message);
+  const fmtT = (s) => { const n = Math.max(0, Math.floor(Number(s) || 0)); return `${Math.floor(n / 60)}:${String(n % 60).padStart(2, '0')}`; };
+  let picked = [];
+  if (msgs.length <= 4) picked = msgs;
+  else picked = [...msgs.slice(0, 3), msgs[msgs.length - 1]];
+  if (!picked.length) return tblWrap(`<tr><td style="${TH}">Transcripción</td></tr><tr><td style="${TDl(0)}">Transcripción no disponible</td></tr>`);
+  const body = picked.map((m, i) => {
+    const isUser = m.role === 'user';
+    const who = isUser ? 'Empleado' : 'Coach VCT';
+    const excerpt = String(m.message).slice(0, 50) + (m.message.length > 50 ? '…' : '');
+    return `<tr><td style="${TDl(i)};width:60px;">${fmtT(m.time)}</td><td style="${TDl(i)};width:90px;font-weight:bold;color:${isUser ? C.gold : C.ink};">${who}</td><td style="${TDl(i)}">&ldquo;${esc(excerpt)}&rdquo;</td></tr>`;
+  }).join('');
+  const ellip = msgs.length > 4 ? `<tr><td colspan="3" style="${TDl(1)};text-align:center;color:${C.body};">··· ${msgs.length - 4} intervenciones más ···</td></tr>` : '';
+  return tblWrap(`<tr><td style="${TH}">Time</td><td style="${TH}">Speaker</td><td style="${TH}">Excerpt</td></tr>${picked.length >= 4 ? body.replace(/(<\/tr>)(?=(?:(?!<\/tr>).)*$)/, '$1' + ellip) : body}`);
+}
+
+// ---------------------------------------------------------------------------
+// HTML del reporte de EMAIL — rediseñado (paleta crema/oro + Cormorant/Inter)
 // ---------------------------------------------------------------------------
 function buildReportHtml(vtc, { forPdf = false } = {}) {
   const seg = clampScore(vtc.score_global);
+  const history = vtc.history || [];
+  const neuro = deriveNeuro(vtc);
+  const next = vtc.next_module || getNextModule(vtc.escenario, vtc.competencias);
+  const base = 'https://victor-ia-training.vercel.app';
+  const reportUrl = `${base}/api/report?session=${encodeURIComponent(vtc.conversation_id || '')}`;
+  const pdfUrl = reportUrl;
+  const audioUrl = `${base}/api/audio?session=${encodeURIComponent(vtc.conversation_id || '')}`;
+  const nextUrl = next.url;
 
-  const gaugeCells = Array.from({ length: 10 }, (_, i) =>
-    `<td width="10%" bgcolor="${i < seg ? GOLD : '#3a3a3a'}" style="background-color:${i < seg ? GOLD : '#3a3a3a'};height:14px;border-radius:2px;font-size:0;line-height:0;">&nbsp;</td>
-     ${i < 9 ? '<td width="3" style="font-size:0;line-height:0;">&nbsp;</td>' : ''}`
-  ).join('');
+  const H2 = (t) => `<tr><td class="px" style="padding:34px 34px 6px 34px;">
+    <div style="font-family:${FONT_HEAD};font-size:22px;font-weight:400;color:${C.ink};border-bottom:1px solid ${C.line};padding-bottom:8px;">${t}</div></td></tr>`;
+  const chartRow = (svg) => `<tr><td class="px" align="center" style="padding:16px 20px 0 20px;">${svg}</td></tr>`;
+  const tableRow = (tbl) => `<tr><td class="px" style="padding:14px 34px 0 34px;">${tbl}</td></tr>`;
 
-  const compBars = (vtc.competencias || []).map((c) => {
-    const pct = clampScore(c.score) * 10;
-    return `<tr><td style="padding:6px 0;font-family:Arial,sans-serif;font-size:12px;color:${DARK};width:130px;">${esc(c.nombre)}</td>
-      <td style="padding:6px 0;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
-      <td bgcolor="#e8e8e8" style="background-color:#e8e8e8;border-radius:4px;height:10px;font-size:0;line-height:0;">
-      <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="${pct}%"><tr>
-      <td bgcolor="${GOLD}" style="background-color:${GOLD};border-radius:4px;height:10px;font-size:0;line-height:0;">&nbsp;</td></tr></table></td></tr></table></td>
-      <td align="right" style="padding:6px 0 6px 10px;font-family:Arial,sans-serif;font-size:12px;font-weight:bold;color:${GOLD};width:36px;">${clampScore(c.score)}/10</td></tr>`;
-  }).join('');
+  const cta = (href, emoji, label) => `<a href="${esc(href)}" target="_blank" style="display:inline-block;background:${C.gold};color:${C.bg};padding:14px 24px;text-decoration:none;border-radius:6px;font-family:${FONT_BODY};font-weight:400;font-size:13px;letter-spacing:.5px;">${emoji} ${label}</a>`;
 
-  const timelineRows = (vtc.timeline || []).map((item) => `<tr><td valign="top" style="padding:8px 0;width:52px;">
-    <span style="display:inline-block;background-color:${DARK};color:${GOLD};font-family:Arial,sans-serif;font-size:11px;font-weight:bold;padding:3px 8px;border-radius:10px;">${esc(item.t || '0:00')}</span></td>
-    <td valign="top" style="padding:8px 0 8px 12px;font-family:Arial,sans-serif;font-size:13px;line-height:19px;color:#333333;border-left:2px solid ${GOLD};">${esc(item.texto || '')}</td></tr>`).join('');
+  const listRows = (items, color) => (items || []).map((t) =>
+    `<tr><td valign="top" style="padding:5px 0;width:18px;font-family:${FONT_BODY};font-size:14px;color:${color};font-weight:bold;">&#8226;</td>
+     <td style="padding:5px 0;font-family:${FONT_BODY};font-size:14px;line-height:22px;color:${C.body};">${esc(t)}</td></tr>`).join('');
 
-  const listRows = (items, color) => (items || []).map((t) => `<tr><td valign="top" style="padding:5px 0;width:18px;font-family:Arial,sans-serif;font-size:13px;color:${color};font-weight:bold;">&#8226;</td>
-    <td style="padding:5px 0;font-family:Arial,sans-serif;font-size:13px;line-height:19px;color:#333333;">${esc(t)}</td></tr>`).join('');
-
-  const objecionRows = (vtc.objeciones || []).map((o) => `<tr><td style="padding:8px 0;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-left:3px solid ${GOLD};"><tr>
-    <td style="padding:8px 14px;font-family:Arial,sans-serif;font-size:13px;font-weight:bold;color:${DARK};background-color:${LIGHT};">&ldquo;${esc(o.objecion)}&rdquo;</td></tr>
-    <tr><td style="padding:8px 14px;font-family:Arial,sans-serif;font-size:13px;line-height:19px;color:#555555;">${esc(o.manejo)}</td></tr></table></td></tr>`).join('');
-
-  const planRows = (vtc.plan_gerente || []).map((p, i) => `<tr><td valign="top" style="padding:7px 0;width:34px;">
-    <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
-    <td bgcolor="${GREEN}" align="center" style="background-color:${GREEN};width:24px;height:24px;border-radius:12px;font-family:Arial,sans-serif;font-size:12px;font-weight:bold;color:#ffffff;">${i + 1}</td></tr></table></td>
-    <td valign="top" style="padding:9px 0 7px 8px;font-family:Arial,sans-serif;font-size:13px;line-height:19px;color:#333333;">${esc(p)}</td></tr>`).join('');
-
-  const sectionTitle = (txt) => `<tr><td style="padding:28px 32px 4px 32px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
-    <td style="font-family:Arial,sans-serif;font-size:13px;font-weight:bold;letter-spacing:2px;color:${DARK};text-transform:uppercase;padding-bottom:6px;border-bottom:2px solid ${GOLD};">${txt}</td></tr></table></td></tr>`;
-
-  // Bloques condicionales
   const fortalezasBlock = (vtc.fortalezas || []).length
-    ? `<tr><td class="px" style="padding:28px 32px 0 32px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="${GREEN_BG}" style="background-color:${GREEN_BG};border-left:4px solid ${GREEN};border-radius:0 6px 6px 0;">
-      <tr><td style="padding:16px 18px 6px 18px;font-family:Arial,sans-serif;font-size:13px;font-weight:bold;letter-spacing:1px;color:${GREEN};">&#10003;&nbsp; LO QUE HICISTE BIEN</td></tr>
-      <tr><td style="padding:0 18px 14px 18px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">${listRows(vtc.fortalezas, GREEN)}</table></td></tr></table></td></tr>`
-    : '';
-
+    ? `<tr><td class="px" style="padding:18px 34px 0 34px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#ffffff;border-left:4px solid ${C.green};">
+        <tr><td style="padding:14px 18px 4px 18px;font-family:${FONT_MONO};font-size:11px;font-weight:bold;letter-spacing:1px;color:${C.green};">&#10003; LO QUE HICISTE BIEN</td></tr>
+        <tr><td style="padding:0 18px 12px 18px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">${listRows(vtc.fortalezas, C.green)}</table></td></tr></table></td></tr>` : '';
   const mejorasBlock = (vtc.mejoras || []).length
-    ? `<tr><td class="px" style="padding:16px 32px 0 32px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="${YELLOW_BG}" style="background-color:${YELLOW_BG};border-left:4px solid ${YELLOW};border-radius:0 6px 6px 0;">
-      <tr><td style="padding:16px 18px 6px 18px;font-family:Arial,sans-serif;font-size:13px;font-weight:bold;letter-spacing:1px;color:${YELLOW};">&#9650;&nbsp; A MEJORAR</td></tr>
-      <tr><td style="padding:0 18px 14px 18px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">${listRows(vtc.mejoras, YELLOW)}</table></td></tr></table></td></tr>`
-    : '';
-
-  const objecionesBlock = (vtc.objeciones || []).length
-    ? `${sectionTitle('Objeciones que enfrentaste')}
-      <tr><td class="px" style="padding:10px 32px 0 32px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">${objecionRows}</table></td></tr>`
-    : '';
-
-  const timelineBlock = (vtc.timeline || []).length
-    ? `${sectionTitle('L&iacute;nea de la conversaci&oacute;n')}
-      <tr><td class="px" style="padding:12px 32px 0 32px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">${timelineRows}</table></td></tr>`
-    : '';
-
-  const planBlock = (vtc.plan_gerente || []).length
-    ? `${sectionTitle('Plan de acci&oacute;n para el gerente')}
-      <tr><td class="px" style="padding:12px 32px 0 32px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">${planRows}</table></td></tr>`
-    : '';
-
-  const notaBlock = vtc.nota_deep_learning
-    ? `${sectionTitle('Nota deep learning')}
-      <tr><td class="px" style="padding:14px 32px 0 32px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="${GREEN_BG}" style="background-color:${GREEN_BG};border:1px solid ${GREEN};border-radius:6px;">
-      <tr><td style="padding:14px 18px;font-family:Arial,sans-serif;font-size:12px;line-height:18px;color:${GREEN};"><strong>&#129504; NOTA DEEP LEARNING:</strong>&nbsp; ${esc(vtc.nota_deep_learning)}</td></tr></table></td></tr>`
-    : '';
-
-  // Transcripción completa — SIEMPRE presente (email y PDF), con turnos marcados.
-  const transcriptTurns = (vtc.messages || []).length
-    ? (vtc.messages || []).map((m) => {
-        const isUser = m.role === 'user';
-        const who = isUser ? 'ASESOR' : 'VÍCTOR';
-        const color = isUser ? '#3a5a8c' : YELLOW;
-        return `<tr><td style="padding:6px 0;font-family:Arial,sans-serif;font-size:12px;line-height:19px;color:#333333;border-bottom:1px solid #eeeeee;">
-          <strong style="color:${color};letter-spacing:1px;">${who}:</strong>&nbsp; ${esc(m.message)}</td></tr>`;
-      }).join('')
-    : (vtc.transcript
-        ? `<tr><td style="font-family:Arial,sans-serif;font-size:11px;line-height:1.6;white-space:pre-wrap;color:#333333;">${esc(vtc.transcript)}</td></tr>`
-        : `<tr><td style="font-family:Arial,sans-serif;font-size:12px;color:#888888;">Transcripci&oacute;n no disponible.</td></tr>`);
-
-  const transcriptBlock = `${sectionTitle('Transcripci&oacute;n completa')}
-      <tr><td class="px" style="padding:12px 32px 0 32px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#f9f9f9;border-radius:6px;">
-      <tr><td style="padding:14px 16px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">${transcriptTurns}</table></td></tr></table></td></tr>`;
+    ? `<tr><td class="px" style="padding:14px 34px 0 34px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#ffffff;border-left:4px solid ${C.yellow};">
+        <tr><td style="padding:14px 18px 4px 18px;font-family:${FONT_MONO};font-size:11px;font-weight:bold;letter-spacing:1px;color:${C.yellow};">&#9650; A MEJORAR</td></tr>
+        <tr><td style="padding:0 18px 12px 18px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">${listRows(vtc.mejoras, C.yellow)}</table></td></tr></table></td></tr>` : '';
 
   return `<!DOCTYPE html>
 <html lang="es" xmlns="http://www.w3.org/1999/xhtml">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="X-UA-Compatible" content="IE=edge">
-<title>Reporte VTC</title><style>body,table,td{-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;}img,svg{border:0;}@media only screen and (max-width:620px){.wrap{width:100%!important;}.px{padding-left:18px!important;padding-right:18px!important;}.score-num{font-size:44px!important;}}</style>
+<title>Reporte VTC</title>${FONTS_LINK}
+<style>body,table,td{-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;}img,svg{border:0;}
+@media only screen and (max-width:620px){.wrap{width:100%!important;}.px{padding-left:16px!important;padding-right:16px!important;}.score-num{font-size:72px!important;}.ctacell{display:block!important;width:100%!important;padding:6px 0!important;}}</style>
 </head>
-<body style="margin:0;padding:0;background-color:${LIGHT};" bgcolor="${LIGHT}">
-<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="${LIGHT}" style="background-color:${LIGHT};"><tr><td align="center" style="padding:24px 12px;">
-<table role="presentation" class="wrap" cellpadding="0" cellspacing="0" border="0" width="600" style="width:600px;max-width:600px;background-color:#ffffff;border-radius:8px;overflow:hidden;">
-<tr><td bgcolor="${DARK}" style="background-color:${DARK};padding:34px 32px 26px 32px;" align="center">
-<div style="font-family:Arial,sans-serif;font-size:22px;font-weight:bold;letter-spacing:4px;color:${GOLD};">VICTORIOUS TRAVELERS CLUB</div>
-<div style="font-family:Arial,sans-serif;font-size:11px;letter-spacing:3px;color:#999999;padding-top:8px;text-transform:uppercase;">${esc(vtc.timestamp)}</div>
-<div style="font-family:Arial,sans-serif;font-size:15px;color:#f5f5f5;padding-top:14px;letter-spacing:1px;">Reporte de entrenamiento</div>
+<body style="margin:0;padding:0;background-color:${C.bg};" bgcolor="${C.bg}">
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="${C.bg}" style="background-color:${C.bg};"><tr><td align="center" style="padding:24px 12px;">
+<table role="presentation" class="wrap" cellpadding="0" cellspacing="0" border="0" width="600" style="width:600px;max-width:600px;background-color:${C.bg};border:1px solid ${C.line};border-radius:10px;overflow:hidden;">
+
+<!-- HEADER -->
+<tr><td style="background:${C.headBg};padding:36px 34px 28px 34px;" align="center">
+<div style="font-family:${FONT_MONO};font-size:12px;letter-spacing:4px;color:${C.gold};">VICTORIOUS TRAVELERS CLUB</div>
+<div style="font-family:${FONT_HEAD};font-size:28px;font-weight:700;color:${C.gold};padding-top:10px;letter-spacing:.5px;">Reporte de Entrenamiento</div>
+<div style="font-family:${FONT_MONO};font-size:10px;letter-spacing:3px;color:#8a8a8a;padding-top:10px;text-transform:uppercase;">${esc(vtc.timestamp)}</div>
 </td></tr>
-<tr><td class="px" style="padding:24px 32px 0 32px;" align="center">
-<div style="font-family:Arial,sans-serif;font-size:17px;font-weight:bold;color:${DARK};">Sesi&oacute;n de ${esc(vtc.user_name)} con V&iacute;ctor &nbsp;&middot;&nbsp; ${esc(vtc.tipo_sesion)} &nbsp;&middot;&nbsp; ${esc(vtc.duracion_minutos)} min</div>
-<table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin-top:14px;"><tr>
-<td bgcolor="${LIGHT}" style="background-color:${LIGHT};border:1px solid ${GOLD};border-radius:20px;padding:7px 18px;font-family:Arial,sans-serif;font-size:11px;font-weight:bold;letter-spacing:1px;color:${DARK};">
-EMPLEADO N&ordm; ${esc(vtc.empleado_id)}</td></tr></table>
+
+<!-- SUBTÍTULO -->
+<tr><td class="px" style="padding:22px 34px 0 34px;" align="center">
+<div style="font-family:${FONT_HEAD};font-size:16px;font-weight:300;color:${C.ink};">Sesi&oacute;n de ${esc(vtc.user_name)} con V&iacute;ctor &middot; ${esc(vtc.tipo_sesion)} &middot; ${esc(vtc.duracion_minutos)} min</div>
 </td></tr>
-<tr><td class="px" style="padding:26px 32px 0 32px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="${DARK}" style="background-color:${DARK};border-radius:8px;">
-<tr><td align="center" style="padding:26px 28px 8px 28px;font-family:Arial,sans-serif;font-size:12px;font-weight:bold;letter-spacing:3px;color:#999999;">DESEMPE&Ntilde;O GLOBAL</td></tr>
-<tr><td align="center" style="padding:0 28px;"><span class="score-num" style="font-family:Arial,sans-serif;font-size:56px;font-weight:bold;color:${GOLD};line-height:1;">${seg}</span><span style="font-family:Arial,sans-serif;font-size:22px;color:#777777;">/10</span></td></tr>
-<tr><td style="padding:18px 28px 28px 28px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"><tr>${gaugeCells}</tr></table></td></tr></table></td></tr>
-${sectionTitle('Resumen de la llamada')}
-<tr><td class="px" style="padding:12px 32px 0 32px;font-family:Arial,sans-serif;font-size:13px;line-height:20px;color:#444444;">${esc(vtc.resumen)}</td></tr>
-${sectionTitle('Mapa de competencias')}
-<tr><td class="px" style="padding:14px 32px 0 32px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">${compBars}</table></td></tr>
-${timelineBlock}
+
+<!-- SCORE -->
+<tr><td align="center" style="padding:18px 34px 4px 34px;">
+<div style="font-family:${FONT_MONO};font-size:11px;letter-spacing:3px;color:${C.body};text-transform:uppercase;">Desempeño Global</div>
+<div style="padding:6px 0;"><span class="score-num" style="font-family:${FONT_HEAD};font-size:88px;font-weight:700;color:${C.gold};line-height:1;">${seg}</span><span style="font-family:${FONT_HEAD};font-size:34px;color:${C.goldDark};">/10</span></div>
+</td></tr>
+
+<!-- TENDENCIAS -->
+${H2('Indicadores de tendencia')}
+<tr><td class="px" style="padding:14px 34px 0 34px;">${trendIndicatorsHtml(vtc, history)}</td></tr>
+
+<!-- RESUMEN -->
+${H2('Resumen de la llamada')}
+<tr><td class="px" style="padding:12px 34px 0 34px;font-family:${FONT_BODY};font-size:14px;line-height:23px;color:${C.body};">${esc(vtc.resumen)}</td></tr>
+
+<!-- TABLA 1 SESIÓN -->
+${H2('Información de sesión')}
+${tableRow(tableSesion(vtc))}
+
+<!-- TABLA 2 KPIs -->
+${H2('Métricas clave (KPIs)')}
+${tableRow(tableKPIs(vtc, history))}
+
+<!-- HEATMAP -->
+${H2('Heatmap de competencias')}
+${chartRow(heatmapSVG(vtc.competencias))}
+
+<!-- TABLA 3 COMPETENCIAS -->
+${tableRow(tableCompetencias(vtc, history))}
+
+<!-- SPARKLINE -->
+${H2('Histórico de desempeño')}
+${chartRow(sparklineSVG(history))}
+
+<!-- GAUGES NEURO -->
+${H2('Neurociencia de la conversación')}
+${chartRow(gaugesSVG(neuro))}
+
+<!-- TIMELINE VISUAL -->
+${H2('Línea de tiempo')}
+${chartRow(timelineVizSVG(vtc.timeline))}
+
+<!-- ACIERTOS / MEJORAS -->
 ${fortalezasBlock}
 ${mejorasBlock}
-${objecionesBlock}
-<tr><td class="px" style="padding:30px 32px 0 32px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="${DARK}" style="background-color:${DARK};border-radius:8px;">
-<tr><td align="center" style="padding:26px 28px 4px 28px;font-family:Arial,sans-serif;font-size:12px;font-weight:bold;letter-spacing:3px;color:${GOLD};">TU PR&Oacute;XIMO DRILL</td></tr>
-<tr><td align="center" style="padding:8px 28px 4px 28px;font-family:Arial,sans-serif;font-size:16px;font-weight:bold;color:#ffffff;">${esc(vtc.drill?.titulo)}</td></tr>
-<tr><td align="center" style="padding:4px 28px 18px 28px;font-family:Arial,sans-serif;font-size:13px;line-height:19px;color:#bbbbbb;">${esc(vtc.drill?.descripcion)}</td></tr>
-<tr><td align="center" style="padding:0 28px 28px 28px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center"><tr>
-<td bgcolor="${GOLD}" style="background-color:${GOLD};border-radius:4px;">
-<a href="${esc(vtc.drill?.url || 'https://tracker.victor-ia.xyz')}" target="_blank" style="display:inline-block;padding:13px 34px;font-family:Arial,sans-serif;font-size:13px;font-weight:bold;letter-spacing:2px;color:${DARK};text-decoration:none;">ENTRENAR DE NUEVO&nbsp;&nbsp;&#8594;</a></td></tr></table></td></tr></table></td></tr>
-${planBlock}
-${notaBlock}
-${transcriptBlock}
-<tr><td style="padding:34px 32px 0 32px;"></td></tr>
-<tr><td bgcolor="${DARK}" style="background-color:${DARK};padding:22px 32px;" align="center">
-<div style="font-family:Arial,sans-serif;font-size:12px;font-weight:bold;letter-spacing:3px;color:${GOLD};">VICTORIOUS TRAVELERS CLUB</div>
-<div style="font-family:Arial,sans-serif;font-size:10px;color:#777777;padding-top:8px;">Reporte generado autom&aacute;ticamente por V&iacute;ctor IA &middot; ${esc(vtc.timestamp)}</div></td></tr>
+
+<!-- TABLA 4 OBJECIONES -->
+${H2('Objeciones enfrentadas')}
+${tableRow(tableObjeciones(vtc))}
+
+<!-- TABLA 5 TRANSCRIPT -->
+${H2('Transcripción abreviada')}
+${tableRow(tableTranscript(vtc))}
+
+<!-- PRÓXIMO MÓDULO -->
+${H2('Tu próximo paso')}
+<tr><td class="px" style="padding:12px 34px 0 34px;font-family:${FONT_BODY};font-size:14px;line-height:22px;color:${C.body};">
+${next.repetir ? 'Recomendamos <b>repetir</b>' : 'Avanza al módulo'} <b style="color:${C.gold};">${esc(next.nombre)}</b> ${next.repetir ? 'para consolidar competencias antes de avanzar.' : 'para continuar tu progreso en el pitch.'}</td></tr>
+
+<!-- 4 CTAs -->
+<tr><td align="center" style="padding:26px 20px 8px 20px;">
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:560px;"><tr>
+<td class="ctacell" align="center" style="padding:8px;">${cta(reportUrl, '📊', 'Ver Reporte')}</td>
+<td class="ctacell" align="center" style="padding:8px;">${cta(pdfUrl, '📥', 'Descargar PDF')}</td></tr>
+<tr>
+<td class="ctacell" align="center" style="padding:8px;">${cta(audioUrl, '🎙️', 'Escuchar Grabación')}</td>
+<td class="ctacell" align="center" style="padding:8px;">${cta(nextUrl, '📚', 'Módulo Siguiente')}</td></tr></table></td></tr>
+
+<!-- FOOTER -->
+<tr><td style="background:${C.headBg};padding:24px 34px;margin-top:20px;" align="center">
+<div style="font-family:${FONT_MONO};font-size:11px;letter-spacing:3px;color:${C.gold};">VICTORIOUS TRAVELERS CLUB</div>
+<div style="font-family:${FONT_BODY};font-size:10px;color:#8a8a8a;padding-top:8px;">Reporte generado autom&aacute;ticamente por V&iacute;ctor IA &middot; ${esc(vtc.timestamp)}</div></td></tr>
+
 </table></td></tr></table></body></html>`;
 }
 
@@ -663,6 +995,8 @@ function buildPdfReportHtml(vtc) {
 
   .sect-c { text-align: center; font-size: 13px; font-weight: bold; letter-spacing: 3px; color: ${P.muted}; text-transform: uppercase; margin: 30px 0 4px; }
   .radar { text-align: center; padding: 10px 0 6px; }
+  .chartbox { background: #F5F5F0; border-radius: 12px; padding: 18px 16px; margin: 12px 0; text-align: center; }
+  .chartbox .ct { font-family: Arial, sans-serif; font-size: 11px; letter-spacing: 2px; color: #6f6f6f; text-transform: uppercase; margin-bottom: 10px; text-align: left; }
   .klabel2 { font-size: 12px; font-weight: bold; letter-spacing: 2.5px; color: ${P.muted}; text-transform: uppercase; margin: 24px 0 8px; }
 
   /* Timeline */
@@ -760,6 +1094,12 @@ function buildPdfReportHtml(vtc) {
     <!-- MAPA DE COMPETENCIAS -->
     <div class="sect-c">Mapa de competencias</div>
     <div class="radar avoid">${radarSVG(vtc)}</div>
+
+    <!-- GRÁFICOS A COLOR (heatmap · histórico · neuro · timeline) -->
+    <div class="chartbox avoid"><div class="ct">Heatmap de competencias</div>${heatmapSVG(vtc.competencias)}</div>
+    <div class="chartbox avoid"><div class="ct">Histórico de desempeño</div>${sparklineSVG(vtc.history || [])}</div>
+    <div class="chartbox avoid"><div class="ct">Neurociencia de la conversación</div>${gaugesSVG(deriveNeuro(vtc))}</div>
+    <div class="chartbox avoid"><div class="ct">Línea de tiempo</div>${timelineVizSVG(vtc.timeline)}</div>
 
     <!-- PRINCIPIOS NEURO -->
     <div class="klabel2">Principios neurocient&iacute;ficos activados</div>
@@ -928,6 +1268,40 @@ async function sendEmailWithAttachments({ to, cc, subject, html, attachments }) 
 }
 
 // ---------------------------------------------------------------------------
+// HISTÓRICO DEL EMPLEADO — últimas 5 sesiones previas (Supabase)
+//   Retorna [{ duration_min, score, pct, sentiment, date }] (más reciente primero)
+//   Si no hay Supabase o no hay histórico -> []
+// ---------------------------------------------------------------------------
+async function loadEmployeeHistory(empleado_id, excludeConversationId) {
+  if (!supabase || !empleado_id) return [];
+  try {
+    const { data, error } = await supabase
+      .from('training_sessions')
+      .select('duration_minutes, score_global, timestamp, conversation_id, status')
+      .eq('employee_id', empleado_id)
+      .order('timestamp', { ascending: false })
+      .limit(8);
+    if (error) { console.error('[History] error:', error.message); return []; }
+    return (data || [])
+      .filter((r) => r.conversation_id !== excludeConversationId)
+      .slice(0, 5)
+      .map((r) => {
+        const score = Number(r.score_global) || 0;
+        return {
+          duration_min: Number(r.duration_minutes) || 0,
+          score,
+          pct: Math.max(0, Math.min(100, score * 10)),
+          sentiment: r.status && /neg/i.test(r.status) ? 'Negativo' : 'Neutral',
+          date: r.timestamp
+        };
+      });
+  } catch (e) {
+    console.error('[History] exception:', e.message);
+    return [];
+  }
+}
+
+// ---------------------------------------------------------------------------
 // HANDLER — ejecución única y limpia
 // ---------------------------------------------------------------------------
 export default async function handler(req, res) {
@@ -975,27 +1349,45 @@ export default async function handler(req, res) {
       getAudioFromElevenLabs(conversation_id)
     ]);
 
-    // 3) Análisis IA (depende del transcript)
-    const analysis = await analyzeTranscriptWithAI(transcriptData.text);
+    // 3) Análisis IA (depende del transcript) + histórico del empleado (en paralelo)
+    const [analysis, history] = await Promise.all([
+      analyzeTranscriptWithAI(transcriptData.text),
+      loadEmployeeHistory(empleado_id, conversation_id)
+    ]);
 
     // Duración: prioriza la del body, luego la de ElevenLabs
     const durSecs = Number(body.call_duration_secs || transcriptData.durationSecs || 0);
     const duracion_minutos = `${Math.floor(durSecs / 60)}:${String(Math.floor(durSecs % 60)).padStart(2, '0')}`;
 
+    // Departamento del empleado autorizado (todos en Dirección por defecto)
+    const departamento = body.departamento || 'Dirección';
+
+    // Hora de inicio / cierre (CDMX) — cierre = inicio + duración de la llamada
+    const startDate = new Date(timestampIso);
+    const endDate = new Date(startDate.getTime() + durSecs * 1000);
+    const fmtHora = (d) => d.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false, timeZone: 'America/Mexico_City' });
+
     // Modelo de datos unificado para HTML/PDF
     const vtc = {
       user_name,
       empleado_id,
+      departamento,
       duracion_minutos,
       tipo_sesion: body.tipo_sesion || 'Sesión',
-      timestamp: new Date(timestampIso).toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' }),
-      fecha_corta: new Date(timestampIso).toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' }).toUpperCase(),
+      timestamp: new Date(timestampIso).toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'America/Mexico_City' }),
+      fecha_corta: new Date(timestampIso).toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'America/Mexico_City' }).toUpperCase(),
+      fecha_iso: new Date(timestampIso).toLocaleDateString('en-CA', { timeZone: 'America/Mexico_City' }), // YYYY-MM-DD
+      hora_inicio: fmtHora(startDate),
+      hora_cierre: fmtHora(endDate),
       transcript: transcriptData.text,
       messages: transcriptData.messages,
       intervenciones: transcriptData.messages.length,
       conversation_id,
+      history,
       ...analysis
     };
+    // Próximo módulo (depende del escenario + competencias del análisis)
+    vtc.next_module = getNextModule(vtc.escenario, vtc.competencias);
 
     // VALIDACIÓN — ningún reporte se envía con campos críticos vacíos
     const validation = validateReport(vtc);
@@ -1132,3 +1524,11 @@ export default async function handler(req, res) {
     return res.status(500).json({ success: false, error: error.message });
   }
 }
+
+// Exports para pruebas/reuso (no afecta al handler serverless por defecto)
+export {
+  buildReportHtml, buildPdfReportHtml,
+  heatmapSVG, sparklineSVG, gaugesSVG, timelineVizSVG, trendIndicatorsHtml,
+  tableSesion, tableKPIs, tableCompetencias, tableObjeciones, tableTranscript,
+  getNextModule, deriveNeuro, loadEmployeeHistory
+};

@@ -1877,6 +1877,13 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
   .vw-ctrl:hover{background:#1e1b15;border-color:#b89a6a;color:#e8d3a6}
   .vw-ctrl:active{transform:scale(.94)}
   .vw-ctrl.vw-on{background:#b89a6a;border-color:#b89a6a;color:#0a0a0c}
+  #vw-hangup{background:#8f2c1e;border-color:#C0392B;color:#EAE6DF}
+  #vw-hangup:hover{background:#C0392B;border-color:#e05a45;color:#fff}
+  #vw-hangup:active{transform:scale(.94)}
+  #vw-hangup:disabled{background:#3a2420;border-color:#5a2c24;color:#9a8f8c;cursor:not-allowed;opacity:.55}
+  .vw-toast{position:fixed;right:24px;bottom:96px;max-width:280px;background:#0F0F12;color:#B89A6A;padding:12px 16px;border-radius:8px;border:1px solid #B89A6A;font-size:13px;line-height:1.4;z-index:99999;box-shadow:0 8px 30px rgba(0,0,0,.5);animation:vwToastUp .3s ease}
+  @keyframes vwToastUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+  @media(max-width:480px){.vw-toast{right:8px;left:8px;max-width:none;bottom:88px}}
   /* gate / popup de acceso */
   #vw-gate{flex:1;display:flex;flex-direction:column;justify-content:center;padding:24px 26px;gap:14px;overflow-y:auto}
   #vw-gate::-webkit-scrollbar{width:6px}#vw-gate::-webkit-scrollbar-thumb{background:#23211c;border-radius:3px}
@@ -1935,6 +1942,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
     <div id="vw-controls">
       <button class="vw-ctrl" id="vw-pause" type="button" title="Pausar agente" aria-pressed="false" aria-label="Pausar o reanudar el agente">&#9208;</button>
       <button class="vw-ctrl" id="vw-mute" type="button" title="Silenciar audio de Victor" aria-pressed="false" aria-label="Silenciar o activar el audio de Victor">&#128266;</button>
+      <button class="vw-ctrl" id="vw-hangup" type="button" title="Colgar llamada / Terminar sesión" aria-label="Colgar la llamada y terminar la sesión">&#9742;</button>
     </div>
     <button class="vw-ico" id="vw-min" title="Minimizar (sigue activo)">&#8211;</button>
     <button class="vw-ico" id="vw-close" title="Terminar">&times;</button>
@@ -2518,6 +2526,8 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
     if(!conv){ setStatus('No se pudo conectar. Intenta de nuevo.'); return false; }
     /* capturar conversation_id para el tracking de interacciones */
     try{ window.__vtcConvId = (conv.getId&&conv.getId()) || (conv.conversationId) || (conv.id) || window.__vtcConvId || null; }catch(e){}
+    /* marca de inicio para calcular la duración al colgar manualmente */
+    try{ window.__vtcSessionStart = Date.now(); }catch(e){}
     try{ window.__vtcTrack && window.__vtcTrack('block_viewed',{event:'session_started',module_id:(window.__vtcBlocks&&window.__vtcBlocks.current_module)||null}); }catch(e){}
     return true;
   }
@@ -2691,6 +2701,65 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
   }
   { var _vwP=$('vw-pause'); if(_vwP) _vwP.onclick=function(){ if(!conv) return; vwSetPaused(!vwPaused); };
     var _vwM=$('vw-mute'); if(_vwM) _vwM.onclick=function(){ if(!conv) return; vwSetMuted(!vwAudioMuted); }; }
+
+  /* ── Toast luxury dark (feedback efímero) ── */
+  function vwShowToast(message){
+    try{
+      var t=document.createElement('div');
+      t.className='vw-toast'; t.setAttribute('role','status'); t.textContent=message;
+      document.body.appendChild(t);
+      setTimeout(function(){ try{ t.remove(); }catch(e){} },4000);
+    }catch(e){}
+  }
+
+  /* ── COLGAR: termina ConvAI + dispara webhook post-call manual + resetea el widget ── */
+  async function vwHangup(){
+    var btn=document.getElementById('vw-hangup');
+    if(!conv && !window.__vtcConvId){ vwShowToast('No hay sesión activa'); return; }
+    if(btn) btn.disabled=true;
+    var convId=window.__vtcConvId||null;
+    var dur=0; try{ if(window.__vtcSessionStart) dur=Math.floor((Date.now()-window.__vtcSessionStart)/1000); }catch(e){}
+    /* 1. tracking interno de fin de sesión */
+    try{ window.__vtcTrack && window.__vtcTrack('session_completed',{reason:'manual_hang_up',duration:dur},{keepalive:true}); }catch(e){}
+    /* 2. terminar sesión ConvAI (detiene mic/audio y cierra la conexión WebRTC/WS) */
+    try{ conv && conv.endSession && conv.endSession(); }catch(e){}
+    conv=null; started=false; window.__vtcSpeaking=false; try{stopKeepalive();}catch(e){}
+    /* 3. disparar webhook post-call manualmente (fire-and-forget, sobrevive al reset con keepalive) */
+    try{
+      fetch('https://n8n.srv1013903.hstgr.cloud/webhook/elevenlabs-postall',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        keepalive:true,
+        body:JSON.stringify({
+          conversation_id:convId,
+          agent_id:AGENT,
+          duration:dur,
+          manual_hang_up:true,
+          timestamp:new Date().toISOString()
+        })
+      }).then(function(r){ if(!r.ok) console.warn('hangup webhook status:',r.status); })
+        .catch(function(e){ console.warn('hangup webhook error:',e); });
+    }catch(e){ console.warn('hangup webhook throw:',e); }
+    /* 4. feedback visual inmediato */
+    vwShowToast('☎ Sesión terminada. Generando reporte…');
+    try{ mic.classList.remove('vw-live'); }catch(e){}
+    try{ launch.classList.remove('vw-active'); }catch(e){}
+    try{ vwResetControls(); }catch(e){}
+    setStatus('Sesión terminada');
+    /* 5. reset completo del widget tras 3s → listo para una nueva sesión */
+    setTimeout(function(){
+      try{ removeTextFallbackBtn(); }catch(e){}
+      try{ mic.style.display=''; }catch(e){}
+      try{ msgs.innerHTML=''; }catch(e){}
+      gate.style.display='flex'; chat.style.display='none';
+      var cta=$('vw-cta'); if(cta){ cta.disabled=false; cta.textContent='Comenzar capacitación'; }
+      panel.classList.remove('vw-inchat');
+      window.__vtcConvId=null; window.__vtcSessionStart=null;
+      if(btn) btn.disabled=false;
+      vwShowToast('✅ Revisa tu email en 5-10 minutos para el reporte completo');
+    },3000);
+  }
+  { var _vwH=$('vw-hangup'); if(_vwH) _vwH.addEventListener('click', vwHangup); }
   function send(){const t=input.value.trim();if(!t||!conv)return;input.value='';bubble('user',t);typing(true);try{conv.sendUserMessage?conv.sendUserMessage(t):(conv.sendText&&conv.sendText(t));}catch(e){console.error(e);}}
   $('vw-snd').onclick=send;
   window.__videoSync={isPlaying:false,currentModule:null};

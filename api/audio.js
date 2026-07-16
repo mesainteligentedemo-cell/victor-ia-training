@@ -18,7 +18,7 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
 
-  const session = String(req.query.session || req.query.id || '').trim();
+  const session = String(req.query.session || req.query.conv || req.query.conversation_id || req.query.id || '').trim();
   if (!session) return res.status(400).json({ error: 'Parámetro "session" requerido' });
   if (!supabase) return res.status(503).json({ error: 'Supabase no configurado' });
 
