@@ -41,6 +41,9 @@ const esc = (s) => String(s ?? '')
 
 const clampScore = (n) => Math.min(Math.max(Math.round(Number(n) || 0), 0), 10);
 
+// Formato decimal en español (coma como separador): 4.08 -> "4,08"
+const dec = (n, d = 1) => (Number(n) || 0).toFixed(d).replace('.', ',');
+
 const stripAccents = (s) => String(s ?? '')
   .normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 
@@ -396,7 +399,7 @@ function heatmapSVG(competencias) {
     }
     g += `<text x="${padL + 10 * (cw + gap) + 8}" y="${y + 15}" font-family="${FONT_MONO}" font-size="12" font-weight="bold" fill="${C.gold}">${sc}/10</text>`;
   });
-  return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Heatmap de competencias" style="max-width:100%;height:auto;">${g}</svg>`;
+  return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mapa de calor de competencias" style="max-width:100%;height:auto;">${g}</svg>`;
 }
 
 // ---------------------------------------------------------------------------
@@ -509,9 +512,9 @@ function trendIndicatorsHtml(vtc, history) {
   // Competencias
   const curAvg = compAvg(vtc.competencias);
   if (prev && prev.score > 0) {
-    items.push({ label: 'Competencias', val: `${curAvg.toFixed(1)}/10`, delta: curAvg - prev.score, abs: true });
+    items.push({ label: 'Competencias', val: `${dec(curAvg, 1)}/10`, delta: curAvg - prev.score, abs: true });
   } else {
-    items.push({ label: 'Competencias', val: `${curAvg.toFixed(1)}/10`, delta: null });
+    items.push({ label: 'Competencias', val: `${dec(curAvg, 1)}/10`, delta: null });
   }
   // Sentimiento
   const sentText = prev
@@ -523,8 +526,8 @@ function trendIndicatorsHtml(vtc, history) {
   const cell = (it) => {
     let color = C.body, arrow = '→', txt = 'sin cambio';
     if (it.delta === null) { arrow = ''; txt = 'primera sesión'; color = C.body; }
-    else if (it.delta > 0.01) { color = C.green; arrow = '↑'; txt = it.sentiment ? 'mejora' : (it.abs ? `+${it.delta.toFixed(1)}` : `+${it.delta.toFixed(1)}%`); }
-    else if (it.delta < -0.01) { color = C.red; arrow = '↓'; txt = it.abs ? `${it.delta.toFixed(1)}` : `${it.delta.toFixed(1)}%`; }
+    else if (it.delta > 0.01) { color = C.green; arrow = '↑'; txt = it.sentiment ? 'mejora' : (it.abs ? `+${dec(it.delta, 1)}` : `+${dec(it.delta, 1)}%`); }
+    else if (it.delta < -0.01) { color = C.red; arrow = '↓'; txt = it.abs ? `${dec(it.delta, 1)}` : `${dec(it.delta, 1)}%`; }
     return `<td width="33%" valign="top" style="padding:14px 12px;border:1px solid ${C.line};background:#ffffff;">
       <div style="font-family:${FONT_MONO};font-size:10px;letter-spacing:1px;color:${C.body};text-transform:uppercase;">${it.label}</div>
       <div style="font-family:${FONT_HEAD};font-size:20px;color:${C.ink};padding:4px 0;">${it.val}</div>
@@ -536,7 +539,7 @@ function trendIndicatorsHtml(vtc, history) {
 // ---------------------------------------------------------------------------
 // getNextModule — determina el próximo módulo según escenario + competencias
 // ---------------------------------------------------------------------------
-const PITCH_MODULES = ['Prospecting', 'Calificación', 'Presentación', 'Cierre', 'Manejo de Objeciones', 'PNL/Rapport'];
+const PITCH_MODULES = ['Prospección', 'Calificación', 'Presentación', 'Cierre', 'Manejo de Objeciones', 'PNL/Rapport'];
 function getNextModule(escenario_actual, competencias) {
   const avg = compAvg(competencias);
   const norm = stripAccents(escenario_actual || '');
@@ -582,7 +585,7 @@ function deriveNeuro(vtc) {
 //  TABLAS FORMALES (5) — estilos inline para compatibilidad de email
 // ===========================================================================
 const TH = `background:${C.headBg};color:${C.gold};font-family:${FONT_MONO};font-size:11px;letter-spacing:1px;padding:12px;text-align:left;text-transform:uppercase;`;
-const TDl = (i) => `font-family:${FONT_MONO};font-size:11px;color:${C.ink};padding:12px;border-bottom:1px solid ${C.line};background:${i % 2 ? C.rowB : C.rowA};`;
+const TDl = (i) => `font-family:${FONT_MONO};font-size:11px;line-height:1.5;color:${C.ink};padding:12px;border-bottom:1px solid ${C.line};background:${i % 2 ? C.rowB : C.rowA};`;
 const tblWrap = (inner) => `<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:collapse;border:1px solid ${C.line};">${inner}</table>`;
 
 // Tabla 1 — Resumen de sesión (9 filas)
@@ -591,7 +594,7 @@ function tableSesion(vtc) {
     ['Empleado', vtc.user_name], ['Número Empleado', vtc.empleado_id],
     ['Departamento', vtc.departamento || 'Dirección'], ['Fecha', vtc.fecha_iso || vtc.timestamp],
     ['Hora Inicio', `${vtc.hora_inicio || '—'} CDMX`], ['Hora Cierre', `${vtc.hora_cierre || '—'} CDMX`],
-    ['Duración Total', vtc.duracion_minutos], ['Agente', 'Coach VÍCTOR'], ['Idioma', vtc.idioma || 'ES']
+    ['Duración Total', vtc.duracion_minutos], ['Agente', 'Coach VÍCTOR'], ['Idioma', vtc.idioma || 'Español']
   ];
   const body = rows.map(([k, v], i) =>
     `<tr><td style="${TDl(i)};font-weight:bold;width:45%;">${esc(k)}</td><td style="${TDl(i)}">${esc(v)}</td></tr>`).join('');
@@ -605,19 +608,19 @@ function tableKPIs(vtc, history) {
   const curAvg = compAvg(vtc.competencias);
   const varCell = (delta, unit) => {
     if (delta === null || delta === undefined) return `<span style="color:${C.body}">—</span>`;
-    if (delta > 0.01) return `<span style="color:${C.green};font-weight:bold">+${delta.toFixed(1)}${unit} ↑</span>`;
-    if (delta < -0.01) return `<span style="color:${C.red};font-weight:bold">${delta.toFixed(1)}${unit} ↓</span>`;
+    if (delta > 0.01) return `<span style="color:${C.green};font-weight:bold">+${dec(delta, 1)}${unit} ↑</span>`;
+    if (delta < -0.01) return `<span style="color:${C.red};font-weight:bold">${dec(delta, 1)}${unit} ↓</span>`;
     return `<span style="color:${C.body}">→</span>`;
   };
   const rows = [
-    ['Duración (min)', curMin.toFixed(2), prev ? prev.duration_min.toFixed(2) : '—',
+    ['Duración (min)', dec(curMin, 2), prev ? dec(prev.duration_min, 2) : '—',
       prev && prev.duration_min > 0 ? varCell(((curMin - prev.duration_min) / prev.duration_min) * 100, '%') : '<span style="color:'+C.body+'">—</span>'],
-    ['Competencias Prom.', curAvg.toFixed(1), prev ? prev.score.toFixed(1) : '—',
+    ['Competencias Prom.', dec(curAvg, 1), prev ? dec(prev.score, 1) : '—',
       prev ? varCell(curAvg - prev.score, '') : '<span style="color:'+C.body+'">—</span>'],
     ['Sentimiento', esc(vtc.sentimiento || 'Neutral'), prev ? esc(prev.sentiment || '—') : '—',
       stripAccents(vtc.sentimiento || '').includes('positiv') ? '<span style="color:'+C.green+';font-weight:bold">↑ Mejora</span>' : '<span style="color:'+C.body+'">→</span>'],
     ['Intervenciones', String(vtc.intervenciones ?? 0), '—', '<span style="color:'+C.body+'">—</span>'],
-    ['Score Global', `${clampScore(vtc.score_global)}/10`, prev ? `${prev.score.toFixed(1)}/10` : '—',
+    ['Puntaje Global', `${clampScore(vtc.score_global)}/10`, prev ? `${dec(prev.score, 1)}/10` : '—',
       prev ? varCell(clampScore(vtc.score_global) - prev.score, '') : '<span style="color:'+C.body+'">—</span>']
   ];
   const body = rows.map(([k, a, h, v], i) =>
@@ -632,17 +635,17 @@ function tableCompetencias(vtc, history) {
   if (!rows.length) return tblWrap(`<tr><td style="${TH}">Competencia</td></tr><tr><td style="${TDl(0)}">Sin datos de competencias</td></tr>`);
   const body = rows.map((c, i) => {
     const sc = clampScore(c.score);
-    const hist = prevScore !== null ? `${prevScore.toFixed(1)}/10` : '—';
+    const hist = prevScore !== null ? `${dec(prevScore, 1)}/10` : '—';
     let trend = '<span style="color:'+C.body+'">— Nuevo</span>';
     if (prevScore !== null) {
       const d = sc - prevScore;
-      trend = d > 0.05 ? `<span style="color:${C.green};font-weight:bold">↑ +${d.toFixed(1)}</span>`
-        : d < -0.05 ? `<span style="color:${C.red};font-weight:bold">↓ ${d.toFixed(1)}</span>`
+      trend = d > 0.05 ? `<span style="color:${C.green};font-weight:bold">↑ +${dec(d, 1)}</span>`
+        : d < -0.05 ? `<span style="color:${C.red};font-weight:bold">↓ ${dec(d, 1)}</span>`
           : `<span style="color:${C.body}">→ Igual</span>`;
     }
     return `<tr><td style="${TDl(i)};font-weight:bold;">${esc(c.nombre)}</td><td style="${TDl(i)}">${sc}/10</td><td style="${TDl(i)}">${hist}</td><td style="${TDl(i)}">${trend}</td></tr>`;
   }).join('');
-  return tblWrap(`<tr><td style="${TH}">Competencia</td><td style="${TH}">Score</td><td style="${TH}">Histórico</td><td style="${TH}">Trend</td></tr>${body}`);
+  return tblWrap(`<tr><td style="${TH}">Competencia</td><td style="${TH}">Puntaje</td><td style="${TH}">Histórico</td><td style="${TH}">Tendencia</td></tr>${body}`);
 }
 
 // Tabla 4 — Objeciones enfrentadas
@@ -671,12 +674,12 @@ function tableTranscript(vtc) {
   if (!picked.length) return tblWrap(`<tr><td style="${TH}">Transcripción</td></tr><tr><td style="${TDl(0)}">Transcripción no disponible</td></tr>`);
   const body = picked.map((m, i) => {
     const isUser = m.role === 'user';
-    const who = isUser ? 'Empleado' : 'Coach VCT';
+    const who = isUser ? 'Empleado' : 'Coach VÍCTOR';
     const excerpt = String(m.message).slice(0, 50) + (m.message.length > 50 ? '…' : '');
     return `<tr><td style="${TDl(i)};width:60px;">${fmtT(m.time)}</td><td style="${TDl(i)};width:90px;font-weight:bold;color:${isUser ? C.gold : C.ink};">${who}</td><td style="${TDl(i)}">&ldquo;${esc(excerpt)}&rdquo;</td></tr>`;
   }).join('');
   const ellip = msgs.length > 4 ? `<tr><td colspan="3" style="${TDl(1)};text-align:center;color:${C.body};">··· ${msgs.length - 4} intervenciones más ···</td></tr>` : '';
-  return tblWrap(`<tr><td style="${TH}">Time</td><td style="${TH}">Speaker</td><td style="${TH}">Excerpt</td></tr>${picked.length >= 4 ? body.replace(/(<\/tr>)(?=(?:(?!<\/tr>).)*$)/, '$1' + ellip) : body}`);
+  return tblWrap(`<tr><td style="${TH}">Hora</td><td style="${TH}">Participante</td><td style="${TH}">Fragmento</td></tr>${picked.length >= 4 ? body.replace(/(<\/tr>)(?=(?:(?!<\/tr>).)*$)/, '$1' + ellip) : body}`);
 }
 
 // ---------------------------------------------------------------------------
@@ -698,7 +701,7 @@ function buildReportHtml(vtc, { forPdf = false } = {}) {
   const chartRow = (svg) => `<tr><td class="px" align="center" style="padding:16px 20px 0 20px;">${svg}</td></tr>`;
   const tableRow = (tbl) => `<tr><td class="px" style="padding:14px 34px 0 34px;">${tbl}</td></tr>`;
 
-  const cta = (href, emoji, label) => `<a href="${esc(href)}" target="_blank" style="display:inline-block;background:${C.gold};color:${C.bg};padding:14px 24px;text-decoration:none;border-radius:6px;font-family:${FONT_BODY};font-weight:400;font-size:13px;letter-spacing:.5px;">${emoji} ${label}</a>`;
+  const cta = (href, emoji, label) => `<a href="${esc(href)}" target="_blank" style="display:inline-block;background:${C.gold};color:${C.bg};padding:14px 28px;text-decoration:none;border-radius:6px;font-family:${FONT_BODY};font-weight:400;font-size:13px;letter-spacing:.5px;">${emoji} ${label}</a>`;
 
   const listRows = (items, color) => (items || []).map((t) =>
     `<tr><td valign="top" style="padding:5px 0;width:18px;font-family:${FONT_BODY};font-size:14px;color:${color};font-weight:bold;">&#8226;</td>
@@ -758,8 +761,8 @@ ${tableRow(tableSesion(vtc))}
 ${H2('Métricas clave (KPIs)')}
 ${tableRow(tableKPIs(vtc, history))}
 
-<!-- HEATMAP -->
-${H2('Heatmap de competencias')}
+<!-- MAPA DE CALOR -->
+${H2('Mapa de calor de competencias')}
 ${chartRow(heatmapSVG(vtc.competencias))}
 
 <!-- TABLA 3 COMPETENCIAS -->
@@ -1096,7 +1099,7 @@ function buildPdfReportHtml(vtc) {
     <div class="radar avoid">${radarSVG(vtc)}</div>
 
     <!-- GRÁFICOS A COLOR (heatmap · histórico · neuro · timeline) -->
-    <div class="chartbox avoid"><div class="ct">Heatmap de competencias</div>${heatmapSVG(vtc.competencias)}</div>
+    <div class="chartbox avoid"><div class="ct">Mapa de calor de competencias</div>${heatmapSVG(vtc.competencias)}</div>
     <div class="chartbox avoid"><div class="ct">Histórico de desempeño</div>${sparklineSVG(vtc.history || [])}</div>
     <div class="chartbox avoid"><div class="ct">Neurociencia de la conversación</div>${gaugesSVG(deriveNeuro(vtc))}</div>
     <div class="chartbox avoid"><div class="ct">Línea de tiempo</div>${timelineVizSVG(vtc.timeline)}</div>
@@ -1120,7 +1123,7 @@ function buildPdfReportHtml(vtc) {
     <div class="box avoid" style="margin-top:18px"><div class="box-t gold">An&aacute;lisis PNL</div><p class="p">${dash(vtc.analisis_pnl)}</p></div>
 
     <!-- DRILL -->
-    <div class="box avoid" style="margin-top:22px"><div class="box-t gold">Tu pr&oacute;ximo drill</div>
+    <div class="box avoid" style="margin-top:22px"><div class="box-t gold">Tu pr&oacute;ximo ejercicio</div>
       <div class="lead">${esc(vtc.drill?.descripcion || vtc.drill?.titulo || '')}</div>
       <a class="btn-outline" href="${drillUrl}">ENTRENAR DE NUEVO</a>
     </div>
@@ -1134,7 +1137,7 @@ function buildPdfReportHtml(vtc) {
     <div class="comp">Comprensi&oacute;n general <span class="gold">${comp}/10</span></div>
     <div class="klabel2">Participaci&oacute;n</div>
     <p class="p">${dash(vtc.participacion)}</p>
-    <div class="box avoid" style="margin-top:12px"><div class="box-t muted">Nota deep learning &mdash; mejoras para V&iacute;ctor</div>${nota}</div>
+    <div class="box avoid" style="margin-top:12px"><div class="box-t muted">Nota de aprendizaje &mdash; mejoras para V&iacute;ctor</div>${nota}</div>
 
     <!-- ACTIVIDAD -->
     <div class="klabel2">Actividad de la sesi&oacute;n</div>
