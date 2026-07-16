@@ -14,7 +14,12 @@
   --red:#C0392B;--green:#27AE60;--blue:#2980B9;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
-html{scroll-behavior:smooth;}
+html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}
+html, body{-webkit-scroll-behavior:smooth;scroll-behavior:smooth;}
+::-webkit-scrollbar{width:8px;height:8px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--gold);border-radius:4px;}
+::-webkit-scrollbar-thumb:hover{background:var(--gold2);}
 body{background:var(--ink);color:var(--cream);font-family:'Inter',sans-serif;font-weight:300;font-size:15px;line-height:1.7;}
 
 /* NAV */

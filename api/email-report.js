@@ -664,22 +664,21 @@ function tableObjeciones(vtc) {
   return tblWrap(`<tr><td style="${TH}">Objeción</td><td style="${TH}">Cómo se manejó</td><td style="${TH}">Efectividad</td></tr>${body}`);
 }
 
-// Tabla 5 — Transcripción abreviada (primeras 3 + última)
+// Tabla 5 — Transcripción COMPLETA
 function tableTranscript(vtc) {
   const msgs = (vtc.messages || []).filter((m) => m && m.message);
   const fmtT = (s) => { const n = Math.max(0, Math.floor(Number(s) || 0)); return `${Math.floor(n / 60)}:${String(n % 60).padStart(2, '0')}`; };
-  let picked = [];
-  if (msgs.length <= 4) picked = msgs;
-  else picked = [...msgs.slice(0, 3), msgs[msgs.length - 1]];
-  if (!picked.length) return tblWrap(`<tr><td style="${TH}">Transcripción</td></tr><tr><td style="${TDl(0)}">Transcripción no disponible</td></tr>`);
-  const body = picked.map((m, i) => {
+
+  if (!msgs.length) return tblWrap(`<tr><td style="${TH}">Transcripción</td></tr><tr><td style="${TDl(0)}">Transcripción no disponible</td></tr>`);
+
+  // MOSTRAR TODAS LAS INTERVENCIONES (completas, no truncadas)
+  const body = msgs.map((m, i) => {
     const isUser = m.role === 'user';
     const who = isUser ? 'Empleado' : 'Coach VÍCTOR';
-    const excerpt = String(m.message).slice(0, 50) + (m.message.length > 50 ? '…' : '');
-    return `<tr><td style="${TDl(i)};width:60px;">${fmtT(m.time)}</td><td style="${TDl(i)};width:90px;font-weight:bold;color:${isUser ? C.gold : C.ink};">${who}</td><td style="${TDl(i)}">&ldquo;${esc(excerpt)}&rdquo;</td></tr>`;
+    return `<tr><td style="${TDl(i)};width:60px;">${fmtT(m.time)}</td><td style="${TDl(i)};width:90px;font-weight:bold;color:${isUser ? C.gold : C.ink};">${who}</td><td style="${TDl(i)}">&ldquo;${esc(m.message)}&rdquo;</td></tr>`;
   }).join('');
-  const ellip = msgs.length > 4 ? `<tr><td colspan="3" style="${TDl(1)};text-align:center;color:${C.body};">··· ${msgs.length - 4} intervenciones más ···</td></tr>` : '';
-  return tblWrap(`<tr><td style="${TH}">Hora</td><td style="${TH}">Participante</td><td style="${TH}">Fragmento</td></tr>${picked.length >= 4 ? body.replace(/(<\/tr>)(?=(?:(?!<\/tr>).)*$)/, '$1' + ellip) : body}`);
+
+  return tblWrap(`<tr><td style="${TH}">Hora</td><td style="${TH}">Participante</td><td style="${TH}">Transcripción Completa</td></tr>${body}`);
 }
 
 // ---------------------------------------------------------------------------
@@ -696,10 +695,10 @@ function buildReportHtml(vtc, { forPdf = false } = {}) {
   const audioUrl = `${base}/api/audio?session=${encodeURIComponent(vtc.conversation_id || '')}`;
   const nextUrl = next.url;
 
-  const H2 = (t) => `<tr><td class="px" style="padding:34px 34px 6px 34px;">
-    <div style="font-family:${FONT_HEAD};font-size:22px;font-weight:400;color:${C.ink};border-bottom:1px solid ${C.line};padding-bottom:8px;">${t}</div></td></tr>`;
-  const chartRow = (svg) => `<tr><td class="px" align="center" style="padding:16px 20px 0 20px;">${svg}</td></tr>`;
-  const tableRow = (tbl) => `<tr><td class="px" style="padding:14px 34px 0 34px;">${tbl}</td></tr>`;
+  const H2 = (t) => `<tr><td class="px" style="padding:16px 18px 4px 18px;">
+    <div style="font-family:${FONT_HEAD};font-size:22px;font-weight:400;color:${C.ink};border-bottom:1px solid ${C.line};padding-bottom:6px;">${t}</div></td></tr>`;
+  const chartRow = (svg) => `<tr><td class="px" align="center" style="padding:10px 12px 0 12px;">${svg}</td></tr>`;
+  const tableRow = (tbl) => `<tr><td class="px" style="padding:10px 18px 0 18px;">${tbl}</td></tr>`;
 
   const cta = (href, emoji, label) => `<a href="${esc(href)}" target="_blank" style="display:inline-block;background:${C.gold};color:${C.bg};padding:14px 28px;text-decoration:none;border-radius:6px;font-family:${FONT_BODY};font-weight:400;font-size:13px;letter-spacing:.5px;">${emoji} ${label}</a>`;
 
@@ -708,12 +707,12 @@ function buildReportHtml(vtc, { forPdf = false } = {}) {
      <td style="padding:5px 0;font-family:${FONT_BODY};font-size:14px;line-height:22px;color:${C.body};">${esc(t)}</td></tr>`).join('');
 
   const fortalezasBlock = (vtc.fortalezas || []).length
-    ? `<tr><td class="px" style="padding:18px 34px 0 34px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#ffffff;border-left:4px solid ${C.green};">
-        <tr><td style="padding:14px 18px 4px 18px;font-family:${FONT_MONO};font-size:11px;font-weight:bold;letter-spacing:1px;color:${C.green};">&#10003; LO QUE HICISTE BIEN</td></tr>
-        <tr><td style="padding:0 18px 12px 18px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">${listRows(vtc.fortalezas, C.green)}</table></td></tr></table></td></tr>` : '';
+    ? `<tr><td class="px" style="padding:10px 18px 0 18px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#ffffff;border-left:4px solid ${C.green};">
+        <tr><td style="padding:10px 12px 2px 12px;font-family:${FONT_MONO};font-size:10px;font-weight:bold;letter-spacing:1px;color:${C.green};">&#10003; LO QUE HICISTE BIEN</td></tr>
+        <tr><td style="padding:0 12px 8px 12px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">${listRows(vtc.fortalezas, C.green)}</table></td></tr></table></td></tr>` : '';
   const mejorasBlock = (vtc.mejoras || []).length
-    ? `<tr><td class="px" style="padding:14px 34px 0 34px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#ffffff;border-left:4px solid ${C.yellow};">
-        <tr><td style="padding:14px 18px 4px 18px;font-family:${FONT_MONO};font-size:11px;font-weight:bold;letter-spacing:1px;color:${C.yellow};">&#9650; A MEJORAR</td></tr>
+    ? `<tr><td class="px" style="padding:10px 18px 0 18px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#ffffff;border-left:4px solid ${C.yellow};">
+        <tr><td style="padding:10px 12px 2px 12px;font-family:${FONT_MONO};font-size:10px;font-weight:bold;letter-spacing:1px;color:${C.yellow};">&#9650; A MEJORAR</td></tr>
         <tr><td style="padding:0 18px 12px 18px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">${listRows(vtc.mejoras, C.yellow)}</table></td></tr></table></td></tr>` : '';
 
   return `<!DOCTYPE html>
@@ -728,30 +727,30 @@ function buildReportHtml(vtc, { forPdf = false } = {}) {
 <table role="presentation" class="wrap" cellpadding="0" cellspacing="0" border="0" width="600" style="width:600px;max-width:600px;background-color:${C.bg};border:1px solid ${C.line};border-radius:10px;overflow:hidden;">
 
 <!-- HEADER -->
-<tr><td style="background:${C.headBg};padding:36px 34px 28px 34px;" align="center">
-<div style="font-family:${FONT_MONO};font-size:12px;letter-spacing:4px;color:${C.gold};">VICTORIOUS TRAVELERS CLUB</div>
-<div style="font-family:${FONT_HEAD};font-size:28px;font-weight:700;color:${C.gold};padding-top:10px;letter-spacing:.5px;">Reporte de Entrenamiento</div>
-<div style="font-family:${FONT_MONO};font-size:10px;letter-spacing:3px;color:#8a8a8a;padding-top:10px;text-transform:uppercase;">${esc(vtc.timestamp)}</div>
+<tr><td style="background:${C.headBg};padding:18px 18px 14px 18px;" align="center">
+<div style="font-family:${FONT_MONO};font-size:11px;letter-spacing:3px;color:${C.gold};">VICTORIOUS TRAVELERS CLUB</div>
+<div style="font-family:${FONT_HEAD};font-size:26px;font-weight:700;color:${C.gold};padding-top:6px;letter-spacing:.5px;">Reporte de Entrenamiento</div>
+<div style="font-family:${FONT_MONO};font-size:9px;letter-spacing:2px;color:#8a8a8a;padding-top:6px;text-transform:uppercase;">${esc(vtc.timestamp)}</div>
 </td></tr>
 
 <!-- SUBTÍTULO -->
-<tr><td class="px" style="padding:22px 34px 0 34px;" align="center">
-<div style="font-family:${FONT_HEAD};font-size:16px;font-weight:300;color:${C.ink};">Sesi&oacute;n de ${esc(vtc.user_name)} con V&iacute;ctor &middot; ${esc(vtc.tipo_sesion)} &middot; ${esc(vtc.duracion_minutos)} min</div>
+<tr><td class="px" style="padding:12px 18px 0 18px;" align="center">
+<div style="font-family:${FONT_HEAD};font-size:15px;font-weight:300;color:${C.ink};">Sesi&oacute;n de ${esc(vtc.user_name)} con V&iacute;ctor &middot; ${esc(vtc.tipo_sesion)} &middot; ${esc(vtc.duracion_minutos)} min</div>
 </td></tr>
 
 <!-- SCORE -->
-<tr><td align="center" style="padding:18px 34px 4px 34px;">
+<tr><td align="center" style="padding:12px 18px 2px 18px;">
 <div style="font-family:${FONT_MONO};font-size:11px;letter-spacing:3px;color:${C.body};text-transform:uppercase;">Desempeño Global</div>
 <div style="padding:6px 0;"><span class="score-num" style="font-family:${FONT_HEAD};font-size:88px;font-weight:700;color:${C.gold};line-height:1;">${seg}</span><span style="font-family:${FONT_HEAD};font-size:34px;color:${C.goldDark};">/10</span></div>
 </td></tr>
 
 <!-- TENDENCIAS -->
 ${H2('Indicadores de tendencia')}
-<tr><td class="px" style="padding:14px 34px 0 34px;">${trendIndicatorsHtml(vtc, history)}</td></tr>
+<tr><td class="px" style="padding:10px 18px 0 18px;">${trendIndicatorsHtml(vtc, history)}</td></tr>
 
 <!-- RESUMEN -->
 ${H2('Resumen de la llamada')}
-<tr><td class="px" style="padding:12px 34px 0 34px;font-family:${FONT_BODY};font-size:14px;line-height:23px;color:${C.body};">${esc(vtc.resumen)}</td></tr>
+<tr><td class="px" style="padding:8px 18px 0 18px;font-family:${FONT_BODY};font-size:14px;line-height:23px;color:${C.body};">${esc(vtc.resumen)}</td></tr>
 
 <!-- TABLA 1 SESIÓN -->
 ${H2('Información de sesión')}
@@ -794,7 +793,7 @@ ${tableRow(tableTranscript(vtc))}
 
 <!-- PRÓXIMO MÓDULO -->
 ${H2('Tu próximo paso')}
-<tr><td class="px" style="padding:12px 34px 0 34px;font-family:${FONT_BODY};font-size:14px;line-height:22px;color:${C.body};">
+<tr><td class="px" style="padding:8px 18px 0 18px;font-family:${FONT_BODY};font-size:14px;line-height:22px;color:${C.body};">
 ${next.repetir ? 'Recomendamos <b>repetir</b>' : 'Avanza al módulo'} <b style="color:${C.gold};">${esc(next.nombre)}</b> ${next.repetir ? 'para consolidar competencias antes de avanzar.' : 'para continuar tu progreso en el pitch.'}</td></tr>
 
 <!-- 4 CTAs -->
