@@ -695,10 +695,10 @@ function buildReportHtml(vtc, { forPdf = false } = {}) {
   const audioUrl = `${base}/api/audio?session=${encodeURIComponent(vtc.conversation_id || '')}`;
   const nextUrl = next.url;
 
-  const H2 = (t) => `<tr><td class="px" style="padding:16px 18px 4px 18px;">
+  const H2 = (t) => `<tr><td class="px" style="padding:8px 12px 2px 12px;">
     <div style="font-family:${FONT_HEAD};font-size:22px;font-weight:400;color:${C.ink};border-bottom:1px solid ${C.line};padding-bottom:6px;">${t}</div></td></tr>`;
   const chartRow = (svg) => `<tr><td class="px" align="center" style="padding:10px 12px 0 12px;">${svg}</td></tr>`;
-  const tableRow = (tbl) => `<tr><td class="px" style="padding:10px 18px 0 18px;">${tbl}</td></tr>`;
+  const tableRow = (tbl) => `<tr><td class="px" style="padding:6px 12px 0 12px;">${tbl}</td></tr>`;
 
   const cta = (href, emoji, label) => `<a href="${esc(href)}" target="_blank" style="display:inline-block;background:${C.gold};color:${C.bg};padding:14px 28px;text-decoration:none;border-radius:6px;font-family:${FONT_BODY};font-weight:400;font-size:13px;letter-spacing:.5px;">${emoji} ${label}</a>`;
 
@@ -707,11 +707,11 @@ function buildReportHtml(vtc, { forPdf = false } = {}) {
      <td style="padding:5px 0;font-family:${FONT_BODY};font-size:14px;line-height:22px;color:${C.body};">${esc(t)}</td></tr>`).join('');
 
   const fortalezasBlock = (vtc.fortalezas || []).length
-    ? `<tr><td class="px" style="padding:10px 18px 0 18px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#ffffff;border-left:4px solid ${C.green};">
+    ? `<tr><td class="px" style="padding:6px 12px 0 12px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#ffffff;border-left:4px solid ${C.green};">
         <tr><td style="padding:10px 12px 2px 12px;font-family:${FONT_MONO};font-size:10px;font-weight:bold;letter-spacing:1px;color:${C.green};">&#10003; LO QUE HICISTE BIEN</td></tr>
         <tr><td style="padding:0 12px 8px 12px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">${listRows(vtc.fortalezas, C.green)}</table></td></tr></table></td></tr>` : '';
   const mejorasBlock = (vtc.mejoras || []).length
-    ? `<tr><td class="px" style="padding:10px 18px 0 18px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#ffffff;border-left:4px solid ${C.yellow};">
+    ? `<tr><td class="px" style="padding:6px 12px 0 12px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#ffffff;border-left:4px solid ${C.yellow};">
         <tr><td style="padding:10px 12px 2px 12px;font-family:${FONT_MONO};font-size:10px;font-weight:bold;letter-spacing:1px;color:${C.yellow};">&#9650; A MEJORAR</td></tr>
         <tr><td style="padding:0 18px 12px 18px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">${listRows(vtc.mejoras, C.yellow)}</table></td></tr></table></td></tr>` : '';
 
@@ -746,7 +746,7 @@ function buildReportHtml(vtc, { forPdf = false } = {}) {
 
 <!-- TENDENCIAS -->
 ${H2('Indicadores de tendencia')}
-<tr><td class="px" style="padding:10px 18px 0 18px;">${trendIndicatorsHtml(vtc, history)}</td></tr>
+<tr><td class="px" style="padding:6px 12px 0 12px;">${trendIndicatorsHtml(vtc, history)}</td></tr>
 
 <!-- RESUMEN -->
 ${H2('Resumen de la llamada')}
@@ -788,7 +788,7 @@ ${H2('Objeciones enfrentadas')}
 ${tableRow(tableObjeciones(vtc))}
 
 <!-- TABLA 5 TRANSCRIPT -->
-${H2('Transcripción abreviada')}
+${H2('Transcripción Completa')}
 ${tableRow(tableTranscript(vtc))}
 
 <!-- PRÓXIMO MÓDULO -->
