@@ -948,9 +948,9 @@ function buildPdfReportHtml(vtc) {
 <style>
   * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   html { margin: 0; padding: 0; background: ${P.page}; }
-  body { margin: 0; padding: 22px; background: ${P.page}; font-family: Arial, Helvetica, sans-serif; }
+  body { margin: 0; padding: 8px; background: ${P.page}; font-family: Arial, Helvetica, sans-serif; }
   .card { background: ${P.card}; border-radius: 16px; overflow: hidden; color: ${P.txt}; }
-  .pad { padding: 30px 34px; }
+  .pad { padding: 8px 12px; }
 
   /* Header */
   .brandline { display: flex; align-items: baseline; gap: 12px; }
@@ -965,7 +965,7 @@ function buildPdfReportHtml(vtc) {
   .rule { border: 0; border-top: 1px solid #2b2b2b; margin: 0 34px; }
 
   /* Score */
-  .score { text-align: center; padding: 26px 34px 6px; }
+  .score { text-align: center; padding: 8px 12px 2px; }
   .klabel { font-size: 12px; font-weight: bold; letter-spacing: 3px; color: ${P.muted}; text-transform: uppercase; }
   .bignum { line-height: 1; margin: 8px 0 14px; }
   .bignum .n { font-size: 118px; font-weight: bold; color: ${P.gold}; }
@@ -973,7 +973,7 @@ function buildPdfReportHtml(vtc) {
   .headline { font-size: 15px; color: ${P.muted}; max-width: 560px; margin: 0 auto; line-height: 1.5; }
 
   /* Cajas */
-  .box { background: ${P.panel}; border: 1px solid ${P.border}; border-radius: 12px; padding: 18px 20px; }
+  .box { background: ${P.panel}; border: 1px solid ${P.border}; border-radius: 8px; padding: 6px 8px; }
   .box-t { font-size: 12px; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; }
   .box-t.gold { color: ${P.gold}; }
   .box-t.green { color: ${P.green}; }
