@@ -1870,6 +1870,13 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
   .vw-head .vw-st b{color:#b89a6a;font-weight:600}
   .vw-ico{color:#6a6a72;cursor:pointer;font-size:20px;line-height:1;padding:2px 6px;background:none;border:none}
   .vw-ico:hover{color:#cfcfd6}
+  /* controles de conversación: pausa/reanuda + mute/desmute audio del agente */
+  #vw-controls{display:none;align-items:center;gap:7px;margin-right:2px}
+  #vw-panel.vw-inchat #vw-controls{display:flex}
+  .vw-ctrl{color:#b89a6a;cursor:pointer;font-size:14px;line-height:1;width:30px;height:30px;flex:none;display:flex;align-items:center;justify-content:center;background:#141310;border:1px solid #3a3326;border-radius:8px;padding:0;transition:background .18s,border-color .18s,color .18s}
+  .vw-ctrl:hover{background:#1e1b15;border-color:#b89a6a;color:#e8d3a6}
+  .vw-ctrl:active{transform:scale(.94)}
+  .vw-ctrl.vw-on{background:#b89a6a;border-color:#b89a6a;color:#0a0a0c}
   /* gate / popup de acceso */
   #vw-gate{flex:1;display:flex;flex-direction:column;justify-content:center;padding:24px 26px;gap:14px;overflow-y:auto}
   #vw-gate::-webkit-scrollbar{width:6px}#vw-gate::-webkit-scrollbar-thumb{background:#23211c;border-radius:3px}
@@ -1925,6 +1932,10 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
   <div class="vw-head">
     <span class="vw-v" aria-label="Victor">V</span>
     <div class="vw-t"><div class="vw-name">Victor</div><div class="vw-st" id="vw-status">Tu entrenador personal · VTC</div><div class="vw-sess" id="vw-sess"><span class="dot"></span><span id="vw-sess-txt"></span></div></div>
+    <div id="vw-controls">
+      <button class="vw-ctrl" id="vw-pause" type="button" title="Pausar agente" aria-pressed="false" aria-label="Pausar o reanudar el agente">&#9208;</button>
+      <button class="vw-ctrl" id="vw-mute" type="button" title="Silenciar audio de Victor" aria-pressed="false" aria-label="Silenciar o activar el audio de Victor">&#128266;</button>
+    </div>
     <button class="vw-ico" id="vw-min" title="Minimizar (sigue activo)">&#8211;</button>
     <button class="vw-ico" id="vw-close" title="Terminar">&times;</button>
   </div>
@@ -2589,7 +2600,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
     try{ var _bv=document.querySelector('#bienvenida video'); if(_bv){ _bv.muted=true; var _pp=_bv.play(); if(_pp&&_pp.then) _pp.then(function(){ _bv.pause(); try{_bv.currentTime=0;}catch(e){} _bv.muted=false; }).catch(function(){ _bv.muted=false; }); } }catch(e){}
     const firstMessage = '¡Bienvenido, '+name+'! Soy Victor, tu entrenador personal, y hoy vamos a hacerte mejor. ¿Quieres repasar un módulo o entramos directo a un roleplay?';
     const lang=($('vw-lang')&&$('vw-lang').value)||vtcDetectLang(); vtcSetLang(lang);
-    gate.style.display='none'; chat.style.display='flex'; started=true;
+    gate.style.display='none'; chat.style.display='flex'; started=true; panel.classList.add('vw-inchat');
     setStatus(textOnly?'<b>Preparando chat de texto…</b>':'<b>Preparando tu sesión…</b>');
     const ok=await connect({name,emp,dep,hist:'',firstMessage,textOnly:!!textOnly,lang});
     if(!ok){
@@ -2597,7 +2608,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       /* Si hay sesión válida, NUNCA volver al formulario: mantener el chat y ofrecer reconexión */
       var _sess=vtcGetSession();
       if(_sess){
-        chat.style.display='flex'; gate.style.display='none'; vtcShowSessBadge(_sess);
+        chat.style.display='flex'; gate.style.display='none'; panel.classList.add('vw-inchat'); vtcShowSessBadge(_sess);
         setStatus('<b>No se pudo conectar</b> — sesión activa, puedes reintentar');
         removeTextFallbackBtn();
         var _rb=document.getElementById('vw-reconnect');
@@ -2606,7 +2617,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
         return;
       }
       /* Sin sesión: devolver al formulario para reintentar */
-      gate.style.display='flex'; chat.style.display='none';
+      gate.style.display='flex'; chat.style.display='none'; panel.classList.remove('vw-inchat');
       err.textContent='No se pudo conectar con Victor. Revisa tu internet y vuelve a intentar.';
       cta.disabled=false; cta.textContent='Reintentar';
       if(textOnly) showTextFallbackBtn(function(){ startCourse(name,emp,dep,true); });
@@ -2647,12 +2658,39 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
     else { /* Mic denegado en sesión activa: NO mostrar formulario, entrar directo en modo texto */ await startCourse(name,emp,dep,true); }
   }
   function minimize(){ panel.classList.remove('vw-open'); launch.style.display='flex'; } // NO corta la sesión
-  function endAll(){ try{ window.__vtcTrack && window.__vtcTrack('session_completed',{reason:'user_ended'},{keepalive:true}); }catch(e){} try{conv&&conv.endSession();}catch(e){} conv=null;started=false;window.__vtcSpeaking=false;stopKeepalive(); mic.classList.remove('vw-live');launch.classList.remove('vw-active'); try{mic.style.display='';}catch(e){} removeTextFallbackBtn(); msgs.innerHTML=''; gate.style.display='flex';chat.style.display='none'; $('vw-cta').disabled=false;$('vw-cta').textContent='Comenzar capacitación'; panel.classList.remove('vw-open'); launch.style.display='flex'; }
+  function endAll(){ try{ window.__vtcTrack && window.__vtcTrack('session_completed',{reason:'user_ended'},{keepalive:true}); }catch(e){} try{conv&&conv.endSession();}catch(e){} conv=null;started=false;window.__vtcSpeaking=false;stopKeepalive(); mic.classList.remove('vw-live');launch.classList.remove('vw-active'); try{mic.style.display='';}catch(e){} removeTextFallbackBtn(); msgs.innerHTML=''; gate.style.display='flex';chat.style.display='none'; $('vw-cta').disabled=false;$('vw-cta').textContent='Comenzar capacitación'; try{vwResetControls();}catch(e){} panel.classList.remove('vw-inchat'); panel.classList.remove('vw-open'); launch.style.display='flex'; }
 
   launch.onclick=openPanel; $('vw-min').onclick=minimize; $('vw-close').onclick=endAll; $('vw-cta').onclick=begin;
   $('vw-emp').addEventListener('keydown',e=>{if(e.key==='Enter')begin();});
   $('vw-dep').addEventListener('keydown',e=>{if(e.key==='Enter')begin();});
   mic.onclick=()=>{ if(!conv)return; try{muted=!muted;conv.setMicMuted&&conv.setMicMuted(muted);mic.classList.toggle('vw-live',!muted);setStatus(muted?'Micrófono en pausa':'<b>En línea</b>');}catch(e){} };
+  /* ── Controles manuales: Pausa/Reanuda conversación + Mute/Desmute audio del agente ── */
+  var vwPaused=false, vwAudioMuted=false;
+  function vwApplyAudio(){ try{ if(conv&&conv.setVolume) conv.setVolume({volume:(vwPaused||vwAudioMuted)?0:1}); }catch(e){} }
+  function vwSetPaused(p){
+    if(!conv) return; vwPaused=p;
+    /* al pausar se silencia el mic; al reanudar se respeta el estado del botón de micrófono */
+    try{ conv.setMicMuted && conv.setMicMuted(p?true:!!muted); }catch(e){}
+    vwApplyAudio();
+    /* keepalive para que la sesión no expire durante la pausa */
+    try{ if(p){ if(!window._vwPauseKeep) window._vwPauseKeep=setInterval(function(){ try{ if(conv&&conv.sendUserActivity) conv.sendUserActivity(); }catch(e){} },10000); }
+         else { if(window._vwPauseKeep){ clearInterval(window._vwPauseKeep); window._vwPauseKeep=null; } } }catch(e){}
+    var b=document.getElementById('vw-pause');
+    if(b){ b.classList.toggle('vw-on',p); b.setAttribute('aria-pressed',p?'true':'false'); b.title=p?'Reanudar agente':'Pausar agente'; b.innerHTML=p?'&#9654;':'&#9208;'; }
+    setStatus(p?'En pausa':'<b>En línea</b>');
+  }
+  function vwSetMuted(m){
+    if(!conv) return; vwAudioMuted=m; vwApplyAudio();
+    var b=document.getElementById('vw-mute');
+    if(b){ b.classList.toggle('vw-on',m); b.setAttribute('aria-pressed',m?'true':'false'); b.title=m?'Activar audio de Victor':'Silenciar audio de Victor'; b.innerHTML=m?'&#128263;':'&#128266;'; }
+  }
+  function vwResetControls(){ vwPaused=false; vwAudioMuted=false; try{ if(window._vwPauseKeep){clearInterval(window._vwPauseKeep);window._vwPauseKeep=null;} }catch(e){}
+    var p=document.getElementById('vw-pause'),m=document.getElementById('vw-mute');
+    if(p){p.classList.remove('vw-on');p.setAttribute('aria-pressed','false');p.title='Pausar agente';p.innerHTML='&#9208;';}
+    if(m){m.classList.remove('vw-on');m.setAttribute('aria-pressed','false');m.title='Silenciar audio de Victor';m.innerHTML='&#128266;';}
+  }
+  { var _vwP=$('vw-pause'); if(_vwP) _vwP.onclick=function(){ if(!conv) return; vwSetPaused(!vwPaused); };
+    var _vwM=$('vw-mute'); if(_vwM) _vwM.onclick=function(){ if(!conv) return; vwSetMuted(!vwAudioMuted); }; }
   function send(){const t=input.value.trim();if(!t||!conv)return;input.value='';bubble('user',t);typing(true);try{conv.sendUserMessage?conv.sendUserMessage(t):(conv.sendText&&conv.sendText(t));}catch(e){console.error(e);}}
   $('vw-snd').onclick=send;
   window.__videoSync={isPlaying:false,currentModule:null};
