@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "dependencies": {
     "@supabase/supabase-js": "^2.45.0",
+    "cloudinary": "^2.10.0",
     "resend": "^3.0.0"
   },
   "optionalDependencies": {
