@@ -48,6 +48,35 @@ const stripAccents = (s) => String(s ?? '')
   .normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 
 // ---------------------------------------------------------------------------
+// UTILIDADES DE HORA (EST - UTC-5)
+// ---------------------------------------------------------------------------
+function toEST(date) {
+  if (!date) return '—';
+  const d = new Date(date);
+  const formatter = new Intl.DateTimeFormat('es-ES', {
+    timeZone: 'America/New_York',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  });
+  const parts = formatter.formatToParts(d);
+  const map = {};
+  parts.forEach(p => { map[p.type] = p.value; });
+  return `${map.day}/${map.month}/${map.year} ${map.hour}:${map.minute}:${map.second}`;
+}
+
+function detectLanguage(vtc) {
+  if (!vtc) return 'Español';
+  const lang = (vtc.language || vtc.idioma || 'es').toLowerCase();
+  if (lang.includes('en') || lang.includes('english')) return 'English';
+  if (lang.includes('es') || lang.includes('español')) return 'Español';
+  return 'Español';
+}
+
+// ---------------------------------------------------------------------------
 // VALIDACIÓN DE REPORTE COMPLETO
 // Garantiza que ningún reporte se envíe con campos críticos vacíos.
 //   · CRÍTICOS  -> bloquean el envío (HTTP 400) si faltan.
@@ -535,6 +564,88 @@ function timelineVizSVG(timeline) {
 }
 
 // ---------------------------------------------------------------------------
+// GRÁFICO F — WATERFALL CHART (Progresión de puntuaciones)
+// ---------------------------------------------------------------------------
+function waterfallSVG(vtc) {
+  const base = clampScore(vtc.score_global) || 5;
+  const fortalezas = (vtc.fortalezas || []).length;
+  const mejoras = (vtc.mejoras || []).length;
+  const W = 600, H = 280, padL = 60, padT = 30, padB = 40;
+  const plotW = W - padL - 60, plotH = H - padT - padB;
+
+  const stages = [
+    { label: 'Inicio', val: base * 0.7, color: C.yellow },
+    { label: `+${fortalezas} Aciertos`, val: fortalezas * 0.8, color: C.green },
+    { label: `-${mejoras} Mejoras`, val: -mejoras * 0.6, color: C.red },
+    { label: 'Desempeño Final', val: base, color: C.gold }
+  ];
+
+  let cumulative = 0, g = '';
+  const barW = plotW / stages.length / 1.2;
+
+  stages.forEach((s, i) => {
+    const x = padL + i * (plotW / stages.length) + (plotW / stages.length - barW) / 2;
+    const y0 = cumulative > 0 ? padT + plotH - (cumulative / 10) * plotH : padT + plotH;
+    const h = Math.abs(s.val / 10) * plotH;
+    const y = s.val > 0 ? y0 - h : y0;
+
+    g += `<rect x="${x}" y="${y}" width="${barW}" height="${h}" fill="${s.color}" opacity="0.8" stroke="${C.line}" stroke-width="1"/>`;
+    g += `<text x="${x + barW/2}" y="${y - 6}" text-anchor="middle" font-family="${FONT_MONO}" font-size="12" font-weight="bold" fill="${C.ink}">${Math.abs(s.val).toFixed(1)}</text>`;
+    g += `<text x="${x + barW/2}" y="${padT + plotH + 22}" text-anchor="middle" font-family="${FONT_MONO}" font-size="11" fill="${C.body}">${s.label}</text>`;
+
+    cumulative += s.val;
+  });
+
+  return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Waterfall" style="max-width:100%;">${g}</svg>`;
+}
+
+// ---------------------------------------------------------------------------
+// GRÁFICO G — PIE CHART (Distribución: Fortalezas vs Mejoras vs Críticas)
+// ---------------------------------------------------------------------------
+function pieChartSVG(vtc) {
+  const fortalezas = (vtc.fortalezas || []).length;
+  const mejoras = (vtc.mejoras || []).length;
+  const criticas = Math.max(0, 6 - (vtc.competencias || []).filter(c => clampScore(c.score) >= 7).length);
+  const total = fortalezas + mejoras + criticas || 1;
+
+  const W = 400, H = 320, cx = 130, cy = 130, r = 90;
+  const colors = [C.green, C.yellow, C.red];
+  const labels = ['Fortalezas', 'Por mejorar', 'Críticas'];
+  const vals = [fortalezas, mejoras, criticas];
+
+  let angle = -Math.PI / 2, g = '';
+
+  vals.forEach((v, i) => {
+    const sliceAngle = (v / total) * 2 * Math.PI;
+    const x1 = cx + r * Math.cos(angle);
+    const y1 = cy + r * Math.sin(angle);
+    const x2 = cx + r * Math.cos(angle + sliceAngle);
+    const y2 = cy + r * Math.sin(angle + sliceAngle);
+    const large = sliceAngle > Math.PI ? 1 : 0;
+
+    g += `<path d="M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2} Z" fill="${colors[i]}" stroke="${C.bg}" stroke-width="2"/>`;
+
+    const labelAngle = angle + sliceAngle / 2;
+    const lx = cx + (r * 0.65) * Math.cos(labelAngle);
+    const ly = cy + (r * 0.65) * Math.sin(labelAngle);
+    g += `<text x="${lx}" y="${ly}" text-anchor="middle" font-family="${FONT_MONO}" font-size="13" font-weight="bold" fill="#fff">${v}</text>`;
+
+    angle += sliceAngle;
+  });
+
+  // Leyenda
+  let legY = 260;
+  vals.forEach((v, i) => {
+    const pct = total > 0 ? ((v / total) * 100).toFixed(0) : 0;
+    g += `<circle cx="250" cy="${legY - 8}" r="5" fill="${colors[i]}"/>`;
+    g += `<text x="265" y="${legY}" font-family="${FONT_BODY}" font-size="12" fill="${C.ink}">${labels[i]}: ${v} (${pct}%)</text>`;
+    legY += 22;
+  });
+
+  return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Pie Chart" style="max-width:100%;">${g}</svg>`;
+}
+
+// ---------------------------------------------------------------------------
 // GRÁFICO E — INDICADORES DE TENDENCIA (↑↓ con % mejora)
 // ---------------------------------------------------------------------------
 function trendIndicatorsHtml(vtc, history) {
@@ -733,6 +844,8 @@ function buildReportHtml(vtc, { forPdf = false } = {}) {
   const pdfUrl = reportUrl;
   const audioUrl = `${base}/api/audio?session=${encodeURIComponent(vtc.conversation_id || '')}`;
   const trainAgainUrl = base; // Entrenar de nuevo — página principal
+  const idioma = detectLanguage(vtc);
+  const estTime = toEST(vtc.timestamp);
 
   const H2 = (t) => `<tr><td class="px" style="padding:10px 14px 4px 14px;">
     <div style="font-family:${FONT_HEAD};font-size:24px;font-weight:400;color:${C.ink};border-bottom:2px solid ${C.line};padding-bottom:8px;">${t}</div></td></tr>`;
@@ -771,12 +884,12 @@ function buildReportHtml(vtc, { forPdf = false } = {}) {
 <tr><td style="background:${C.headBg};padding:18px 18px 14px 18px;" align="center">
 <div style="font-family:${FONT_MONO};font-size:11px;letter-spacing:3px;color:${C.gold};">VICTORIOUS TRAVELERS CLUB</div>
 <div style="font-family:${FONT_HEAD};font-size:26px;font-weight:700;color:${C.gold};padding-top:6px;letter-spacing:.5px;">Reporte de Entrenamiento</div>
-<div style="font-family:${FONT_MONO};font-size:9px;letter-spacing:2px;color:#8a8a8a;padding-top:6px;text-transform:uppercase;">${esc(vtc.timestamp)}</div>
+<div style="font-family:${FONT_MONO};font-size:9px;letter-spacing:2px;color:#8a8a8a;padding-top:6px;text-transform:uppercase;">${esc(estTime)} &middot; EST</div>
 </td></tr>
 
 <!-- SUBTÍTULO -->
 <tr><td class="px" style="padding:12px 18px 0 18px;" align="center">
-<div style="font-family:${FONT_HEAD};font-size:15px;font-weight:300;color:${C.ink};">Sesi&oacute;n de ${esc(vtc.user_name)} con V&iacute;ctor &middot; ${esc(vtc.tipo_sesion)} &middot; ${esc(vtc.duracion_minutos)} min</div>
+<div style="font-family:${FONT_HEAD};font-size:15px;font-weight:300;color:${C.ink};">Sesi&oacute;n de ${esc(vtc.user_name)} con V&iacute;ctor &middot; ${idioma} &middot; ${esc(vtc.duracion_minutos)} min</div>
 </td></tr>
 
 <!-- SCORE -->
@@ -820,6 +933,14 @@ ${chartRow(gaugesSVG(neuro))}
 ${H2('Línea de tiempo')}
 ${chartRow(timelineVizSVG(vtc.timeline))}
 
+<!-- WATERFALL CHART (Progresión) -->
+${H2('Progresión de puntuaciones')}
+${chartRow(waterfallSVG(vtc))}
+
+<!-- PIE CHART (Distribución) -->
+${H2('Distribución: Fortalezas vs Mejoras')}
+${chartRow(pieChartSVG(vtc))}
+
 <!-- ACIERTOS / MEJORAS -->
 ${fortalezasBlock}
 ${mejorasBlock}
@@ -849,7 +970,7 @@ ${next.repetir ? 'Recomendamos <b>repetir</b>' : 'Avanza al módulo'} <b style="
 <!-- FOOTER -->
 <tr><td style="background:${C.headBg};padding:24px 34px;margin-top:20px;" align="center">
 <div style="font-family:${FONT_MONO};font-size:11px;letter-spacing:3px;color:${C.gold};">VICTORIOUS TRAVELERS CLUB</div>
-<div style="font-family:${FONT_BODY};font-size:10px;color:#8a8a8a;padding-top:8px;">Reporte generado autom&aacute;ticamente por V&iacute;ctor IA &middot; ${esc(vtc.timestamp)}</div></td></tr>
+<div style="font-family:${FONT_BODY};font-size:10px;color:#8a8a8a;padding-top:8px;">Reporte generado autom&aacute;ticamente por V&iacute;ctor IA &middot; ${esc(estTime)} EST</div></td></tr>
 
 </table></td></tr></table></body></html>`;
 }
