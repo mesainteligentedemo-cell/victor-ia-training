@@ -2212,9 +2212,30 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
     }
   }
 
-  /* VIDEO STATE DETECTION — Control automático de audio Victor + monitoreo */
-  window.__vtcVideoState={currentVideo:null,isPlaying:false,isPaused:false,isEnded:false,progress:0,wasAudioMuted:false};
+  /* VIDEO STATE DETECTION — Control automático + DETECCIÓN PARA VICTOR */
+  window.__vtcVideoState={currentVideo:null,isPlaying:false,isPaused:false,isEnded:false,progress:0,wasAudioMuted:false,lastState:null};
   window.__vtcAudioControl={isMuted:false,wasMutedBefore:false};
+
+  function vtcNotifyVictorVideoState(state){
+    /* Enviar contexto a Victor sobre el estado del video */
+    try{
+      if(!conv || !conv.sendContextualUpdate) return;
+      var msg='';
+      if(state==='playing'){
+        msg='[SYSTEM - VIDEO STATE] El usuario acaba de iniciar un video. Estará viendo contenido visual. Mantén silencio absoluto y espera. No preguntes nada hasta que termine el video. El sistema te avisará automáticamente cuando termine.';
+      }else if(state==='paused'){
+        msg='[SYSTEM - VIDEO STATE] El usuario pausó el video. Podría reanudaralo o estar contemplando. Espera sin hablar.';
+      }else if(state==='ended'){
+        msg='[SYSTEM - VIDEO STATE] El video acaba de terminar. El usuario ya vio el contenido completo. Ahora puedes continuar con la explicación o hacer una pregunta de comprensión sobre lo que vio.';
+      }
+      if(msg){
+        conv.sendContextualUpdate(msg);
+        console.log('[VTC] Victor notificado:', state);
+      }
+    }catch(e){
+      console.log('[VTC] No se pudo notificar a Victor el estado:', e.message);
+    }
+  }
 
   function vtcSetupVideoDetection(){
     document.querySelectorAll('video').forEach(function(vid,idx){
@@ -2223,6 +2244,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
         window.__vtcVideoState.isPlaying=true;
         window.__vtcVideoState.isPaused=false;
         window.__vtcVideoState.isEnded=false;
+        window.__vtcVideoState.lastState='playing';
 
         /* CONTROL AUTOMÁTICO: Silenciar a Victor cuando inicia video */
         try{
@@ -2235,6 +2257,9 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
           }
         }catch(e){}
 
+        /* NOTIFICAR A VICTOR */
+        vtcNotifyVictorVideoState('playing');
+
         try{if(conv&&conv.sendUserActivity) conv.sendUserActivity();}catch(e){}
       });
 
@@ -2242,12 +2267,17 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
         window.__vtcVideoState.isPlaying=false;
         window.__vtcVideoState.isPaused=true;
         window.__vtcVideoState.isEnded=false;
+        window.__vtcVideoState.lastState='paused';
+
+        /* NOTIFICAR A VICTOR */
+        vtcNotifyVictorVideoState('paused');
       });
 
       vid.addEventListener('ended',function(){
         window.__vtcVideoState.isPlaying=false;
         window.__vtcVideoState.isPaused=false;
         window.__vtcVideoState.isEnded=true;
+        window.__vtcVideoState.lastState='ended';
 
         /* CONTROL AUTOMÁTICO: Reanudar audio de Victor cuando video termina */
         try{
@@ -2260,6 +2290,9 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
             },600); /* Pequeño delay para mejor UX */
           }
         }catch(e){}
+
+        /* NOTIFICAR A VICTOR */
+        setTimeout(function(){ vtcNotifyVictorVideoState('ended'); },400);
       });
 
       vid.addEventListener('timeupdate',function(){
