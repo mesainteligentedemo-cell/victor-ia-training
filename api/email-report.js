@@ -1,21 +1,39 @@
 import { createClient } from '@supabase/supabase-js';
+import nodemailer from 'nodemailer';
 
 // ============================================================================
 //  VICTOR IA TRAINING — REPORTE REAL Y COMPLETO
 //  Flujo: ElevenLabs (transcript + audio) -> OpenRouter (análisis IA)
-//         -> Playwright/Chromium (PDF) -> Resend (email con adjuntos)
-//  Fallback de email: tracker API. Ejecución única, sin loops.
+//         -> Playwright/Chromium (PDF) -> Nodemailer + SMTP Hostinger
+//  Email: info@victor-ia.com.mx | Ejecución única, sin loops.
 // ============================================================================
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 const supabase = SUPABASE_URL && SUPABASE_KEY ? createClient(SUPABASE_URL, SUPABASE_KEY) : null;
 
-const RESEND_KEY = process.env.RESEND_API_KEY || '';
+// Configuración SMTP Hostinger
+const SMTP_HOST = process.env.SMTP_HOST || 'mail.victor-ia.com.mx';
+const SMTP_PORT = parseInt(process.env.SMTP_PORT || '587');
+const SMTP_USER = process.env.SMTP_USER || 'info@victor-ia.com.mx';
+const SMTP_PASS = process.env.SMTP_PASS || '';
+const SMTP_FROM_EMAIL = process.env.SMTP_FROM_EMAIL || 'info@victor-ia.com.mx';
+const SMTP_FROM_NAME = process.env.SMTP_FROM_NAME || 'Victor IA Training';
+
+// Crear transportador Nodemailer
+const transporter = nodemailer.createTransport({
+  host: SMTP_HOST,
+  port: SMTP_PORT,
+  secure: false,
+  auth: {
+    user: SMTP_USER,
+    pass: SMTP_PASS
+  }
+});
+
 const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY || 'sk_87d5a7899d6c489c94232248c4880a0c4fe317adb3701e67';
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || '';
 const OPENROUTER_MODEL = process.env.OPENROUTER_MODEL || 'anthropic/claude-3.7-sonnet';
-const TRACKER_EMAIL_API = 'https://tracker.victor-ia.xyz/api/email/send';
 const CC_LIST = ['chrisoria16@gmail.com', 'eldudemateos@gmail.com'];
 
 const GOLD = '#d4af37', DARK = '#1a1a1a', LIGHT = '#f5f5f5';
@@ -1389,47 +1407,28 @@ async function generatePDFWithPlaywright(vtc) {
 // 5) EMAIL CON ADJUNTOS — Resend (fallback: tracker API)
 // ---------------------------------------------------------------------------
 async function sendEmailWithAttachments({ to, cc, subject, html, attachments }) {
-  // Resend directo
-  if (RESEND_KEY) {
-    try {
-      const resp = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          from: 'Victor IA Training <info@victor-ia.xyz>',
-          to: [to], cc, subject, html,
-          ...(attachments && attachments.length ? { attachments } : {})
-        })
-      });
-      const data = await resp.json().catch(() => ({}));
-      if (resp.ok) {
-        console.log('[Email] enviado vía Resend:', data.id);
-        return { via: 'resend', id: data.id || 'sent', status: 200 };
-      }
-      console.error('[Email] Resend falló:', resp.status, '— probando fallback tracker');
-    } catch (e) {
-      console.error('[Email] Resend exception:', e.message);
-    }
-  }
-
-  // Fallback: tracker API
+  // Nodemailer + SMTP Hostinger
   try {
-    const resp = await fetch(TRACKER_EMAIL_API, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ to, cc, subject, html, attachments })
-    });
-    const data = await resp.json().catch(() => ({}));
-    if (resp.ok || data.ok) {
-      console.log('[Email] enviado vía tracker:', data.id);
-      return { via: 'tracker', id: data.id || 'sent', status: 200 };
-    }
-    console.error('[Email] tracker falló:', resp.status, data.error);
-  } catch (e) {
-    console.error('[Email] tracker exception:', e.message);
-  }
+    const mailOptions = {
+      from: `${SMTP_FROM_NAME} <${SMTP_FROM_EMAIL}>`,
+      to: to,
+      cc: cc,
+      subject: subject,
+      html: html,
+      attachments: (attachments || []).map(att => ({
+        filename: att.filename || 'attachment',
+        content: Buffer.from(att.content, 'base64'),
+        contentType: att.contentType || 'application/octet-stream'
+      }))
+    };
 
-  return { via: 'none', id: null, status: 500 };
+    const info = await transporter.sendMail(mailOptions);
+    console.log('[Email] enviado vía Hostinger SMTP:', info.messageId);
+    return { via: 'hostinger', id: info.messageId || 'sent', status: 200 };
+  } catch (error) {
+    console.error('[Email] Hostinger SMTP error:', error.message);
+    return { via: 'hostinger', id: null, status: 500, error: error.message };
+  }
 }
 
 // ---------------------------------------------------------------------------
