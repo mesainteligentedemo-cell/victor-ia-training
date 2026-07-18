@@ -1946,7 +1946,44 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
 <div id="vtc-speak-badge"><span id="vtc-speak-txt"></span></div>
 <div id="vw-launch" title="Habla con Victor"><span class="vw-pulse"></span><span class="vw-v" aria-label="Victor">V</span></div>
 
-<div id="vw-panel" data-no-i18n>
+<!-- ════════ FORMULARIO DE LOGIN VTC ════════ -->
+<div id="vtc-login-form" style="position:fixed;bottom:20px;right:20px;z-index:999;background:#070708;border:1px solid #2A2824;border-radius:8px;padding:20px;width:320px;box-shadow:0 4px 20px rgba(0,0,0,.5);font-family:'Inter',sans-serif;">
+  <div style="margin-bottom:20px;">
+    <div style="font-size:14px;color:#EAE6DF;font-weight:500;margin-bottom:4px;">Bienvenido a VTC</div>
+    <div style="font-size:12px;color:#706C66;">Verifica tu acceso para comenzar</div>
+  </div>
+
+  <div style="margin-bottom:12px;">
+    <label style="display:block;font-size:12px;color:#B89A6A;margin-bottom:4px;letter-spacing:0.08em;text-transform:uppercase;">Nombre Completo</label>
+    <input type="text" id="vtc-nombre" placeholder="Pablo Solar" style="width:100%;padding:8px 10px;background:#0F0F12;border:1px solid #2A2824;border-radius:4px;color:#EAE6DF;font-size:13px;box-sizing:border-box;">
+  </div>
+
+  <div style="margin-bottom:12px;">
+    <label style="display:block;font-size:12px;color:#B89A6A;margin-bottom:4px;letter-spacing:0.08em;text-transform:uppercase;">ID de Empleado</label>
+    <input type="text" id="vtc-empleadoID" placeholder="1234567" style="width:100%;padding:8px 10px;background:#0F0F12;border:1px solid #2A2824;border-radius:4px;color:#EAE6DF;font-size:13px;box-sizing:border-box;">
+  </div>
+
+  <div style="margin-bottom:12px;">
+    <label style="display:block;font-size:12px;color:#B89A6A;margin-bottom:4px;letter-spacing:0.08em;text-transform:uppercase;">Departamento</label>
+    <input type="text" id="vtc-departamento" placeholder="Dirección" style="width:100%;padding:8px 10px;background:#0F0F12;border:1px solid #2A2824;border-radius:4px;color:#EAE6DF;font-size:13px;box-sizing:border-box;">
+  </div>
+
+  <div style="margin-bottom:16px;">
+    <label style="display:block;font-size:12px;color:#B89A6A;margin-bottom:4px;letter-spacing:0.08em;text-transform:uppercase;">Idioma</label>
+    <select id="vtc-idioma" style="width:100%;padding:8px 10px;background:#0F0F12;border:1px solid #2A2824;border-radius:4px;color:#EAE6DF;font-size:13px;box-sizing:border-box;">
+      <option value="es">Español</option>
+      <option value="en">English</option>
+    </select>
+  </div>
+
+  <button onclick="handleVTCLogin()" style="width:100%;padding:10px;background:#B89A6A;color:#070708;border:none;border-radius:4px;font-weight:500;font-size:13px;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;transition:0.2s;">Iniciar Sesión</button>
+
+  <div style="margin-top:10px;font-size:11px;color:#706C66;text-align:center;">
+    Usuarios válidos: Pablo Solar, Andres Mateos, Christian Soria
+  </div>
+</div>
+
+<div id="vw-panel" data-no-i18n" style="display:none;">
   <div class="vw-head">
     <span class="vw-v" aria-label="Victor">V</span>
     <div class="vw-t"><div class="vw-name">Victor</div><div class="vw-st" id="vw-status">Tu entrenador personal · VTC</div><div class="vw-sess" id="vw-sess"><span class="dot"></span><span id="vw-sess-txt"></span></div></div>
@@ -2121,6 +2158,84 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
   const launch=$('vw-launch'),panel=$('vw-panel'),gate=$('vw-gate'),chat=$('vw-chat'),msgs=$('vw-msgs'),statusEl=$('vw-status'),mic=$('vw-mic'),input=$('vw-in');
   try{ var _langSel=$('vw-lang'); if(_langSel) _langSel.value=vtcDetectLang(); }catch(e){}
   let conv=null,connecting=false,muted=false,started=false; try{history.scrollRestoration='manual';}catch(e){} try{window.scrollTo(0,0);}catch(e){} window.addEventListener('load',function(){try{window.scrollTo(0,0);}catch(e){}});
+
+  /* ═══ AUTENTICACIÓN — Formulario de Login VTC ═══ */
+  window.handleVTCLogin = function() {
+    const nombre = document.getElementById("vtc-nombre").value.trim();
+    const empleadoID = document.getElementById("vtc-empleadoID").value.trim();
+    const departamento = document.getElementById("vtc-departamento").value.trim();
+    const idioma = document.getElementById("vtc-idioma").value || "es";
+
+    // Validar credenciales
+    const usuariosValidos = {
+      "Pablo Solar": "1234567",
+      "Andres Mateos": "12345",
+      "Christian Soria": "123456"
+    };
+
+    if (!nombre || !empleadoID || !departamento) {
+      alert("Por favor completa todos los campos");
+      return;
+    }
+
+    if (!usuariosValidos[nombre] || usuariosValidos[nombre] !== empleadoID) {
+      alert("Credenciales inválidas. Verifica tu nombre y número de empleado.");
+      return;
+    }
+
+    // Guardar sesión localmente
+    try {
+      sessionStorage.setItem('vtc_session', JSON.stringify({
+        name: nombre,
+        employee_id: empleadoID,
+        departamento: departamento,
+        language: idioma,
+        timestamp: Date.now(),
+        expires_at: new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString()
+      }));
+    } catch(e) {}
+
+    // Mostrar badge de sesión activa
+    try { vtcShowSessBadge({name: nombre, employee_id: empleadoID}); } catch(e) {}
+
+    // ✅ ENVIAR VARIABLES DINÁMICAS A VICTOR
+    if (window.elvn_conversation) {
+      window.elvn_conversation.setDynamicVariables({
+        user_name: nombre,
+        employee_number: empleadoID,
+        departamento: departamento,
+        language: idioma,
+        authenticated: "true",
+        session_token: "vtc_" + Date.now()
+      });
+    }
+
+    // Ocultar formulario y mostrar chat
+    const loginForm = document.getElementById("vtc-login-form");
+    const victorPanel = document.getElementById("vw-panel");
+    if (loginForm) loginForm.style.display = "none";
+    if (victorPanel) victorPanel.style.display = "block";
+
+    // ✅ INICIAR CONVERSACIÓN CON VICTOR
+    try {
+      if (window.elvn_conversation) {
+        window.elvn_conversation.startConversation();
+      }
+    } catch(e) {
+      console.error("Error iniciando conversación:", e);
+    }
+  };
+
+  // Cargar sesión existente si está disponible
+  try {
+    var sesionGuardada = vtcGetSession();
+    if (sesionGuardada) {
+      vtcShowSessBadge(sesionGuardada);
+      if (document.getElementById("vtc-login-form")) {
+        document.getElementById("vtc-login-form").style.display = "none";
+      }
+    }
+  } catch(e) {}
 
   /* ZONA HORARIA DE CANCÚN (America/Cancun) — obtiene hora real del usuario */
   function vtcGetCancunTime(){

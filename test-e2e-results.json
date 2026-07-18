@@ -1,0 +1,62 @@
+{
+  "timestamp": "2026-07-16T01:21:34.865Z",
+  "baseUrl": "https://victor-ia-training.vercel.app",
+  "tests": [
+    {
+      "name": "Carga de pagina (200)",
+      "status": "PASS"
+    },
+    {
+      "name": "Agent ID presente",
+      "status": "PASS",
+      "agentId": "agent_2201kxes45mbfmsvpn8k7b9z3fnm"
+    },
+    {
+      "name": "Widget abierto (gate visible)",
+      "status": "PASS"
+    },
+    {
+      "name": "verify-employee 200 authorized",
+      "status": "PASS",
+      "role": "Senior Closer"
+    },
+    {
+      "name": "signed-url 200 con token ElevenLabs",
+      "status": "PASS",
+      "conversation_id": "conv_1784164900760_12345",
+      "hasSignedUrl": true
+    },
+    {
+      "name": "Sesion de voz iniciada (WS abierto)",
+      "status": "PASS",
+      "livekit": 1,
+      "elevenlabsWs": 0
+    },
+    {
+      "name": "El webhook elevenlabs-postall lo dispara ElevenLabs (servidor) al COLGAR, no el navegador. No es interceptable en la pagina. Requiere sesion de voz real para generar reporte+PDF+audio+email.",
+      "status": "INFO"
+    }
+  ],
+  "net": {
+    "verifyEmployee": {
+      "status": 200,
+      "body": {
+        "authorized": true,
+        "valid": true,
+        "role": "Senior Closer",
+        "department": "Dirección",
+        "session_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NSIsIm5hbWUiOiJBbmRyw6lzIE1hdGVvcyIsImRlcGFydG1lbnQiOiJEaXJlY2Npw7NuIiwicm9sZSI6IlNlbmlvciBDbG9zZXIiLCJzaWQiOiJhZjIxN2RkMS04Mzc0LTQwNTMtYjQxYS0zYjY4NTBjZDdlMzUiLCJpYXQiOjE3ODQxNjQ4OTksImV4cCI6MTc4NDE5MzY5OX0.Zip2iUzSpS_p0XBa_zweSxX_me1GzJsoMxMCL7C_pf4",
+        "expires_at": "2026-07-16T09:21:39.000Z",
+        "message": "Acceso autorizado. Bienvenido Andrés Mateos."
+      }
+    },
+    "signedUrl": {
+      "status": 200,
+      "conversation_id": "conv_1784164900760_12345",
+      "hasToken": true,
+      "hasSignedUrl": true
+    },
+    "livekit": 1,
+    "elevenlabsWs": 0
+  }
+}
