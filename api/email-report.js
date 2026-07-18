@@ -982,7 +982,8 @@ function buildPdfReportHtml(vtc) {
       }).join('')
     : `<p class="p muted">Transcripción no disponible.</p>`;
 
-  const drillUrl = esc(vtc.drill?.url || 'https://tracker.victor-ia.xyz');
+  const trainUrl = 'https://victor-ia-training.vercel.app';
+  const drillUrl = esc(vtc.drill?.url || trainUrl);
 
   return `<!DOCTYPE html>
 <html lang="${vtc.lang || 'es'}"><head><meta charset="utf-8">
