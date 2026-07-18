@@ -1864,7 +1864,12 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
   #vw-launch .vw-pulse{position:absolute;inset:-1px;border-radius:50%;border:1px solid #b89a6a;animation:vwp 2.4s infinite ease-out;opacity:0}
   #vw-launch.vw-active .vw-pulse{animation:vwp 1.4s infinite ease-out}
   @keyframes vwp{0%{transform:scale(1);opacity:.6}100%{transform:scale(1.5);opacity:0}}
-  #vw-panel{position:fixed;right:24px;bottom:24px;width:390px;max-width:calc(100vw - 32px);height:620px;max-height:min(70vh,calc(100vh - 48px));background:#0c0c0e;border:1px solid #23211c;border-radius:20px;box-shadow:0 24px 70px rgba(0,0,0,.65);z-index:99999;display:none;flex-direction:column;overflow:hidden;pointer-events:auto;font-family:'Helvetica Neue',Arial,sans-serif}
+  #vw-panel{position:fixed;right:24px;bottom:24px;width:390px;max-width:calc(100vw - 32px);height:620px;max-height:min(70vh,calc(100vh - 48px));background:#0c0c0e;border:1px solid #23211c;border-radius:20px;box-shadow:0 24px 70px rgba(0,0,0,.65);z-index:99999;display:none;flex-direction:column;overflow:hidden;pointer-events:auto;font-family:'Helvetica Neue',Arial,sans-serif;/* Permite interacción con elementos fuera del chat */}
+  /* El panel flotante no interfiere con la interacción de la página */
+  #vw-panel.vw-open{pointer-events:auto;}
+  body.vw-chat-open{overflow-y:auto;} /* El body sigue siendo scrolleable */
+  /* Permitir clics en elementos fuera del panel flotante */
+  #vw-panel::after{content:'';position:fixed;top:0;left:0;right:0;bottom:0;z-index:-1;pointer-events:none;}
   #vw-panel.vw-open{display:flex}
   .vw-head{display:flex;align-items:center;gap:12px;padding:16px 16px;border-bottom:1px solid #1c1b17;background:linear-gradient(180deg,#131210,#0c0c0e)}
   .vw-head img{width:38px;height:38px;border-radius:50%;border:1px solid #b89a6a}
@@ -1910,8 +1915,9 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
   .vw-b{max-width:84%;padding:11px 14px;border-radius:15px;font-size:14px;line-height:1.5;white-space:pre-wrap;word-wrap:break-word}
   .vw-ai{align-self:flex-start;background:#15140f;border:1px solid #2a2620;color:#e6e2d8;border-bottom-left-radius:5px}
   .vw-me{align-self:flex-end;background:#1a1812;border:1px solid #3a3326;color:#f1ede3;border-bottom-right-radius:5px}
-  .vw-b .vw-who{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;margin-bottom:5px;opacity:.85}
+  .vw-b .vw-who{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;margin-bottom:5px;opacity:.95;display:flex;align-items:center;justify-content:space-between;gap:8px;}
   .vw-ai .vw-who{color:#b89a6a}.vw-me .vw-who{color:#c9b48a}
+  .vw-b .vw-who span{font-size:9px;font-weight:400;letter-spacing:.5px;opacity:.7;color:#999;text-transform:none;}
   .vw-foot{padding:14px;border-top:1px solid #1c1b17;display:flex;align-items:center;gap:10px;background:#0a0a0c}
   #vw-mic{width:46px;height:46px;border-radius:50%;flex:none;border:1px solid #2a2620;background:#15140f;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s}
   #vw-mic svg{width:20px;height:20px;fill:#b89a6a} #vw-mic.vw-live{background:#b89a6a;border-color:#b89a6a;box-shadow:0 0 0 4px rgba(184,154,106,.18)} #vw-mic.vw-live svg{fill:#0a0a0c}
@@ -2116,10 +2122,49 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
   try{ var _langSel=$('vw-lang'); if(_langSel) _langSel.value=vtcDetectLang(); }catch(e){}
   let conv=null,connecting=false,muted=false,started=false; try{history.scrollRestoration='manual';}catch(e){} try{window.scrollTo(0,0);}catch(e){} window.addEventListener('load',function(){try{window.scrollTo(0,0);}catch(e){}});
 
+  /* ZONA HORARIA DE CANCÚN (America/Cancun) — obtiene hora real del usuario */
+  function vtcGetCancunTime(){
+    try{
+      /* Usar Intl.DateTimeFormat para zona Cancún */
+      var formatter=new Intl.DateTimeFormat('es-MX',{
+        timeZone:'America/Cancun',
+        hour:'2-digit',
+        minute:'2-digit',
+        second:'2-digit',
+        hour12:true
+      });
+      var parts=formatter.formatToParts(new Date());
+      var time='';
+      for(var i=0;i<parts.length;i++){
+        if(parts[i].type==='hour'||parts[i].type==='minute'||parts[i].type==='second') time+=parts[i].value;
+        if(parts[i].type==='literal'&&parts[i].value===':') time+=':';
+      }
+      /* Agregar am/pm */
+      var ampm=new Date().getHours()>=12?'p.m.':'a.m.';
+      return time.trim()+' '+ampm;
+    }catch(e){
+      /* Fallback a hora local si hay error */
+      var h=new Date().getHours(), m=String(new Date().getMinutes()).padStart(2,'0');
+      return String(h).padStart(2,'0')+':'+m+' '+(h>=12?'p.m.':'a.m.');
+    }
+  }
+
   function clean(s){return String(s||'').replace(/<\/?[a-zA-ZÀ-ſ][^>]*>/g,'').replace(/\[[^\]\n]{1,40}\]/g,'').replace(/\*\*?([^*]+)\*\*?/g,'$1').replace(/[ \t]{2,}/g,' ').replace(/\s*\n\s*/g,'\n').trim();}
   function setStatus(h){statusEl.innerHTML=h;}
   function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');}
-  function bubble(role,text){const tx=clean(text);if(!tx)return;const d=document.createElement('div');d.className='vw-b '+(role==='user'?'vw-me':'vw-ai');d.innerHTML='<div class="vw-who">'+(role==='user'?'Tú':'Victor')+'</div>'+esc(tx);msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;}
+
+  function bubble(role,text){
+    const tx=clean(text);
+    if(!tx)return;
+    const d=document.createElement('div');
+    d.className='vw-b '+(role==='user'?'vw-me':'vw-ai');
+
+    /* Agregar timestamp en zona Cancún */
+    const timestamp=vtcGetCancunTime();
+    d.innerHTML='<div class="vw-who">'+(role==='user'?'Tú':'Victor')+' <span style="font-size:9px;color:rgba(200,200,200,.6);font-weight:normal;margin-left:6px;">'+timestamp+'</span></div>'+esc(tx);
+    msgs.appendChild(d);
+    msgs.scrollTop=msgs.scrollHeight;
+  }
   function typing(on){let e=$('vw-typing');if(on){if(!e){e=document.createElement('div');e.id='vw-typing';e.className='vw-b vw-ai';e.innerHTML='<span class="vw-dots"><span></span><span></span><span></span></span>';msgs.appendChild(e);msgs.scrollTop=msgs.scrollHeight;}}else if(e)e.remove();}
 
   /* ═══ SESIÓN (sessionStorage): evita re-auth en la misma ventana; caduca a las 8h o al cerrar ventana ═══ */
@@ -2167,8 +2212,10 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
     }
   }
 
-  /* VIDEO STATE DETECTION — En tiempo real monitorea play, pause, ended */
-  window.__vtcVideoState={currentVideo:null,isPlaying:false,isPaused:false,isEnded:false,progress:0};
+  /* VIDEO STATE DETECTION — Control automático de audio Victor + monitoreo */
+  window.__vtcVideoState={currentVideo:null,isPlaying:false,isPaused:false,isEnded:false,progress:0,wasAudioMuted:false};
+  window.__vtcAudioControl={isMuted:false,wasMutedBefore:false};
+
   function vtcSetupVideoDetection(){
     document.querySelectorAll('video').forEach(function(vid,idx){
       vid.addEventListener('play',function(){
@@ -2176,18 +2223,45 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
         window.__vtcVideoState.isPlaying=true;
         window.__vtcVideoState.isPaused=false;
         window.__vtcVideoState.isEnded=false;
+
+        /* CONTROL AUTOMÁTICO: Silenciar a Victor cuando inicia video */
+        try{
+          var muteBtn=document.getElementById('vw-mute');
+          if(muteBtn && !window.__vtcAudioControl.isMuted){
+            window.__vtcAudioControl.wasMutedBefore=false;
+            muteBtn.click(); /* Silencia automáticamente */
+            window.__vtcAudioControl.isMuted=true;
+            console.log('[VTC] Video iniciado: silenciando a Victor automáticamente');
+          }
+        }catch(e){}
+
         try{if(conv&&conv.sendUserActivity) conv.sendUserActivity();}catch(e){}
       });
+
       vid.addEventListener('pause',function(){
         window.__vtcVideoState.isPlaying=false;
         window.__vtcVideoState.isPaused=true;
         window.__vtcVideoState.isEnded=false;
       });
+
       vid.addEventListener('ended',function(){
         window.__vtcVideoState.isPlaying=false;
         window.__vtcVideoState.isPaused=false;
         window.__vtcVideoState.isEnded=true;
+
+        /* CONTROL AUTOMÁTICO: Reanudar audio de Victor cuando video termina */
+        try{
+          var muteBtn=document.getElementById('vw-mute');
+          if(muteBtn && window.__vtcAudioControl.isMuted && !window.__vtcAudioControl.wasMutedBefore){
+            setTimeout(function(){
+              muteBtn.click(); /* Reanuda automáticamente */
+              window.__vtcAudioControl.isMuted=false;
+              console.log('[VTC] Video terminado: reanudando a Victor automáticamente');
+            },600); /* Pequeño delay para mejor UX */
+          }
+        }catch(e){}
       });
+
       vid.addEventListener('timeupdate',function(){
         var dur=vid.duration||1;
         window.__vtcVideoState.progress=Math.round((vid.currentTime/dur)*100);
@@ -2291,8 +2365,11 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
         var emp=_emp(); if(!emp) return;               /* sin empleado no hay a quién atribuir */
         opts=opts||{};
         if(opts.once){ var key=type+':'+(opts.key||JSON.stringify(data||{})); if(_sent[key]) return; _sent[key]=1; }
+        /* Agregar timestamp de Cancún al tracking */
+        var trackData=data||{};
+        trackData.cancun_time=vtcGetCancunTime();
         fetch('/api/track-interaction',{method:'POST',headers:{'Content-Type':'application/json'},keepalive:!!opts.keepalive,
-          body:JSON.stringify({employee_id:emp,conversation_id:window.__vtcConvId||null,type:type,data:data||{},session_language:(function(){try{return window.vtcGetSessionLang();}catch(e){return 'es';}})(),timestamp:new Date().toISOString()})
+          body:JSON.stringify({employee_id:emp,conversation_id:window.__vtcConvId||null,type:type,data:trackData,session_language:(function(){try{return window.vtcGetSessionLang();}catch(e){return 'es';}})(),timestamp:new Date().toISOString(),cancun_timestamp:new Date().toLocaleString('es-MX',{timeZone:'America/Cancun'})})
         }).catch(function(){});
       }catch(e){}
     }
