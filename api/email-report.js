@@ -732,11 +732,13 @@ function buildReportHtml(vtc, { forPdf = false } = {}) {
   const reportUrl = `${base}/api/report?session=${encodeURIComponent(vtc.conversation_id || '')}`;
   const pdfUrl = reportUrl;
   const audioUrl = `${base}/api/audio?session=${encodeURIComponent(vtc.conversation_id || '')}`;
-  const nextUrl = next.url;
+  const trainAgainUrl = base; // Entrenar de nuevo — página principal
 
-  const H2 = (t) => `<tr><td class="px" style="padding:8px 12px 2px 12px;">
-    <div style="font-family:${FONT_HEAD};font-size:22px;font-weight:400;color:${C.ink};border-bottom:1px solid ${C.line};padding-bottom:6px;">${t}</div></td></tr>`;
-  const chartRow = (svg) => `<tr><td class="px" align="center" style="padding:10px 12px 0 12px;">${svg}</td></tr>`;
+  const H2 = (t) => `<tr><td class="px" style="padding:10px 14px 4px 14px;">
+    <div style="font-family:${FONT_HEAD};font-size:24px;font-weight:400;color:${C.ink};border-bottom:2px solid ${C.line};padding-bottom:8px;">${t}</div></td></tr>`;
+  const chartRow = (svg) => forPdf
+    ? `<tr><td class="px" align="center" style="padding:12px 12px 8px 12px;">${svg}</td></tr>`
+    : `<tr><td class="px" align="center" style="padding:14px 12px 12px 12px;"><div style="font-family:${FONT_BODY};font-size:13px;color:${C.body};background:#f9f9f7;border:1px solid ${C.line};border-radius:6px;padding:16px;text-align:center;">📊 Gráfica disponible en el PDF — descarga el archivo completo para verla en alta resolución</div></td></tr>`;
   const tableRow = (tbl) => `<tr><td class="px" style="padding:6px 12px 0 12px;">${tbl}</td></tr>`;
 
   const cta = (href, emoji, label) => `<a href="${esc(href)}" target="_blank" style="display:inline-block;background:${C.gold};color:${C.bg};padding:14px 28px;text-decoration:none;border-radius:6px;font-family:${FONT_BODY};font-weight:400;font-size:13px;letter-spacing:.5px;">${emoji} ${label}</a>`;
@@ -778,9 +780,9 @@ function buildReportHtml(vtc, { forPdf = false } = {}) {
 </td></tr>
 
 <!-- SCORE -->
-<tr><td align="center" style="padding:12px 18px 2px 18px;">
-<div style="font-family:${FONT_MONO};font-size:11px;letter-spacing:3px;color:${C.body};text-transform:uppercase;">Desempeño Global</div>
-<div style="padding:6px 0;"><span class="score-num" style="font-family:${FONT_HEAD};font-size:88px;font-weight:700;color:${C.gold};line-height:1;">${seg}</span><span style="font-family:${FONT_HEAD};font-size:34px;color:${C.goldDark};">/10</span></div>
+<tr><td align="center" style="padding:16px 18px 4px 18px;">
+<div style="font-family:${FONT_MONO};font-size:12px;letter-spacing:2px;color:${C.body};text-transform:uppercase;font-weight:600;">Desempeño Global</div>
+<div style="padding:10px 0 6px;"><span class="score-num" style="font-family:${FONT_HEAD};font-size:96px;font-weight:700;color:${C.gold};line-height:1;">${seg}</span><span style="font-family:${FONT_HEAD};font-size:40px;color:${C.goldDark};">/10</span></div>
 </td></tr>
 
 <!-- TENDENCIAS -->
@@ -789,7 +791,7 @@ ${H2('Indicadores de tendencia')}
 
 <!-- RESUMEN -->
 ${H2('Resumen de la llamada')}
-<tr><td class="px" style="padding:8px 18px 0 18px;font-family:${FONT_BODY};font-size:14px;line-height:23px;color:${C.body};">${esc(vtc.resumen)}</td></tr>
+<tr><td class="px" style="padding:12px 18px 4px 18px;font-family:${FONT_BODY};font-size:15px;line-height:24px;color:${C.body};font-weight:400;">${esc(vtc.resumen)}</td></tr>
 
 <!-- TABLA 1 SESIÓN -->
 ${H2('Información de sesión')}
@@ -842,7 +844,7 @@ ${next.repetir ? 'Recomendamos <b>repetir</b>' : 'Avanza al módulo'} <b style="
 <td class="ctacell" align="center" style="padding:8px;">${cta(pdfUrl, '📥', 'Descargar PDF')}</td></tr>
 <tr>
 <td class="ctacell" align="center" style="padding:8px;">${cta(audioUrl, '🎙️', 'Escuchar Grabación')}</td>
-<td class="ctacell" align="center" style="padding:8px;">${cta(nextUrl, '📚', 'Módulo Siguiente')}</td></tr></table></td></tr>
+<td class="ctacell" align="center" style="padding:8px;">${cta(trainAgainUrl, '🔄', 'Entrenar de nuevo')}</td></tr></table></td></tr>
 
 <!-- FOOTER -->
 <tr><td style="background:${C.headBg};padding:24px 34px;margin-top:20px;" align="center">
