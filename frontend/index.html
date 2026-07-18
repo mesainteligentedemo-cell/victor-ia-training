@@ -2558,6 +2558,10 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       dynamicVariables:{
         user_name:ctx.name, employee_number:ctx.emp, departamento:ctx.dep||'',
         idioma_preferido: ctx.lang||'ES',
+        // FIX idioma: el System Prompt del agente busca {{language}} — antes NO se enviaba
+        // ninguna variable con ese nombre (solo session_language/main_language), por eso
+        // {{language}} llegaba vacío y Victor caía a español por defecto. Ahora sí se envía.
+        language: String(ctx.lang||'ES').toLowerCase(),
         session_language: String(ctx.lang||'ES').toLowerCase(),
         main_language: String(ctx.lang||'ES').toLowerCase(),
         voces_disponibles: Object.keys(VOICE_PROFILES).map(function(k){return k+':'+VOICE_PROFILES[k].name;}).join(', ')
