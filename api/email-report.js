@@ -206,7 +206,8 @@ function defaultAnalysis() {
   };
 }
 
-async function analyzeTranscriptWithAI(transcript) {
+async function analyzeTranscriptWithAI(transcript, lang = 'es') {
+  const isEN = String(lang).toLowerCase().indexOf('en') === 0;
   if (!transcript || !transcript.trim()) {
     console.warn('[OpenRouter] transcript vacío — usando análisis por defecto');
     return defaultAnalysis();
@@ -216,12 +217,50 @@ async function analyzeTranscriptWithAI(transcript) {
     return defaultAnalysis();
   }
 
-  const systemPrompt =
-    'Eres un evaluador experto de ventas de timeshare del Victorious Travelers Club. ' +
-    'Analizas transcripciones de sesiones de entrenamiento entre un ASESOR y el coach IA VÍCTOR. ' +
-    'Devuelves EXCLUSIVAMENTE un objeto JSON válido, sin texto adicional, sin markdown, sin ```.';
+  const systemPrompt = isEN
+    ? 'You are an expert timeshare sales evaluator for the Victorious Travelers Club. ' +
+      'You analyze transcripts of training sessions between an ADVISOR and the AI coach VÍCTOR. ' +
+      'You return EXCLUSIVELY a valid JSON object, with no extra text, no markdown, no ```.'
+    : 'Eres un evaluador experto de ventas de timeshare del Victorious Travelers Club. ' +
+      'Analizas transcripciones de sesiones de entrenamiento entre un ASESOR y el coach IA VÍCTOR. ' +
+      'Devuelves EXCLUSIVAMENTE un objeto JSON válido, sin texto adicional, sin markdown, sin ```.';
 
-  const userPrompt =
+  const userPrompt = isEN
+? `Analyze the following sales training session transcript and return an EXACT JSON with this shape:
+
+{
+  "resumen": "string (2-4 sentences, English, what happened in the call)",
+  "titular": "string (1 short sentence summarizing the session performance)",
+  "escenario": "string (description of the roleplay scenario that was practiced)",
+  "idioma": "Spanish | English",
+  "sentimiento": "Positive | Neutral | Negative",
+  "tono": "string (1 word: consultative, analytical, aggressive, empathetic...)",
+  "competencias": [{"nombre": "string", "score": 1-10, "feedback": "short string"}],
+  "principios_neuro": ["string (neuroscience/NLP principles activated; empty if none)"],
+  "fortalezas": ["string"],
+  "mejoras": ["string"],
+  "objeciones": [{"objecion": "string", "manejo": "string"}],
+  "analisis_pnl": "string (language/NLP patterns detected in the advisor)",
+  "participacion": "string (1 sentence about how the advisor participated)",
+  "plan_gerente": ["string (concrete actions for the manager)"],
+  "timeline": [{"t": "M:SS", "texto": "string (key moment)"}],
+  "drill": {"titulo": "string", "descripcion": "string"},
+  "nota_deep_learning": "string (1 learning insight)",
+  "nota_bullets": ["string (concrete improvements for coach Víctor)"],
+  "comprension_general": 1-10,
+  "score_global": 1-10
+}
+
+Rules:
+- The competencias MUST map to these 6 radar axes: "Rapport", "PNL", "Postura", "Objeciones", "Cierre", "Leer la sala". Use exactly those names (keep them as-is, they are chart labels).
+- score, comprension_general and score_global are integers from 1 to 10.
+- Everything in English (except the 6 fixed competencia names). Only the JSON, nothing else.
+
+TRANSCRIPT:
+"""
+${transcript}
+"""`
+:
 `Analiza la siguiente transcripción de una sesión de entrenamiento de ventas y devuelve un JSON EXACTO con esta forma:
 
 {
@@ -716,7 +755,7 @@ function buildReportHtml(vtc, { forPdf = false } = {}) {
         <tr><td style="padding:0 18px 12px 18px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">${listRows(vtc.mejoras, C.yellow)}</table></td></tr></table></td></tr>` : '';
 
   return `<!DOCTYPE html>
-<html lang="es" xmlns="http://www.w3.org/1999/xhtml">
+<html lang="${vtc.lang || 'es'}" xmlns="http://www.w3.org/1999/xhtml">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="X-UA-Compatible" content="IE=edge">
 <title>Reporte VTC</title>${FONTS_LINK}
 <style>body,table,td{-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;}img,svg{border:0;}
@@ -944,7 +983,7 @@ function buildPdfReportHtml(vtc) {
   const drillUrl = esc(vtc.drill?.url || 'https://tracker.victor-ia.xyz');
 
   return `<!DOCTYPE html>
-<html lang="es"><head><meta charset="utf-8">
+<html lang="${vtc.lang || 'es'}"><head><meta charset="utf-8">
 <style>
   * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   html { margin: 0; padding: 0; background: ${P.page}; }
@@ -1326,6 +1365,11 @@ export default async function handler(req, res) {
   const user_email = body.user_email || 'mesainteligentedemo@gmail.com';
   const empleado_id = body.empleado_id || 'VTC-AUTO-001';
   const timestampIso = body.timestamp || new Date().toISOString();
+  // Idioma de la sesión (detectado dinámicamente en el frontend, viaja en el webhook).
+  // El reporte (análisis IA + email + PDF) se genera en ESTE idioma.
+  const session_language = String(body.session_language || body.language || 'es').toLowerCase().indexOf('en') === 0 ? 'en' : 'es';
+  const isEN = session_language === 'en';
+  console.log(`[Handler] session_language=${session_language}`);
 
   // Validación del empleado contra el roster autorizado (3 empleados de Dirección).
   // No bloquea el reporte, pero lo marca como no validado para auditoría.
@@ -1353,9 +1397,11 @@ export default async function handler(req, res) {
 
     // 3) Análisis IA (depende del transcript) + histórico del empleado (en paralelo)
     const [analysis, history] = await Promise.all([
-      analyzeTranscriptWithAI(transcriptData.text),
+      analyzeTranscriptWithAI(transcriptData.text, session_language),
       loadEmployeeHistory(empleado_id, conversation_id)
     ]);
+    // El idioma mostrado en el reporte refleja el idioma de la sesión detectado
+    analysis.idioma = isEN ? 'English' : 'Español';
 
     // Duración: prioriza la del body, luego la de ElevenLabs
     const durSecs = Number(body.call_duration_secs || transcriptData.durationSecs || 0);
@@ -1386,6 +1432,7 @@ export default async function handler(req, res) {
       intervenciones: transcriptData.messages.length,
       conversation_id,
       history,
+      lang: session_language,
       ...analysis
     };
     // Próximo módulo (depende del escenario + competencias del análisis)
@@ -1440,7 +1487,9 @@ export default async function handler(req, res) {
     const emailResult = await sendEmailWithAttachments({
       to: user_email,
       cc: CC_LIST,
-      subject: `Reporte VTC — ${user_name} · ${vtc.score_global}/10`,
+      subject: isEN
+        ? `VTC Report — ${user_name} · ${vtc.score_global}/10`
+        : `Reporte VTC — ${user_name} · ${vtc.score_global}/10`,
       html: emailHtml,
       attachments
     });

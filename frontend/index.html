@@ -2016,16 +2016,70 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
   };
   window.__vtcVoiceProfiles = VOICE_PROFILES;
 
-  /* ═══ DETECCIÓN DE IDIOMA — navigator.language + override manual (select #vw-lang) ═══ */
+  /* ═══ DETECCIÓN DE IDIOMA — session_language (unificado) > vtc_lang > navigator.language ═══ */
   function vtcDetectLang(){
     try{
+      var uni=localStorage.getItem('session_language');
+      if(uni==='es') return 'ES'; if(uni==='en') return 'EN';
       var manual=sessionStorage.getItem('vtc_lang');
       if(manual==='ES'||manual==='EN') return manual;
       var nl=(navigator.language||navigator.userLanguage||'es').toLowerCase();
       return nl.indexOf('en')===0 ? 'EN' : 'ES';
     }catch(e){ return 'ES'; }
   }
-  function vtcSetLang(l){ try{ sessionStorage.setItem('vtc_lang', l); }catch(e){} }
+  function vtcSetLang(l){ try{ sessionStorage.setItem('vtc_lang', l); }catch(e){} try{ localStorage.setItem('session_language', String(l).toLowerCase()); }catch(e){} }
+
+  /* ═══ DETECTOR DE IDIOMA POR MENSAJE (ligero, sin dependencias — es/en) ═══
+     Devuelve 'es' | 'en' | null (null = señal insuficiente, mantener idioma actual). */
+  var VTC_ES_WORDS=['que','de','la','el','los','las','una','uno','por','para','con','como','pero','porque','esta','esto','eso','muy','mas','más','sí','no','hola','gracias','como','qué','que','donde','cuando','quien','tengo','quiero','puedo','es','son','soy','estoy','vender','cliente','ventas','buenos','dias','días','señor','ahora','tambien','también','entonces','hacer','tiene','usted','nosotros'];
+  var VTC_EN_WORDS=['the','you','your','and','for','with','this','that','have','are','was','were','what','which','their','would','about','from','they','here','hello','thanks','how','where','when','who','can','could','want','sell','client','sales','please','yes','good','morning','now','also','then','make','has','we','they','should','need'];
+  function vtcDetectMsgLang(text){
+    if(!text) return null;
+    var t=' '+String(text).toLowerCase().replace(/[""'']/g,' ')+' ';
+    var esScore=0, enScore=0;
+    // Señal fuerte de español: acentos, ñ, signos de apertura
+    var accent=/[áéíóúñ¿¡]/.test(t);
+    if(accent) esScore+=3;
+    var words=t.split(/[^a-zà-ÿ]+/);
+    for(var i=0;i<words.length;i++){
+      var w=words[i]; if(!w) continue;
+      if(VTC_ES_WORDS.indexOf(w)>-1) esScore++;
+      if(VTC_EN_WORDS.indexOf(w)>-1) enScore++;
+    }
+    if(esScore===0 && enScore===0) return null;         // sin señal → mantener
+    if(esScore>=enScore+2) return 'es';                 // ganador claro con margen
+    if(enScore>=esScore+2) return 'en';
+    if(accent && esScore>enScore) return 'es';          // acento = español aún en textos cortos
+    return null;                                        // empate/ambiguo → mantener idioma actual
+  }
+
+  /* ═══ SETTER UNIFICADO: cambia UI + widget + agente + persistencia en una sola llamada ═══ */
+  window.vtcSetSessionLang = function(lang, notifyAgent){
+    lang = (lang==='en'||lang==='es') ? lang : ((String(lang||'').toLowerCase().indexOf('en')===0)?'en':'es');
+    var prev = null;
+    try{ prev = localStorage.getItem('session_language'); }catch(e){}
+    // Persistencia unificada (UI + widget + agente)
+    try{ localStorage.setItem('session_language', lang); }catch(e){}
+    try{ localStorage.setItem('vtc_site_lang', lang); }catch(e){}
+    try{ sessionStorage.setItem('vtc_lang', lang.toUpperCase()); }catch(e){}
+    // Transformar la UI (bridge del sistema i18n)
+    try{ if(typeof window.__vtcApplyLang==='function') window.__vtcApplyLang(lang); }catch(e){}
+    // Sincronizar el selector visible ES/EN si existe
+    try{ var _ls=document.getElementById('vw-lang'); if(_ls) _ls.value=lang.toUpperCase(); }catch(e){}
+    // Notificar al agente en vivo para que cambie el idioma de sus respuestas
+    if(notifyAgent && prev!==lang){ try{ vtcNotifyAgentLang(lang); }catch(e){} }
+    return lang;
+  };
+  window.vtcGetSessionLang = function(){ try{ var s=localStorage.getItem('session_language'); if(s==='en'||s==='es') return s; }catch(e){} return 'es'; };
+
+  /* Instruye al agente ElevenLabs a responder en el nuevo idioma (mid-call). */
+  function vtcNotifyAgentLang(lang){
+    if(!conv) return;
+    var msg = (lang==='en')
+      ? '[SYSTEM] The user switched to English. From now on, respond ALWAYS in English until told otherwise.'
+      : '[SYSTEM] El usuario cambió a español. A partir de ahora, responde SIEMPRE en español hasta nuevo aviso.';
+    try{ if(conv.sendContextualUpdate) conv.sendContextualUpdate(msg); }catch(e){}
+  }
   const $=id=>document.getElementById(id);
   const launch=$('vw-launch'),panel=$('vw-panel'),gate=$('vw-gate'),chat=$('vw-chat'),msgs=$('vw-msgs'),statusEl=$('vw-status'),mic=$('vw-mic'),input=$('vw-in');
   try{ var _langSel=$('vw-lang'); if(_langSel) _langSel.value=vtcDetectLang(); }catch(e){}
@@ -2207,7 +2261,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
         opts=opts||{};
         if(opts.once){ var key=type+':'+(opts.key||JSON.stringify(data||{})); if(_sent[key]) return; _sent[key]=1; }
         fetch('/api/track-interaction',{method:'POST',headers:{'Content-Type':'application/json'},keepalive:!!opts.keepalive,
-          body:JSON.stringify({employee_id:emp,conversation_id:window.__vtcConvId||null,type:type,data:data||{},timestamp:new Date().toISOString()})
+          body:JSON.stringify({employee_id:emp,conversation_id:window.__vtcConvId||null,type:type,data:data||{},session_language:(function(){try{return window.vtcGetSessionLang();}catch(e){return 'es';}})(),timestamp:new Date().toISOString()})
         }).catch(function(){});
       }catch(e){}
     }
@@ -2473,6 +2527,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       dynamicVariables:{
         user_name:ctx.name, employee_number:ctx.emp, departamento:ctx.dep||'',
         idioma_preferido: ctx.lang||'ES',
+        session_language: String(ctx.lang||'ES').toLowerCase(),
         voces_disponibles: Object.keys(VOICE_PROFILES).map(function(k){return k+':'+VOICE_PROFILES[k].name;}).join(', ')
       },
       clientTools,
@@ -2480,7 +2535,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       onDisconnect:(d)=>{setStatus('Sesión terminada');console.warn('ConvAI disconnect:',d);try{ window.__vtcTrack && window.__vtcTrack('session_completed',{reason:'disconnect'},{keepalive:true}); }catch(e){}mic.classList.remove('vw-live');launch.classList.remove('vw-active');conv=null;started=false;window.__vtcSpeaking=false;stopKeepalive();},
       onError:(e)=>{console.error('ConvAI onError:',e);setStatus('Error: '+((e&&(e.message||e.reason))||'conexión'));},
       onModeChange:(m)=>{const md=(m&&m.mode)||m;window.__vtcSpeaking=(md==='speaking');if(md==='speaking'){typing(false);setStatus(ctx.textOnly?'<b>Victor respondiendo…</b>':'<b>Victor hablando…</b>');}else setStatus(ctx.textOnly?'<b>Modo texto</b> — escribe tu mensaje':'<b>Escuchando…</b>');},
-      onMessage:(m)=>{const s=m.source||m.role,txt=m.message||m.text||'';if(s==='ai'||s==='agent'){typing(false);bubble('ai',txt);/* 🔒 V11: cuando Víctor anuncia el salto, marca el módulo como terminado → permite navegar */try{var _t=String(txt||'').toLowerCase();if(_t.indexOf('siguiente módulo')>-1||_t.indexOf('siguiente modulo')>-1||_t.indexOf('siguiente paso')>-1||_t.indexOf('vamos al siguiente')>-1||_t.indexOf('pasamos al siguiente')>-1){window.__vtcModuleDone=true;}/* V12: transicion de BLOQUE dentro del modulo (respaldo por texto si el agente no llama siguiente_bloque) */var _blk=/ahora (?:la siguiente parte|el siguiente bloque|veamos el siguiente|pasamos a la siguiente parte|la siguiente parte)|continuemos con (?:la|el) siguiente/i;var _modNext=/siguiente m[oó]dulo|vamos al siguiente m[oó]dulo|pasamos al siguiente m[oó]dulo|ya vimos todo el m[oó]dulo/i;if(window.__vtcBlocks&&window.__vtcBlocks.current_module&&!window.__vtcBlocks.module_done&&_blk.test(_t)&&!_modNext.test(_t)){try{next_block_in_module();}catch(e2){}}}catch(e){}}else bubble('user',txt);},
+      onMessage:(m)=>{const s=m.source||m.role,txt=m.message||m.text||'';if(s==='ai'||s==='agent'){typing(false);bubble('ai',txt);/* 🔒 V11: cuando Víctor anuncia el salto, marca el módulo como terminado → permite navegar */try{var _t=String(txt||'').toLowerCase();if(_t.indexOf('siguiente módulo')>-1||_t.indexOf('siguiente modulo')>-1||_t.indexOf('siguiente paso')>-1||_t.indexOf('vamos al siguiente')>-1||_t.indexOf('pasamos al siguiente')>-1){window.__vtcModuleDone=true;}/* V12: transicion de BLOQUE dentro del modulo (respaldo por texto si el agente no llama siguiente_bloque) */var _blk=/ahora (?:la siguiente parte|el siguiente bloque|veamos el siguiente|pasamos a la siguiente parte|la siguiente parte)|continuemos con (?:la|el) siguiente/i;var _modNext=/siguiente m[oó]dulo|vamos al siguiente m[oó]dulo|pasamos al siguiente m[oó]dulo|ya vimos todo el m[oó]dulo/i;if(window.__vtcBlocks&&window.__vtcBlocks.current_module&&!window.__vtcBlocks.module_done&&_blk.test(_t)&&!_modNext.test(_t)){try{next_block_in_module();}catch(e2){}}}catch(e){}}else {/* DETECCIÓN DINÁMICA en voz: transcripción del usuario */try{var _dl=vtcDetectMsgLang(txt);var _cl=window.vtcGetSessionLang();if(_dl&&_dl!==_cl){console.log('[i18n] Idioma detectado en voz: '+_dl+' → cambiando');window.vtcSetSessionLang(_dl,true);}}catch(e){}bubble('user',txt);}},
     };
   }
 
@@ -2613,8 +2668,10 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
     err.textContent=''; removeTextFallbackBtn();
     cta.disabled=true; cta.textContent='Conectando…';
     try{ var _bv=document.querySelector('#bienvenida video'); if(_bv){ _bv.muted=true; var _pp=_bv.play(); if(_pp&&_pp.then) _pp.then(function(){ _bv.pause(); try{_bv.currentTime=0;}catch(e){} _bv.muted=false; }).catch(function(){ _bv.muted=false; }); } }catch(e){}
-    const firstMessage = '¡Bienvenido, '+name+'! Soy Victor, tu entrenador personal, y hoy vamos a hacerte mejor. ¿Quieres repasar un módulo o entramos directo a un roleplay?';
     const lang=($('vw-lang')&&$('vw-lang').value)||vtcDetectLang(); vtcSetLang(lang);
+    const firstMessage = (lang==='EN')
+      ? 'Welcome, '+name+'! I\'m Victor, your personal coach, and today we\'re going to make you better. Do you want to review a module or jump straight into a roleplay?'
+      : '¡Bienvenido, '+name+'! Soy Victor, tu entrenador personal, y hoy vamos a hacerte mejor. ¿Quieres repasar un módulo o entramos directo a un roleplay?';
     gate.style.display='none'; chat.style.display='flex'; started=true; panel.classList.add('vw-inchat');
     setStatus(textOnly?'<b>Preparando chat de texto…</b>':'<b>Preparando tu sesión…</b>');
     const ok=await connect({name,emp,dep,hist:'',firstMessage,textOnly:!!textOnly,lang});
@@ -2742,6 +2799,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
           agent_id:AGENT,
           duration:dur,
           manual_hang_up:true,
+          session_language:(function(){try{return window.vtcGetSessionLang();}catch(e){return 'es';}})(),
           timestamp:new Date().toISOString()
         })
       }).then(function(r){ if(!r.ok) console.warn('hangup webhook status:',r.status); })
@@ -2767,7 +2825,12 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
     },3000);
   }
   { var _vwH=$('vw-hangup'); if(_vwH) _vwH.addEventListener('click', vwHangup); }
-  function send(){const t=input.value.trim();if(!t||!conv)return;input.value='';bubble('user',t);typing(true);try{conv.sendUserMessage?conv.sendUserMessage(t):(conv.sendText&&conv.sendText(t));}catch(e){console.error(e);}}
+  function send(){const t=input.value.trim();if(!t||!conv)return;
+    /* DETECCIÓN DINÁMICA: si el usuario escribe en otro idioma, cambia TODO automáticamente */
+    try{ var _dl=vtcDetectMsgLang(t); var _cur=window.vtcGetSessionLang();
+      if(_dl && _dl!==_cur){ console.log('[i18n] Idioma detectado en mensaje: '+_dl+' (era '+_cur+') → cambiando'); window.vtcSetSessionLang(_dl, true); }
+    }catch(e){}
+    input.value='';bubble('user',t);typing(true);try{conv.sendUserMessage?conv.sendUserMessage(t):(conv.sendText&&conv.sendText(t));}catch(e){console.error(e);}}
   $('vw-snd').onclick=send;
   window.__videoSync={isPlaying:false,currentModule:null};
   window.__scrollState={nextBlockIdx:0};
@@ -3357,14 +3420,30 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
   }
 
   function init(){
-    try{ cur = localStorage.getItem(LS_KEY) || 'es'; }catch(e){ cur='es'; }
+    // === DETECCIÓN AUTOMÁTICA DE IDIOMA ===
+    // Prioridad: session_language (unificado) > vtc_site_lang (legacy) > navigator.language > 'es'
+    try{
+      var uni = localStorage.getItem('session_language');
+      var legacy = localStorage.getItem(LS_KEY);
+      if(uni==='en'||uni==='es'){ cur = uni; }
+      else if(legacy==='en'||legacy==='es'){ cur = legacy; }
+      else {
+        var bl=(navigator.language||navigator.userLanguage||'es').toLowerCase();
+        cur = (bl.indexOf('en')===0) ? 'en' : 'es';
+      }
+    }catch(e){ cur='es'; }
     if(cur!=='en' && cur!=='es') cur='es';
-    // wire switcher
+    // Persistir el idioma detectado en TODAS las claves (unifica UI + widget + agente)
+    try{ localStorage.setItem('session_language', cur); }catch(e){}
+    try{ localStorage.setItem(LS_KEY, cur); }catch(e){}
+    try{ sessionStorage.setItem('vtc_lang', cur.toUpperCase()); }catch(e){}
+    // wire switcher (delega en el setter unificado si existe → notifica al agente)
     var sw=document.getElementById('vtc-lang-switch');
     if(sw){ sw.addEventListener('click', function(e){
       var btn=e.target.closest('button'); if(!btn) return;
       var lang=btn.getAttribute('data-lang'); if(lang===cur) return;
-      applyLang(lang);
+      if(typeof window.vtcSetSessionLang==='function'){ window.vtcSetSessionLang(lang, true); }
+      else applyLang(lang);
     }); }
     // observer for dynamically injected content (quiz retries, chat, etc.)
     var deb=null;
@@ -3377,6 +3456,10 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
     // initial apply (only need to transform if EN; still set button active for ES)
     applyLang(cur);
   }
+
+  // === BRIDGE: permite que el widget/agente cambie la UI de idioma dinámicamente ===
+  window.__vtcApplyLang = function(l){ if((l==='es'||l==='en') && l!==cur){ applyLang(l); } };
+  window.__vtcGetLang = function(){ return cur; };
 
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', init);
   else init();
