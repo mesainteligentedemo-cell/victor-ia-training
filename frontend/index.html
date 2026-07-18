@@ -1900,8 +1900,8 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
   .vw-f select option{background:#121113;color:#eae6df;padding:10px}
   .vw-f input:focus,.vw-f select:focus{border-color:#b89a6a;box-shadow:0 0 0 3px rgba(184,154,106,.1)}
   .vw-f{margin-bottom:12px}
-  #vw-cta{width:100%;background:#b89a6a;color:#0a0a0c;border:none;border-radius:12px;padding:14px;font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;font-family:inherit;transition:.2s}
-  #vw-cta:hover{background:#cdb28c} #vw-cta:disabled{opacity:.6;cursor:default}
+  #vw-cta,#vw-cta-en{width:100%;background:#b89a6a;color:#0a0a0c;border:none;border-radius:12px;padding:14px;font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;font-family:inherit;transition:.2s}
+  #vw-cta:hover,#vw-cta-en:hover{background:#cdb28c} #vw-cta:disabled,#vw-cta-en:disabled{opacity:.6;cursor:default}
   #vw-gate .vw-err{color:#d98a6a;font-size:12px;min-height:14px}
   /* chat */
   #vw-chat{flex:1;display:none;flex-direction:column;min-height:0}
@@ -1940,7 +1940,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
 <div id="vtc-speak-badge"><span id="vtc-speak-txt"></span></div>
 <div id="vw-launch" title="Habla con Victor"><span class="vw-pulse"></span><span class="vw-v" aria-label="Victor">V</span></div>
 
-<div id="vw-panel">
+<div id="vw-panel" data-no-i18n>
   <div class="vw-head">
     <span class="vw-v" aria-label="Victor">V</span>
     <div class="vw-t"><div class="vw-name">Victor</div><div class="vw-st" id="vw-status">Tu entrenador personal · VTC</div><div class="vw-sess" id="vw-sess"><span class="dot"></span><span id="vw-sess-txt"></span></div></div>
@@ -1954,26 +1954,55 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
   </div>
 
   <div id="vw-gate">
-    <h3>Acceso a tu entrenamiento</h3>
-    <p>Identifícate para que Victor revise tu progreso y continúe donde te quedaste.</p>
-    <div class="vw-f"><label>Nombre completo</label><input id="vw-name" type="text" placeholder="Tu nombre" autocomplete="name"></div>
-    <div class="vw-f"><label>Número de empleado</label><input id="vw-emp" type="text" placeholder="Ej. 12345" inputmode="numeric" autocomplete="off"></div>
-    <div class="vw-f"><label>Departamento</label>
-      <select id="vw-dep" required>
-        <option value="">-- Selecciona tu departamento --</option>
-        <option value="OPC">OPC</option>
-        <option value="Línea">Línea</option>
-        <option value="Front to Middle">Front to Middle</option>
-        <option value="Front to Back">Front to Back</option>
-        <option value="Selfgen">Selfgen</option>
-        <option value="Cierre">Cierre</option>
-        <option value="Gerencia">Gerencia</option>
-        <option value="Dirección">Dirección</option>
-        <option value="Otro">Otro</option>
-      </select>
+    <div id="vw-form-es" style="display:none;flex-direction:column;gap:14px;">
+      <div>
+        <h3 style="margin:0 0 4px;">Acceso a tu entrenamiento</h3>
+        <p style="margin:0;color:#9a9aa2;font-size:12px;">Completa tus datos para comenzar</p>
+      </div>
+      <div class="vw-f"><label>Nombre completo</label><input id="vw-name" type="text" placeholder="Tu nombre" autocomplete="name"></div>
+      <div class="vw-f"><label>Número de empleado</label><input id="vw-emp" type="text" placeholder="Ej. 12345" inputmode="numeric" autocomplete="off"></div>
+      <div class="vw-f"><label>Departamento</label>
+        <select id="vw-dep" required>
+          <option value="">-- Selecciona tu departamento --</option>
+          <option value="OPC">OPC</option>
+          <option value="Línea">Línea</option>
+          <option value="Front to Middle">Front to Middle</option>
+          <option value="Front to Back">Front to Back</option>
+          <option value="Selfgen">Selfgen</option>
+          <option value="Cierre">Cierre</option>
+          <option value="Gerencia">Gerencia</option>
+          <option value="Dirección">Dirección</option>
+          <option value="Otro">Otro</option>
+        </select>
+      </div>
+      <div class="vw-err" id="vw-err"></div>
+      <button id="vw-cta">Comenzar capacitación</button>
     </div>
-    <div class="vw-err" id="vw-err"></div>
-    <button id="vw-cta">Comenzar capacitación</button>
+
+    <div id="vw-form-en" style="display:none;flex-direction:column;gap:14px;">
+      <div>
+        <h3 style="margin:0 0 4px;">Access Your Training</h3>
+        <p style="margin:0;color:#9a9aa2;font-size:12px;">Complete your details to begin</p>
+      </div>
+      <div class="vw-f"><label>Full Name</label><input id="vw-name-en" type="text" placeholder="Your name" autocomplete="name"></div>
+      <div class="vw-f"><label>Employee Number</label><input id="vw-emp-en" type="text" placeholder="E.g. 12345" inputmode="numeric" autocomplete="off"></div>
+      <div class="vw-f"><label>Department</label>
+        <select id="vw-dep-en" required>
+          <option value="">-- Select your department --</option>
+          <option value="OPC">OPC</option>
+          <option value="Line">Line</option>
+          <option value="Front to Middle">Front to Middle</option>
+          <option value="Front to Back">Front to Back</option>
+          <option value="Selfgen">Selfgen</option>
+          <option value="Closer">Closer</option>
+          <option value="Management">Management</option>
+          <option value="Leadership">Leadership</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="vw-err" id="vw-err-en"></div>
+      <button id="vw-cta-en">Start Training</button>
+    </div>
   </div>
 
   <div id="vw-chat">
@@ -2064,6 +2093,8 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
     try{ sessionStorage.setItem('vtc_lang', lang.toUpperCase()); }catch(e){}
     // Transformar la UI (bridge del sistema i18n)
     try{ if(typeof window.__vtcApplyLang==='function') window.__vtcApplyLang(lang); }catch(e){}
+    // Cambiar el formulario del widget (ES/EN) al idioma seleccionado
+    try{ if(typeof showCorrectForm==='function') showCorrectForm(); }catch(e){}
     // Sincronizar el selector visible ES/EN si existe
     try{ var _ls=document.getElementById('vw-lang'); if(_ls) _ls.value=lang.toUpperCase(); }catch(e){}
     // Notificar al agente en vivo para que cambie el idioma de sus respuestas
@@ -2528,6 +2559,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
         user_name:ctx.name, employee_number:ctx.emp, departamento:ctx.dep||'',
         idioma_preferido: ctx.lang||'ES',
         session_language: String(ctx.lang||'ES').toLowerCase(),
+        main_language: String(ctx.lang||'ES').toLowerCase(),
         voces_disponibles: Object.keys(VOICE_PROFILES).map(function(k){return k+':'+VOICE_PROFILES[k].name;}).join(', ')
       },
       clientTools,
@@ -2715,7 +2747,17 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
     var sess=vtcGetSession();
     if(sess){ vtcShowSessBadge(sess); try{ if(window.viTrack) window.viTrack.setUser({name:sess.name,emp:sess.employee_id,dep:sess.department,site:'vtc-capacitacion'}); }catch(e){} resumeSession(sess); return; }
     gate.style.display='flex';chat.style.display='none';
-    try{var u=JSON.parse(localStorage.getItem('vtc_user')||'null'); if(u){ $('vw-name').value=u.name||''; $('vw-emp').value=u.emp||''; if(u.dep){$('vw-dep').value=u.dep;} var c=$('vw-cta'); if(c) c.textContent='Acceder'; var gp=document.querySelector('#vw-gate p'); if(gp&&u.name) gp.textContent='Bienvenido de nuevo, '+u.name+'. Toca Acceder para continuar tu capacitación.'; } }catch(e){} }
+    /* Mostrar el formulario en el idioma actual (ES/EN) antes de precargar datos */
+    try{ showCorrectForm(); }catch(e){}
+    try{var u=JSON.parse(localStorage.getItem('vtc_user')||'null'); if(u){
+      var isEN=(vtcDetectLang()==='EN');
+      var nEl=isEN?$('vw-name-en'):$('vw-name'), eEl=isEN?$('vw-emp-en'):$('vw-emp'), dEl=isEN?$('vw-dep-en'):$('vw-dep');
+      if(nEl) nEl.value=u.name||''; if(eEl) eEl.value=u.emp||''; if(u.dep&&dEl){dEl.value=u.dep;}
+      var c=isEN?$('vw-cta-en'):$('vw-cta'); if(c) c.textContent=isEN?'Access':'Acceder';
+      var gp=document.querySelector('#vw-gate p'); if(gp&&u.name) gp.textContent=isEN
+        ?('Welcome back, '+u.name+'. Tap Access to continue your training.')
+        :('Bienvenido de nuevo, '+u.name+'. Toca Acceder para continuar tu capacitación.');
+    } }catch(e){} }
 
   async function resumeSession(sess){
     var name=sess.name, emp=sess.employee_id, dep=sess.department||'';
@@ -2732,7 +2774,75 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
   function minimize(){ panel.classList.remove('vw-open'); launch.style.display='flex'; } // NO corta la sesión
   function endAll(){ try{ window.__vtcTrack && window.__vtcTrack('session_completed',{reason:'user_ended'},{keepalive:true}); }catch(e){} try{conv&&conv.endSession();}catch(e){} conv=null;started=false;window.__vtcSpeaking=false;stopKeepalive(); mic.classList.remove('vw-live');launch.classList.remove('vw-active'); try{mic.style.display='';}catch(e){} removeTextFallbackBtn(); msgs.innerHTML=''; gate.style.display='flex';chat.style.display='none'; $('vw-cta').disabled=false;$('vw-cta').textContent='Comenzar capacitación'; try{vwResetControls();}catch(e){} panel.classList.remove('vw-inchat'); panel.classList.remove('vw-open'); launch.style.display='flex'; }
 
-  launch.onclick=openPanel; $('vw-min').onclick=minimize; $('vw-close').onclick=endAll; $('vw-cta').onclick=begin;
+  /* ════ Detección de idioma y mostrar formulario correcto ════ */
+  function showCorrectForm(){
+    const detected=vtcDetectLang(); /* ES o EN */
+    const formES=$('vw-form-es'), formEN=$('vw-form-en');
+    if(!formES||!formEN) return;
+    /* Alternar visibilidad según idioma (se puede llamar en cada cambio) */
+    if(detected==='EN'){ formEN.style.display='flex'; formES.style.display='none'; }
+    else { formES.style.display='flex'; formEN.style.display='none'; }
+    /* Enlazar handlers UNA sola vez (evita listeners duplicados en cambios de idioma) */
+    if(!showCorrectForm._wired){
+      showCorrectForm._wired=true;
+      var cE=$('vw-cta-en'); if(cE) cE.onclick=beginEN;
+      var cS=$('vw-cta');    if(cS) cS.onclick=begin;
+      var eE=$('vw-emp-en'); if(eE) eE.addEventListener('keydown',function(e){if(e.key==='Enter')beginEN();});
+      var dE=$('vw-dep-en'); if(dE) dE.addEventListener('keydown',function(e){if(e.key==='Enter')beginEN();});
+      var eS=$('vw-emp');    if(eS) eS.addEventListener('keydown',function(e){if(e.key==='Enter')begin();});
+      var dS=$('vw-dep');    if(dS) dS.addEventListener('keydown',function(e){if(e.key==='Enter')begin();});
+    }
+  }
+  /* Mostrar formulario al cargar */
+  showCorrectForm();
+
+  /* Función begin para ESPAÑOL */
+  async function beginEN(){
+    const name=$('vw-name-en').value.trim(), emp=$('vw-emp-en').value.trim(), dep=$('vw-dep-en').value.trim();
+    const err=$('vw-err-en');
+    if(!name){err.textContent='Please enter your name.';return;}
+    if(!emp){err.textContent='Please enter your employee number.';return;}
+    if(!dep){err.textContent='Please select your department.';return;}
+    err.textContent=''; removeTextFallbackBtn();
+    const cta=$('vw-cta-en'); cta.disabled=true; cta.textContent='Verifying…';
+    try{
+      const _vr=await fetch('/api/verify-employee',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:name,employee_id:emp,department:dep})});
+      let _vd={}; try{_vd=await _vr.json();}catch(e){}
+      if(!_vr.ok || !_vd.authorized){
+        err.textContent=(_vd&&_vd.message)?_vd.message:'Access denied. User not authorized.';
+        cta.disabled=false; cta.textContent='Start Training';
+        return;
+      }
+      var _sess={name:name,employee_id:emp,department:dep,role:(_vd&&_vd.role)||'',timestamp:Date.now(),session_token:(_vd&&_vd.session_token)||'',expires_at:(_vd&&_vd.expires_at)||''};
+      vtcSaveSession(_sess); vtcShowSessBadge(_sess);
+    }catch(e){
+      err.textContent='Could not verify your access. Check your internet and try again.';
+      cta.disabled=false; cta.textContent='Retry';
+      return;
+    }
+    if(window.viTrack) window.viTrack.setUser({name,emp,dep,site:'vtc-capacitacion'});
+    else window.VI_TRACK_USER = {name,emp,dep,site:'vtc-capacitacion'};
+    try{localStorage.setItem('vtc_user',JSON.stringify({name:name,emp:emp,dep:dep}));}catch(e){}
+    cta.textContent='Connecting…';
+    let micStream=null, micOk=false, micErr=null;
+    if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia){
+      try{ micStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true,channelCount:1}}); micOk=true; }
+      catch(e){ micErr=e; }
+    } else {
+      micErr=new Error('getUserMedia not available'); micErr.name='NotSupportedError';
+    }
+    if(!micOk){
+      err.textContent=micErrorMessage(micErr);
+      console.warn('📵 getUserMedia failed ('+((micErr&&micErr.name)||'?')+') — text fallback available:', micErr);
+      cta.disabled=false; cta.textContent='Retry with microphone';
+      showTextFallbackBtn(function(){ console.log('🔄 Starting text-only chat...'); startCourse(name,emp,dep,true); });
+      return;
+    }
+    try{ micStream.getTracks().forEach(function(t){t.stop();}); }catch(e){}
+    await startCourse(name,emp,dep,false);
+  }
+
+  launch.onclick=openPanel; $('vw-min').onclick=minimize; $('vw-close').onclick=endAll;
   /* Escape minimiza el panel del agente (no corta la sesion) sin bloquear el resto del teclado/scroll */
   document.addEventListener('keydown',function(e){ if(e.key==='Escape' && panel.classList.contains('vw-open')) minimize(); });
   $('vw-emp').addEventListener('keydown',e=>{if(e.key==='Enter')begin();});

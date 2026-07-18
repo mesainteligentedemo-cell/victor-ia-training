@@ -84,11 +84,13 @@ export default async function handler(req, res) {
 
   const idInput = String(employee_id).trim();
 
-  // Validación de la combinación EXACTA (nombre + employee_id + departamento).
+  // Autorización por nombre + número de empleado (identificador único y estable).
+  // El departamento NO se usa para autorizar: su texto depende del idioma del
+  // formulario (ES envía "Dirección", EN envía "Leadership"), así que compararlo
+  // contra el roster rompería el acceso en inglés. Se conserva solo para el log.
   const match = ROSTER.find(e =>
     normalize(e.name) === normalize(name) &&
-    e.employee_id === idInput &&
-    (department == null || department === "" || normalize(e.department) === normalize(department))
+    e.employee_id === idInput
   );
 
   const supabase = getSupabase();
