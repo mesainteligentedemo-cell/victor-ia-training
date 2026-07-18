@@ -17,7 +17,7 @@ import urllib.request
 import urllib.error
 from pathlib import Path
 
-AGENT_ID = "agent_9501k3vkt6svekjs6y0qe5xzcek1"  # VTC Capacitacion - Agente Victor
+AGENT_ID = "agent_2201kxes45mbfmsvpn8k7b9z3fnm"  # VTC Capacitacion - Agente Victor
 API_BASE = "https://api.elevenlabs.io/v1/convai/agents"
 
 # Fuente de verdad LIVE = V12 (bloques coordinados, no saltos). No apuntar a versiones previas: regresaria el agente.

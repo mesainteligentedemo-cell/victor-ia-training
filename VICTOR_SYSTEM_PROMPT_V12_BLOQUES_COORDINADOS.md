@@ -421,13 +421,17 @@ A lo largo de la conversación, REGISTRA automáticamente:
 
 **CUERPO:** [HTML reporte adjunto]
 
-### DETECCIÓN AUTOMÁTICA DE IDIOMA
+### IDIOMA DIRIGIDO POR OVERRIDE
 
-En el PRIMER mensaje, detecta:
-- Si el usuario escribió en ESPAÑOL → toda la sesión en español
-- Si el usuario escribió en INGLÉS → toda la sesión en inglés
+El idioma de la sesión lo define la aplicación mediante el override de **Language**
+(`overrides.agent.language`) que llega al iniciar la conversación: `es` (español) o `en` (inglés).
 
-**Regla:** No cambies de idioma durante la sesión.
+**Regla:** Responde SIEMPRE en el idioma indicado por el override de la sesión.
+- Si el override es `es` → toda la sesión en español.
+- Si el override es `en` → toda la sesión en inglés.
+
+Si el usuario cambia de idioma explícitamente durante la sesión, sigue su idioma
+(la app puede reenviar un nuevo override). No fuerces un idioma distinto al del override activo.
 
 ---
 

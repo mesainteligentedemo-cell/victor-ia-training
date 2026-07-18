@@ -2586,6 +2586,10 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
        (1) el agente no tenga habilitado el override de firstMessage (Security → Overrides),
        (2) la red bloquee WebRTC (firewalls corporativos / hoteles). */
     const attempts=[];
+    /* IDIOMA: el usuario habilitó el override de Language en el dashboard del agente.
+       Enviamos overrides.agent.language en TODOS los intentos para que ElevenLabs
+       responda en el idioma correcto ('en' o 'es') en vez de caer al default. Invisible en UI. */
+    const langCode = (String(ctx.lang||'ES').toLowerCase()==='en') ? 'en' : 'es';
     /* PRIORIDAD: token de conversacion firmado (server-side) — permite conectar la VOZ
        aunque el dominio no este en la allowlist publica del agente. Best-effort: si el
        endpoint falla, seguimos con el flujo de agente publico (o1/o2/o3). */
@@ -2598,30 +2602,30 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
           /* FIX: aplicar el saludo personalizado (con el nombre) tambien en la conexion prioritaria,
              no solo en o1. Antes t1 conectaba con el firstMessage GENERICO del dashboard -> por eso
              Victor volvia a pedir nombre/numero/departamento aunque las dynamicVariables SI se enviaban. */
-          const _ov1={};
-          if(typeof ctx.firstMessage==='string' && ctx.firstMessage.length>0){ _ov1.agent={ firstMessage:ctx.firstMessage }; }
+          const _ov1={ agent:{ language:langCode } };
+          if(typeof ctx.firstMessage==='string' && ctx.firstMessage.length>0){ _ov1.agent.firstMessage=ctx.firstMessage; }
           if(ctx.textOnly){ _ov1.conversation={ textOnly:true }; }
-          if(Object.keys(_ov1).length){ t1.overrides=_ov1; }
+          t1.overrides=_ov1;
           attempts.push(t1);
         }
         if(_tok && _tok.signed_url){
           const t2=baseOpts(ctx); delete t2.agentId; t2.connectionType='websocket'; t2.signedUrl=_tok.signed_url;
-          const _ov2={};
-          if(typeof ctx.firstMessage==='string' && ctx.firstMessage.length>0){ _ov2.agent={ firstMessage:ctx.firstMessage }; }
+          const _ov2={ agent:{ language:langCode } };
+          if(typeof ctx.firstMessage==='string' && ctx.firstMessage.length>0){ _ov2.agent.firstMessage=ctx.firstMessage; }
           if(ctx.textOnly){ _ov2.conversation={ textOnly:true }; }
-          if(Object.keys(_ov2).length){ t2.overrides=_ov2; }
+          t2.overrides=_ov2;
           attempts.push(t2);
         }
       }
     }catch(e){ console.warn('signed-url no disponible; uso agente publico:', e); }
     const o1=baseOpts(ctx); o1.connectionType='webrtc';
-    const ovr1={};
-    if(typeof ctx.firstMessage==='string' && ctx.firstMessage.length>0){ ovr1.agent={ firstMessage:ctx.firstMessage }; }
+    const ovr1={ agent:{ language:langCode } };
+    if(typeof ctx.firstMessage==='string' && ctx.firstMessage.length>0){ ovr1.agent.firstMessage=ctx.firstMessage; }
     if(ctx.textOnly){ ovr1.conversation={ textOnly:true }; }
-    if(Object.keys(ovr1).length){ o1.overrides=ovr1; }
+    o1.overrides=ovr1;
     attempts.push(o1);
-    const o2=baseOpts(ctx); o2.connectionType='webrtc'; if(ctx.textOnly){ o2.overrides={ conversation:{ textOnly:true } }; } attempts.push(o2);
-    const o3=baseOpts(ctx); o3.connectionType='websocket'; if(ctx.textOnly){ o3.overrides={ conversation:{ textOnly:true } }; } attempts.push(o3);
+    const o2=baseOpts(ctx); o2.connectionType='webrtc'; o2.overrides={ agent:{ language:langCode } }; if(ctx.textOnly){ o2.overrides.conversation={ textOnly:true }; } attempts.push(o2);
+    const o3=baseOpts(ctx); o3.connectionType='websocket'; o3.overrides={ agent:{ language:langCode } }; if(ctx.textOnly){ o3.overrides.conversation={ textOnly:true }; } attempts.push(o3);
 
     for(let i=0;i<attempts.length;i++){
       try{ conv=await SDK.startSession(attempts[i]); break; }
