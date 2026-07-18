@@ -2591,12 +2591,21 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
         const _tok=await _tr.json();
         if(_tok && _tok.client_secret){
           const t1=baseOpts(ctx); delete t1.agentId; t1.connectionType='webrtc'; t1.conversationToken=_tok.client_secret;
-          if(ctx.textOnly){ t1.overrides={ conversation:{ textOnly:true } }; }
+          /* FIX: aplicar el saludo personalizado (con el nombre) tambien en la conexion prioritaria,
+             no solo en o1. Antes t1 conectaba con el firstMessage GENERICO del dashboard -> por eso
+             Victor volvia a pedir nombre/numero/departamento aunque las dynamicVariables SI se enviaban. */
+          const _ov1={};
+          if(typeof ctx.firstMessage==='string' && ctx.firstMessage.length>0){ _ov1.agent={ firstMessage:ctx.firstMessage }; }
+          if(ctx.textOnly){ _ov1.conversation={ textOnly:true }; }
+          if(Object.keys(_ov1).length){ t1.overrides=_ov1; }
           attempts.push(t1);
         }
         if(_tok && _tok.signed_url){
           const t2=baseOpts(ctx); delete t2.agentId; t2.connectionType='websocket'; t2.signedUrl=_tok.signed_url;
-          if(ctx.textOnly){ t2.overrides={ conversation:{ textOnly:true } }; }
+          const _ov2={};
+          if(typeof ctx.firstMessage==='string' && ctx.firstMessage.length>0){ _ov2.agent={ firstMessage:ctx.firstMessage }; }
+          if(ctx.textOnly){ _ov2.conversation={ textOnly:true }; }
+          if(Object.keys(_ov2).length){ t2.overrides=_ov2; }
           attempts.push(t2);
         }
       }
