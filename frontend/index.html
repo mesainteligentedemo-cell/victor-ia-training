@@ -1905,8 +1905,9 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
   .vw-f select option{background:#121113;color:#eae6df;padding:10px}
   .vw-f input:focus,.vw-f select:focus{border-color:#b89a6a;box-shadow:0 0 0 3px rgba(184,154,106,.1)}
   .vw-f{margin-bottom:12px}
-  #vw-cta,#vw-cta-en{width:100%;background:#b89a6a;color:#0a0a0c;border:none;border-radius:12px;padding:14px;font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;font-family:inherit;transition:.2s}
-  #vw-cta:hover,#vw-cta-en:hover{background:#cdb28c} #vw-cta:disabled,#vw-cta-en:disabled{opacity:.6;cursor:default}
+  #vw-cta,#vw-cta-en{width:100%;background:#b89a6a;color:#0a0a0c;border:none;border-radius:12px;padding:16px 24px;font-size:14px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;cursor:pointer;font-family:inherit;transition:.25s;box-shadow:0 4px 12px rgba(184,154,106,.2)}
+  #vw-cta:hover,#vw-cta-en:hover{background:#cdb28c;transform:translateY(-2px);box-shadow:0 6px 16px rgba(184,154,106,.35)}
+  #vw-cta:disabled,#vw-cta-en:disabled{opacity:.6;cursor:default;transform:none}
   #vw-gate .vw-err{color:#d98a6a;font-size:12px;min-height:14px}
   /* chat */
   #vw-chat{flex:1;display:none;flex-direction:column;min-height:0}
@@ -1934,9 +1935,9 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
   #vtc-speak-badge{position:fixed;z-index:99997;pointer-events:none;max-width:min(80vw,420px);padding:6px 12px;border-radius:8px;background:linear-gradient(90deg,#1a1712,#0d0c0a);border:1px solid #c9aa75;color:#f4e9d2;font:600 12px/1.35 system-ui,-apple-system,sans-serif;letter-spacing:.3px;box-shadow:0 6px 24px rgba(0,0,0,.55),0 0 22px rgba(201,170,117,.35);opacity:0;transform:translateY(6px);transition:opacity .25s,transform .25s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   #vtc-speak-badge.on{opacity:1;transform:translateY(0)}
   #vtc-speak-badge b{color:#c9aa75;font-weight:700}
-  /* Badge de sesión activa en el header del chat */
-  .vw-head .vw-sess{display:none;margin-top:3px;font-size:10.5px;letter-spacing:.3px;color:#8fbf8a}
-  .vw-head .vw-sess.on{display:block}
+  /* Badge de sesión activa en el header del chat — OCULTO */
+  .vw-head .vw-sess{display:none!important;margin-top:3px;font-size:10.5px;letter-spacing:.3px;color:#8fbf8a}
+  .vw-head .vw-sess.on{display:none!important}
   .vw-head .vw-sess .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#57d977;box-shadow:0 0 8px #57d977;margin-right:5px;vertical-align:middle;animation:vtcpulse 2s ease-in-out infinite}
   @media(max-width:780px){#vw-panel{width:360px;height:560px}}
   /* SIDEBAR FIJO EN MÓVIL */
@@ -2160,83 +2161,8 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
   try{ var _langSel=$('vw-lang'); if(_langSel) _langSel.value=vtcDetectLang(); }catch(e){}
   let conv=null,connecting=false,muted=false,started=false; try{history.scrollRestoration='manual';}catch(e){} try{window.scrollTo(0,0);}catch(e){} window.addEventListener('load',function(){try{window.scrollTo(0,0);}catch(e){}});
 
-  /* ═══ AUTENTICACIÓN — Formulario de Login VTC ═══ */
-  window.handleVTCLogin = function() {
-    const nombre = document.getElementById("vtc-nombre").value.trim();
-    const empleadoID = document.getElementById("vtc-empleadoID").value.trim();
-    const departamento = document.getElementById("vtc-departamento").value.trim();
-    const idioma = document.getElementById("vtc-idioma").value || "es";
-
-    // Validar credenciales
-    const usuariosValidos = {
-      "Pablo Solar": "1234567",
-      "Andres Mateos": "12345",
-      "Christian Soria": "123456"
-    };
-
-    if (!nombre || !empleadoID || !departamento) {
-      alert("Por favor completa todos los campos");
-      return;
-    }
-
-    if (!usuariosValidos[nombre] || usuariosValidos[nombre] !== empleadoID) {
-      alert("Credenciales inválidas. Verifica tu nombre y número de empleado.");
-      return;
-    }
-
-    // Guardar sesión localmente
-    try {
-      sessionStorage.setItem('vtc_session', JSON.stringify({
-        name: nombre,
-        employee_id: empleadoID,
-        departamento: departamento,
-        language: idioma,
-        timestamp: Date.now(),
-        expires_at: new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString()
-      }));
-    } catch(e) {}
-
-    // Mostrar badge de sesión activa
-    try { vtcShowSessBadge({name: nombre, employee_id: empleadoID}); } catch(e) {}
-
-    // ✅ ENVIAR VARIABLES DINÁMICAS A VICTOR
-    if (window.elvn_conversation) {
-      window.elvn_conversation.setDynamicVariables({
-        user_name: nombre,
-        employee_number: empleadoID,
-        departamento: departamento,
-        language: idioma,
-        authenticated: "true",
-        session_token: "vtc_" + Date.now()
-      });
-    }
-
-    // Ocultar formulario y mostrar chat
-    const loginForm = document.getElementById("vtc-login-form");
-    const victorPanel = document.getElementById("vw-panel");
-    if (loginForm) loginForm.style.display = "none";
-    if (victorPanel) victorPanel.style.display = "block";
-
-    // ✅ INICIAR CONVERSACIÓN CON VICTOR
-    try {
-      if (window.elvn_conversation) {
-        window.elvn_conversation.startConversation();
-      }
-    } catch(e) {
-      console.error("Error iniciando conversación:", e);
-    }
-  };
-
-  // Cargar sesión existente si está disponible
-  try {
-    var sesionGuardada = vtcGetSession();
-    if (sesionGuardada) {
-      vtcShowSessBadge(sesionGuardada);
-      if (document.getElementById("vtc-login-form")) {
-        document.getElementById("vtc-login-form").style.display = "none";
-      }
-    }
-  } catch(e) {}
+  /* ═══ AUTENTICACIÓN — Completamente manejada por ElevenLabs Workflow ═══ */
+  /* No se requiere JavaScript de autenticación en cliente — el servidor lo maneja */
 
   /* ZONA HORARIA DE CANCÚN (America/Cancun) — obtiene hora real del usuario */
   function vtcGetCancunTime(){
