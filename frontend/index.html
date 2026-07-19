@@ -1939,8 +1939,60 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
   .vw-head .vw-sess.on{display:block}
   .vw-head .vw-sess .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#57d977;box-shadow:0 0 8px #57d977;margin-right:5px;vertical-align:middle;animation:vtcpulse 2s ease-in-out infinite}
   @media(max-width:780px){#vw-panel{width:360px;height:560px}}
-  @media(max-width:480px){#vw-panel{right:8px;left:8px;bottom:8px;width:auto;max-width:none;height:min(60vh,560px);max-height:60vh}#vw-launch{right:14px;bottom:14px}}
-  @media(max-width:480px) and (orientation:landscape){#vw-panel{height:calc(100vh - 16px)}}
+  /* OPTIMIZACIÓN MÓVIL — LOGIN FORM */
+  #vtc-login-form{position:fixed;bottom:20px;right:20px;z-index:999;background:#070708;border:1px solid #2A2824;border-radius:8px;padding:16px;width:300px;font-family:'Inter',sans-serif;}
+  @media(max-width:768px){
+    #vtc-login-form{width:calc(100% - 32px);right:16px;left:16px;bottom:16px;padding:14px;max-width:320px;margin:0 auto;}
+    #vtc-login-form input,#vtc-login-form select{font-size:16px!important;padding:10px 12px!important;}
+  }
+  @media(max-width:480px){
+    #vtc-login-form{width:calc(100% - 20px);right:10px;left:10px;bottom:10px;padding:12px;max-width:none;}
+    #vtc-login-form>div:first-child{margin-bottom:12px;}
+    #vtc-login-form label{font-size:11px!important;}
+    #vtc-login-form input,#vtc-login-form select{font-size:16px!important;padding:10px!important;margin-bottom:8px;}
+    #vtc-login-form button{padding:12px!important;font-size:12px!important;}
+  }
+
+  /* SIDEBAR FIJO EN MÓVIL */
+  @media(max-width:1099px){
+    .course-nav{position:fixed;top:56px;left:0;bottom:0;width:280px;overflow-y:auto;z-index:95;background:var(--ink2);border-right:1px solid var(--faint);}
+    body{overflow-y:auto;}
+  }
+
+  /* MÓDULOS FIJOS EN MÓVIL — SIN CORTES */
+  .module-section{padding:4rem 1.5rem!important;}
+  .module-inner{max-width:100%;padding:0 1rem;}
+  .module-title{font-size:clamp(1.8rem,5vw,2.8rem)!important;}
+
+  @media(max-width:768px){
+    .module-section{padding:3rem 1rem!important;}
+    .module-inner{padding:0 0.75rem;}
+    .module-title{font-size:1.8rem!important;}
+    .hero h1{font-size:clamp(1.8rem,4vw,2.5rem)!important;}
+  }
+
+  @media(max-width:480px){
+    .module-section{padding:2rem 0.75rem!important;border-bottom:1px solid var(--faint);}
+    .module-inner{padding:0 0.5rem;}
+    .module-title{font-size:1.5rem!important;margin-bottom:0.75rem!important;}
+    .hero h1{font-size:clamp(1.5rem,4vw,2rem)!important;}
+    .hero{padding:3rem 1rem 2rem!important;}
+    .section-title{font-size:1.5rem!important;}
+    .block-text,.pnl-text,.script-text{font-size:0.88rem!important;}
+    .content-block{margin:1.5rem 0!important;}
+  }
+
+  /* WIDGET VÍCTOR RESPONSIVE */
+  @media(max-width:780px){#vw-panel{width:360px;height:560px;bottom:70px;right:10px}}
+  @media(max-width:600px){#vw-panel{width:calc(100% - 20px);height:calc(100vh - 100px);right:10px;left:10px;bottom:70px;max-width:none;border-radius:12px}}
+  @media(max-width:480px){
+    #vw-panel{width:calc(100% - 16px);height:calc(100vh - 80px);right:8px;left:8px;bottom:8px;border-radius:8px;position:fixed;z-index:997}
+    #vw-launch{right:12px;bottom:12px;z-index:998}
+    .vw-head{padding:12px;height:auto}
+    .vw-foot{padding:10px;gap:8px}
+    #vw-in{font-size:14px;padding:10px 14px}
+  }
+  @media(max-width:480px) and (orientation:landscape){#vw-panel{height:calc(100vh - 50px)}}
 </style>
 
 <div id="vtc-speak-badge"><span id="vtc-speak-txt"></span></div>
