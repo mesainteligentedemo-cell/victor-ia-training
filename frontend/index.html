@@ -1939,20 +1939,6 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
   .vw-head .vw-sess.on{display:block}
   .vw-head .vw-sess .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#57d977;box-shadow:0 0 8px #57d977;margin-right:5px;vertical-align:middle;animation:vtcpulse 2s ease-in-out infinite}
   @media(max-width:780px){#vw-panel{width:360px;height:560px}}
-  /* OPTIMIZACIÓN MÓVIL — LOGIN FORM */
-  #vtc-login-form{position:fixed;bottom:20px;right:20px;z-index:999;background:#070708;border:1px solid #2A2824;border-radius:8px;padding:16px;width:300px;font-family:'Inter',sans-serif;}
-  @media(max-width:768px){
-    #vtc-login-form{width:calc(100% - 32px);right:16px;left:16px;bottom:16px;padding:14px;max-width:320px;margin:0 auto;}
-    #vtc-login-form input,#vtc-login-form select{font-size:16px!important;padding:10px 12px!important;}
-  }
-  @media(max-width:480px){
-    #vtc-login-form{width:calc(100% - 20px);right:10px;left:10px;bottom:10px;padding:12px;max-width:none;}
-    #vtc-login-form>div:first-child{margin-bottom:12px;}
-    #vtc-login-form label{font-size:11px!important;}
-    #vtc-login-form input,#vtc-login-form select{font-size:16px!important;padding:10px!important;margin-bottom:8px;}
-    #vtc-login-form button{padding:12px!important;font-size:12px!important;}
-  }
-
   /* SIDEBAR FIJO EN MÓVIL */
   @media(max-width:1099px){
     .course-nav{position:fixed;top:56px;left:0;bottom:0;width:280px;overflow-y:auto;z-index:95;background:var(--ink2);border-right:1px solid var(--faint);}
@@ -1997,31 +1983,6 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
 
 <div id="vtc-speak-badge"><span id="vtc-speak-txt"></span></div>
 <div id="vw-launch" title="Habla con Victor"><span class="vw-pulse"></span><span class="vw-v" aria-label="Victor">V</span></div>
-
-<!-- ════════ FORMULARIO DE LOGIN VTC ════════ -->
-<div id="vtc-login-form" style="position:fixed;bottom:20px;right:20px;z-index:999;background:#070708;border:1px solid #2A2824;border-radius:8px;padding:20px;width:320px;box-shadow:0 4px 20px rgba(0,0,0,.5);font-family:'Inter',sans-serif;">
-  <div style="margin-bottom:20px;">
-    <div style="font-size:14px;color:#EAE6DF;font-weight:500;margin-bottom:4px;">Bienvenido a VTC</div>
-    <div style="font-size:12px;color:#706C66;">Verifica tu acceso para comenzar</div>
-  </div>
-
-  <div style="margin-bottom:12px;">
-    <label style="display:block;font-size:12px;color:#B89A6A;margin-bottom:4px;letter-spacing:0.08em;text-transform:uppercase;">Nombre Completo</label>
-    <input type="text" id="vtc-nombre" placeholder="Pablo Solar" style="width:100%;padding:8px 10px;background:#0F0F12;border:1px solid #2A2824;border-radius:4px;color:#EAE6DF;font-size:13px;box-sizing:border-box;">
-  </div>
-
-  <div style="margin-bottom:12px;">
-    <label style="display:block;font-size:12px;color:#B89A6A;margin-bottom:4px;letter-spacing:0.08em;text-transform:uppercase;">ID de Empleado</label>
-    <input type="text" id="vtc-empleadoID" placeholder="1234567" style="width:100%;padding:8px 10px;background:#0F0F12;border:1px solid #2A2824;border-radius:4px;color:#EAE6DF;font-size:13px;box-sizing:border-box;">
-  </div>
-
-  <div style="margin-bottom:12px;">
-    <label style="display:block;font-size:12px;color:#B89A6A;margin-bottom:4px;letter-spacing:0.08em;text-transform:uppercase;">Departamento</label>
-    <input type="text" id="vtc-departamento" placeholder="Dirección" style="width:100%;padding:8px 10px;background:#0F0F12;border:1px solid #2A2824;border-radius:4px;color:#EAE6DF;font-size:13px;box-sizing:border-box;">
-  </div>
-
-  <button onclick="handleVTCLogin()" style="width:100%;padding:10px;background:#B89A6A;color:#070708;border:none;border-radius:4px;font-weight:500;font-size:13px;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;transition:0.2s;">Iniciar Sesión</button>
-</div>
 
 <div id="vw-panel" data-no-i18n" style="display:none;">
   <div class="vw-head">
