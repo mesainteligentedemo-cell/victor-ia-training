@@ -2826,7 +2826,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       const _vr=await fetch('/api/verify-employee',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:name,employee_id:emp,department:dep})});
       let _vd={}; try{_vd=await _vr.json();}catch(e){}
       if(!_vr.ok || !_vd.authorized){
-        err.textContent=(_vd&&_vd.message)?_vd.message:'Acceso denegado. Usuario no autorizado.';
+        err.textContent='Disculpa, no pude verificar tu identidad. Por favor, completa el formulario de login nuevamente o contacta al administrador si necesitas ayuda. info@victor-ia.com.mx';
         cta.disabled=false; cta.textContent='Comenzar capacitación';
         return;
       }
@@ -2978,7 +2978,7 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
       const _vr=await fetch('/api/verify-employee',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:name,employee_id:emp,department:dep})});
       let _vd={}; try{_vd=await _vr.json();}catch(e){}
       if(!_vr.ok || !_vd.authorized){
-        err.textContent=(_vd&&_vd.message)?_vd.message:'Access denied. User not authorized.';
+        err.textContent='Sorry, I couldn\'t verify your identity. Please complete the login form again or contact the administrator if you need help. info@victor-ia.com.mx';
         cta.disabled=false; cta.textContent='Start Training';
         return;
       }
