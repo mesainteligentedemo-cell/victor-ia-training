@@ -6,6 +6,10 @@
   "ignoreCommand": "exit 1",
   "rewrites": [
     {
+      "source": "/player",
+      "destination": "/api/player"
+    },
+    {
       "source": "/((?!api/).*)",
       "destination": "/index.html"
     }
