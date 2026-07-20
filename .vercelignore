@@ -8,3 +8,4 @@ backend/
 *.md
 *.txt
 !frontend/**
+!api/**
