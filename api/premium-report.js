@@ -1,5 +1,6 @@
 // POST /api/premium-report
-// Reporte VTC profesional: genera email + PDF opcional
+// Reporte VTC profesional: genera email automático con Dark Mode
+// Endpoint activo: victor-ia-training.vercel.app/api/premium-report
 
 import nodemailer from 'nodemailer';
 
