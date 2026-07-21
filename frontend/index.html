@@ -1969,17 +1969,17 @@ body.drawer-open .cn-backdrop{opacity:1;pointer-events:auto;}
     .content-block{margin:1.5rem 0!important;}
   }
 
-  /* WIDGET VÍCTOR RESPONSIVE */
-  @media(max-width:780px){#vw-panel{width:360px;height:560px;bottom:70px;right:10px}}
-  @media(max-width:600px){#vw-panel{width:calc(100% - 20px);height:calc(100vh - 100px);right:10px;left:10px;bottom:70px;max-width:none;border-radius:12px}}
+  /* WIDGET VÍCTOR RESPONSIVE — bottom-sheet, NO fullscreen: franja superior (nav + módulos) siempre clickeable */
+  @media(max-width:780px){#vw-panel{width:360px;height:min(560px,62vh);bottom:70px;right:10px}}
+  @media(max-width:600px){#vw-panel{width:calc(100% - 20px);height:60vh;max-height:60vh;right:10px;left:10px;bottom:70px;max-width:none;border-radius:14px 14px 12px 12px}}
   @media(max-width:480px){
-    #vw-panel{width:calc(100% - 16px);height:calc(100vh - 80px);right:8px;left:8px;bottom:8px;border-radius:8px;position:fixed;z-index:997}
+    #vw-panel{width:calc(100% - 16px);height:58vh;max-height:58vh;right:8px;left:8px;bottom:70px;border-radius:14px 14px 12px 12px;position:fixed;z-index:997}
     #vw-launch{right:12px;bottom:12px;z-index:998}
     .vw-head{padding:12px;height:auto}
     .vw-foot{padding:10px;gap:8px}
     #vw-in{font-size:14px;padding:10px 14px}
   }
-  @media(max-width:480px) and (orientation:landscape){#vw-panel{height:calc(100vh - 50px)}}
+  @media(max-width:480px) and (orientation:landscape){#vw-panel{height:78vh;max-height:78vh}}
 </style>
 
 <div id="vtc-speak-badge"><span id="vtc-speak-txt"></span></div>
